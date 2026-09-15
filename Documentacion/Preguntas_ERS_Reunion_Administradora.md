@@ -6,7 +6,7 @@ Un aviso antes de las preguntas: el ejemplo RF-01 de la plantilla ("registrar le
 
 ## Lo que ya se puede llenar sin nueva reunión
 
-Varias secciones del ERS se pueden completar directamente adaptando el Documento de Visión y las notas de la entrevista del 2 de septiembre, sin necesitar más información de la administradora: 1.1 Propósito, 1.2 Alcance del producto, 2.1 Perspectiva del producto, 2.2 Funciones principales (a partir de las tres capacidades de la sección 4.2 de la Visión), 2.4 Restricciones, y buena parte de 3.2 Requerimientos no funcionales (usabilidad, confiabilidad, desempeño y soportabilidad ya están descritos en la sección 6 de la Visión, solo falta convertirlos en criterios de aceptación verificables). Vale la pena resolver eso primero para que la reunión se enfoque solo en lo que realmente hace falta.
+Varias secciones del ERS se pueden completar directamente adaptando el Documento de Visión y las notas de la entrevista del 28 de agosto, sin necesitar más información de la administradora: 1.1 Propósito, 1.2 Alcance del producto, 2.1 Perspectiva del producto, 2.2 Funciones principales (a partir de las tres capacidades de la sección 4.2 de la Visión), 2.4 Restricciones, y buena parte de 3.2 Requerimientos no funcionales (usabilidad, confiabilidad, desempeño y soportabilidad ya están descritos en la sección 6 de la Visión, solo falta convertirlos en criterios de aceptación verificables). Vale la pena resolver eso primero para que la reunión se enfoque solo en lo que realmente hace falta.
 
 ## Preguntas para la reunión, organizadas por tema
 
