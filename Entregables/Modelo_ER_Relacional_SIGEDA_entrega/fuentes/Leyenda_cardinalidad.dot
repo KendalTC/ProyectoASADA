@@ -1,0 +1,4 @@
+digraph G { graph[dpi=220, pad=0.05, rankdir=LR, nodesep=0.12, ranksep=0.9]; node[fontname="Carlito", fontsize=9, shape=plain];
+a1[label="X"]; b1[label="1"]; a2[label="X"]; b2[label="0..1"]; a3[label="X"]; b3[label="0..*"]; a4[label="X"]; b4[label="1..*"];
+b1 -> a1 [arrowhead="teetee", arrowtail=none, dir=both]; b2 -> a2 [arrowhead="teeodot", dir=both, arrowtail=none]; b3 -> a3 [arrowhead="crowodot", dir=both, arrowtail=none]; b4 -> a4 [arrowhead="crowtee", dir=both, arrowtail=none];
+}

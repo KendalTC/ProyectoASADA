@@ -1,0 +1,2 @@
+digraph G { graph[dpi=220, pad=0.05]; node[fontname="Carlito", fontsize=11, shape=plain];
+ e [label=<fecha_baja <FONT POINT-SIZE="8">(0..1)</FONT>>]; }

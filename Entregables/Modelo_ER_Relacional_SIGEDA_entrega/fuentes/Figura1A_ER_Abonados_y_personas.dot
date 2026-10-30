@@ -1,0 +1,16 @@
+digraph G {
+  graph [rankdir=TB, nodesep=0.6, ranksep=0.6, fontname="Carlito", splines=true, pad=0.15, dpi=220];
+  node [fontname="Carlito", fontsize=11];
+  edge [fontname="Carlito", fontsize=10];
+
+  Sector [shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1" COLOR="#0B2140" BGCOLOR="#F7F9FC"><TR><TD BGCOLOR="#0B2140" CELLPADDING="4"><FONT COLOR="white"><B>Sector</B></FONT></TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2"><U>nombre</U></TD></TR></TABLE>>];
+  Abonado [shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1" COLOR="#0B2140" BGCOLOR="#F7F9FC"><TR><TD BGCOLOR="#0B2140" CELLPADDING="4"><FONT COLOR="white"><B>Abonado</B></FONT></TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2"><U>numero_paja</U></TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">tipo_abonado</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">estado</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">fecha_baja <FONT POINT-SIZE="8">(0..1)</FONT></TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2"><I>/titular_vigente</I></TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2"><I>/estado_completitud</I></TD></TR></TABLE>>];
+  Persona [shape=plain, label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1" COLOR="#0B2140" BGCOLOR="#F7F9FC"><TR><TD BGCOLOR="#0B2140" CELLPADDING="4"><FONT COLOR="white"><B>Persona</B></FONT></TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2"><U>id_persona</U></TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">nombre</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">identificacion <FONT POINT-SIZE="8">[tipo + número]</FONT> <FONT POINT-SIZE="8">(0..1)</FONT></TD></TR></TABLE>>];
+  Sector -> Abonado [dir=both, arrowtail="teeodot", arrowhead="crowodot", label=<<I>ubica_en</I>>, penwidth=1.2, fontsize=10, color="#34495E"];
+  vinculo [shape=diamond, style=filled, fillcolor="#DCE3ED", color="#0B2140", fontsize=10, label=<<I>se_vincula_con</I>>, width=1.5, height=0.9];
+  vinculo_attrs [shape=plain, label=<<TABLE BORDER="1" STYLE="ROUNDED" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1" COLOR="#7F8C9A" BGCOLOR="white"><TR><TD ALIGN="LEFT" CELLPADDING="2">rol</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">fecha_inicio</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">fecha_fin <FONT POINT-SIZE="8">(0..1)</FONT></TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2"><I>/es_vigente</I></TD></TR></TABLE>>];
+  Abonado -> vinculo [dir=both, arrowtail="crowtee", arrowhead="none", color="#34495E", penwidth=1.2];
+  vinculo -> Persona [dir=both, arrowtail="none", arrowhead="crowtee", color="#34495E", penwidth=1.2];
+  vinculo -> vinculo_attrs [arrowhead=none, style=dashed, color="#7F8C9A"];
+  { rank=same; vinculo; vinculo_attrs }
+}

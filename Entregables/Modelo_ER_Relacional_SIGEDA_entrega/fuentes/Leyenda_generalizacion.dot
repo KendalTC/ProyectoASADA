@@ -1,0 +1,3 @@
+digraph G { graph[dpi=220, pad=0.05, rankdir=BT, nodesep=0.4, ranksep=0.45]; node[fontname="Carlito", fontsize=10, shape=box, style=filled, fillcolor="#F7F9FC", color="#0B2140"];
+Supertipo; Subtipo1; Subtipo2; Subtipo1 -> Supertipo [arrowhead=onormal, arrowsize=1.3]; Subtipo2 -> Supertipo [arrowhead=onormal, arrowsize=1.3];
+}

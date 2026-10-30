@@ -1,0 +1,4 @@
+digraph G { graph[dpi=220, pad=0.05, rankdir=LR, nodesep=0.3, ranksep=0.4]; node[fontname="Carlito", fontsize=10];
+A[shape=box, style=filled, fillcolor="#F7F9FC", color="#0B2140"]; B[shape=box, style=filled, fillcolor="#F7F9FC", color="#0B2140"];
+r[shape=diamond, style=filled, fillcolor="#DCE3ED", color="#0B2140", label=<<I>vincula</I>>]; A -> r [dir=both, arrowtail="crowtee", arrowhead=none]; r -> B [dir=both, arrowtail=none, arrowhead="crowtee"];
+}
