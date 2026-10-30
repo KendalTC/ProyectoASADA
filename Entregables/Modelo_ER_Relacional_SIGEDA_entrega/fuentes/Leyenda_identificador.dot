@@ -1,2 +1,0 @@
-digraph G { graph[dpi=220, pad=0.05]; node[fontname="Carlito", fontsize=11, shape=plain];
- e [label=<<U>numero_paja</U>>]; }

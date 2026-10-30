@@ -1,3 +1,0 @@
-digraph G { graph[dpi=220, pad=0.05, rankdir=LR, nodesep=0.3, ranksep=1.0]; node[fontname="Carlito", fontsize=11, shape=box, style=filled, fillcolor="#F7F9FC", color="#0B2140"];
-A; B; A -> B [dir=both, arrowtail="teetee", arrowhead="crowodot", label=<<I>nombre</I>>, fontname="Carlito", fontsize=10, color="#34495E"];
-}
