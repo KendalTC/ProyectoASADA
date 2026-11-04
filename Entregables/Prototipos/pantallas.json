@@ -1,0 +1,461 @@
+{
+ "INVENTARIO": [
+  {
+   "id": "PAN-01",
+   "nombre": "Inicio de sesión",
+   "clase": "PantallaInicioSesion"
+  },
+  {
+   "id": "PAN-02",
+   "nombre": "Menú principal (Inicio)",
+   "clase": "— (marco de navegación)"
+  },
+  {
+   "id": "PAN-03",
+   "nombre": "Buscar expediente",
+   "clase": "PantallaBusquedaExpedientes"
+  },
+  {
+   "id": "PAN-04",
+   "nombre": "Detalle del expediente",
+   "clase": "PantallaExpediente"
+  },
+  {
+   "id": "PAN-05",
+   "nombre": "Cargar documento",
+   "clase": "PantallaCargaDocumento"
+  },
+  {
+   "id": "PAN-06",
+   "nombre": "Registrar o modificar abonado y personas",
+   "clase": "PantallaExpediente (modo edición)"
+  },
+  {
+   "id": "PAN-07",
+   "nombre": "Panel de completitud",
+   "clase": "PantallaCompletitud"
+  },
+  {
+   "id": "PAN-08",
+   "nombre": "Respaldo y restauración",
+   "clase": "PantallaRespaldos"
+  },
+  {
+   "id": "PAN-09",
+   "nombre": "Importar datos de SADA",
+   "clase": "PantallaImportacion"
+  },
+  {
+   "id": "PAN-10",
+   "nombre": "Tipos de documento",
+   "clase": "PantallaTiposDocumento"
+  },
+  {
+   "id": "PAN-11",
+   "nombre": "Bitácora",
+   "clase": "PantallaBitacora"
+  },
+  {
+   "id": "PAN-12",
+   "nombre": "Exportar documentos",
+   "clase": "PantallaExportacion"
+  },
+  {
+   "id": "PAN-13",
+   "nombre": "Historial de versiones",
+   "clase": "PantallaHistorialVersiones"
+  },
+  {
+   "id": "PAN-14",
+   "nombre": "Mi cuenta",
+   "clase": "PantallaGestionCuenta"
+  },
+  {
+   "id": "PAN-15",
+   "nombre": "Revisar posibles duplicados",
+   "clase": "PantallaDuplicados (propuesta, Anexo B)"
+  }
+ ],
+ "STATES": {
+  "PAN-01": [
+   "inicial",
+   "error",
+   "bloqueada",
+   "temporal"
+  ],
+  "PAN-02": [
+   "inicial",
+   "aviso"
+  ],
+  "PAN-03": [
+   "inicial",
+   "exito",
+   "sin-resultados",
+   "error",
+   "cargando",
+   "mas-de-50",
+   "documentos"
+  ],
+  "PAN-04": [
+   "exito",
+   "vacio",
+   "error",
+   "cargando",
+   "cargado",
+   "anulados"
+  ],
+  "PAN-05": [
+   "inicial",
+   "seleccionado",
+   "error",
+   "cargando",
+   "exito",
+   "version"
+  ],
+  "PAN-06": [
+   "nuevo",
+   "modificar",
+   "error",
+   "cargando",
+   "exito",
+   "importado"
+  ],
+  "PAN-07": [
+   "exito",
+   "vacio",
+   "sin-resultados",
+   "cargando",
+   "detalle"
+  ],
+  "PAN-08": [
+   "exito",
+   "vacio",
+   "error",
+   "pendiente",
+   "cargando",
+   "hecho"
+  ],
+  "PAN-09": [
+   "inicial",
+   "vista-previa",
+   "error",
+   "cargando",
+   "exito"
+  ],
+  "PAN-10": [
+   "inicial",
+   "error",
+   "exito"
+  ],
+  "PAN-11": [
+   "inicial",
+   "sin-resultados",
+   "detalle"
+  ],
+  "PAN-12": [
+   "inicial",
+   "error",
+   "exito"
+  ],
+  "PAN-13": [
+   "inicial"
+  ],
+  "PAN-14": [
+   "inicial",
+   "error",
+   "temporal"
+  ],
+  "PAN-15": [
+   "inicial",
+   "vacio",
+   "exito"
+  ]
+ },
+ "NAV": [
+  [
+   "PAN-01",
+   "PAN-02",
+   "Ingresar"
+  ],
+  [
+   "PAN-01",
+   "PAN-01",
+   "Contraseña temporal → cambiarla"
+  ],
+  [
+   "*",
+   "PAN-02",
+   "Inicio"
+  ],
+  [
+   "*",
+   "PAN-03",
+   "Buscar expediente"
+  ],
+  [
+   "*",
+   "PAN-06",
+   "Nuevo abonado"
+  ],
+  [
+   "*",
+   "PAN-07",
+   "Completitud"
+  ],
+  [
+   "*",
+   "PAN-09",
+   "Importar SADA"
+  ],
+  [
+   "*",
+   "PAN-15",
+   "Posibles duplicados"
+  ],
+  [
+   "*",
+   "PAN-10",
+   "Tipos de documento"
+  ],
+  [
+   "*",
+   "PAN-11",
+   "Bitácora"
+  ],
+  [
+   "*",
+   "PAN-08",
+   "Respaldos"
+  ],
+  [
+   "*",
+   "PAN-14",
+   "Mi cuenta"
+  ],
+  [
+   "*",
+   "PAN-01",
+   "Cerrar sesión"
+  ],
+  [
+   "PAN-02",
+   "PAN-08",
+   "Aviso de respaldo → Ir a respaldos"
+  ],
+  [
+   "PAN-02",
+   "PAN-07",
+   "Ver avance de digitalización"
+  ],
+  [
+   "PAN-02",
+   "PAN-05",
+   "Cargar documento"
+  ],
+  [
+   "PAN-02",
+   "PAN-04",
+   "Últimos expedientes → Abrir"
+  ],
+  [
+   "PAN-03",
+   "PAN-04",
+   "Abrir expediente"
+  ],
+  [
+   "PAN-03",
+   "PAN-06",
+   "Registrar abonado (sin resultados)"
+  ],
+  [
+   "PAN-04",
+   "PAN-05",
+   "Cargar documento / Nueva versión"
+  ],
+  [
+   "PAN-04",
+   "PAN-13",
+   "Ver versiones"
+  ],
+  [
+   "PAN-04",
+   "PAN-06",
+   "Modificar abonado / Cambiar titular"
+  ],
+  [
+   "PAN-04",
+   "PAN-12",
+   "Exportar"
+  ],
+  [
+   "PAN-04",
+   "PAN-07",
+   "Ver qué falta"
+  ],
+  [
+   "PAN-04",
+   "D-01",
+   "Anular"
+  ],
+  [
+   "D-01",
+   "PAN-04",
+   "Anular (confirmado)"
+  ],
+  [
+   "PAN-04",
+   "D-02",
+   "Editar datos"
+  ],
+  [
+   "D-02",
+   "PAN-04",
+   "Guardar"
+  ],
+  [
+   "PAN-04",
+   "D-03",
+   "Dar de baja / Reactivar"
+  ],
+  [
+   "D-03",
+   "PAN-04",
+   "Confirmar"
+  ],
+  [
+   "PAN-05",
+   "PAN-04",
+   "Guardar / Cancelar"
+  ],
+  [
+   "PAN-05",
+   "D-07",
+   "Cancelar con datos escritos"
+  ],
+  [
+   "D-07",
+   "PAN-04",
+   "Salir sin guardar"
+  ],
+  [
+   "PAN-06",
+   "PAN-04",
+   "Guardar"
+  ],
+  [
+   "PAN-06",
+   "D-04",
+   "Cambiar titular"
+  ],
+  [
+   "D-04",
+   "PAN-04",
+   "Confirmar cambio"
+  ],
+  [
+   "PAN-06",
+   "PAN-05",
+   "Cargar documentos (tras registrar)"
+  ],
+  [
+   "PAN-07",
+   "PAN-05",
+   "Cargar lo que falta"
+  ],
+  [
+   "PAN-07",
+   "PAN-04",
+   "Abrir expediente"
+  ],
+  [
+   "PAN-07",
+   "PAN-06",
+   "Asignar tipo (tipo pendiente)"
+  ],
+  [
+   "PAN-08",
+   "D-05",
+   "Restaurar…"
+  ],
+  [
+   "D-05",
+   "PAN-08",
+   "Restaurar (confirmado)"
+  ],
+  [
+   "PAN-09",
+   "PAN-15",
+   "Revisar posibles duplicados"
+  ],
+  [
+   "PAN-09",
+   "PAN-07",
+   "Ver abonados con tipo pendiente"
+  ],
+  [
+   "PAN-15",
+   "D-06",
+   "Fusionar"
+  ],
+  [
+   "D-06",
+   "PAN-15",
+   "Fusionar (confirmado)"
+  ],
+  [
+   "PAN-15",
+   "PAN-04",
+   "Abrir expediente"
+  ],
+  [
+   "PAN-11",
+   "PAN-04",
+   "Abrir expediente"
+  ],
+  [
+   "PAN-12",
+   "PAN-04",
+   "Exportar / Volver"
+  ],
+  [
+   "PAN-13",
+   "PAN-04",
+   "Volver al expediente"
+  ],
+  [
+   "PAN-13",
+   "PAN-05",
+   "Cargar nueva versión"
+  ],
+  [
+   "*",
+   "D-08",
+   "15 min sin actividad"
+  ],
+  [
+   "D-08",
+   "PAN-01",
+   "Sesión cerrada"
+  ]
+ ],
+ "DIALOGOS": {
+  "D-01": "Anular documento",
+  "D-02": "Editar datos del documento",
+  "D-03": "Dar de baja o reactivar abonado",
+  "D-04": "Cambiar titular",
+  "D-05": "Confirmar restauración",
+  "D-06": "Fusionar personas",
+  "D-07": "Salir sin guardar",
+  "D-08": "Sesión por cerrarse"
+ },
+ "DLG_HOST": {
+  "D-01": "PAN-04",
+  "D-02": "PAN-04",
+  "D-03": "PAN-04",
+  "D-04": "PAN-06?estado=modificar",
+  "D-05": "PAN-08",
+  "D-06": "PAN-15",
+  "D-07": "PAN-05?estado=seleccionado",
+  "D-08": "PAN-03?estado=exito"
+ }
+}
