@@ -178,9 +178,9 @@ set_par(par_with("[COMPLETAR]"), ALTA)      # 7.8 (siguiente [COMPLETAR] suelto)
 
 # ---------------- 8 ----------------
 fill(T[55], VERTICAL)
-placeholder_text(T[56], "PENDIENTE: capturas del prototipo vertical funcionando (pantalla y resultado en la base de datos), cuando el equipo las entregue.")
+img_par_replacing(T[56], "/home/claude/doc/vertical_fig.png", max_w=6.5)
 fill(T[57], PRUEBAS)
-set_par(par_with("[COMPLETAR]"), "PENDIENTE: se completa cuando el equipo construya el Incremento 1 (decisiones del DAS confirmadas o cambiadas).")
+set_par(par_with("[COMPLETAR]"), APRENDIZAJES)
 
 # ---------------- 9 ----------------
 fill(T[58], PLAN_SESION)
@@ -207,11 +207,12 @@ model = par_with("Kendall, K. E.")
 def ref_par(text, before):
     newp = copy.deepcopy(model._p); before._p.addprevious(newp)
     p = docx.text.paragraph.Paragraph(newp, model._parent); clear_par(p)
-    m = _re.match(r"^(.*?\(2026[a-e]?\)\. )(.*?)( \[Documento no publicado\].*)$", text)
+    m = _re.match(r"^(.*?\((?:2026[a-e]?|s\.f\.)\)\. )(.*?)( \(versión.*| \[.*)$", text)
     mkrun(p, m.group(1), 21); mkrun(p, m.group(2), 21, italic=True); mkrun(p, m.group(3), 21)
-for txt in REFS_EXTRA[:5]:
+for txt in REFS_EXTRA[:6]:
     ref_par(txt, model)
-ref_par(REFS_EXTRA[5], par_with("Nielsen, J. (1993)"))
+for txt in REFS_EXTRA[6:]:
+    ref_par(txt, par_with("Nielsen, J. (1993)"))
 
 # ---------------- Anexos ----------------
 fill(T[68], ANEXO_A)
@@ -251,6 +252,46 @@ for t in d.tables:
                     col = rp.find(qn('w:color')) if rp is not None else None
                     if r.italic and col is not None and col.get(qn('w:val')) == "595959":
                         r.italic = False; col.set(qn('w:val'), "000000")
+
+
+# ---------------- Sin bocetos (indicación del docente, v0.3) ----------------
+import re as _re2
+body = d.element.body
+h6 = [p for p in d.paragraphs if p.style.name.startswith('Heading 1') and p.text.startswith('6. Prototipos de baja fidelidad')][0]
+el = h6._p
+while True:
+    nxt = el.getnext()
+    body.remove(el)
+    if nxt is None: break
+    if nxt.tag == qn('w:p'):
+        tp = docx.text.paragraph.Paragraph(nxt, h6._parent)
+        if tp.style.name.startswith('Heading 1') and tp.text.startswith('7. Prototipo navegable'):
+            break
+    el = nxt
+def _set_text(p, txt):
+    runs = p.runs
+    runs[0].text = txt
+    for r in runs[1:]: r.text = ''
+for p in d.paragraphs:
+    if p.style.name.startswith('Heading'):
+        m = _re2.match(r'^(\d+)((?:\.\d+)?)(\.?\s.*)$', p.text)
+        if m and 7 <= int(m.group(1)) <= 14:
+            _set_text(p, f"{int(m.group(1))-1}{m.group(2)}{m.group(3)}")
+    m = _re2.match(r'^Figura (\d+)\.(.*)$', p.text)
+    if m and int(m.group(1)) >= 5:
+        _set_text(p, f"Figura {int(m.group(1))-3}.{m.group(2)}")
+    if '(sección 9.3)' in p.text:
+        for r in p.runs: r.text = r.text.replace('(sección 9.3)', '(sección 8.3)')
+    if p.text.startswith('Snyder, C. (2003)'):
+        p._p.getparent().remove(p._p)
+alc = [t for t in d.tables if t.rows[0].cells[0].text.strip() == 'Nivel'][0]
+for row in list(alc.rows):
+    if row.cells[0].text.strip() == 'Bocetos en papel':
+        alc._tbl.remove(row._tr)
+for row in alc.rows[1:]:
+    c = row.cells[4]; v = c.text.strip()
+    nv = {'4 y 7': '4 y 6', '8': '7', '7.8': '6.8'}.get(v)
+    if nv: _set_text(c.paragraphs[0], nv)
 
 # Actualizar campos (tabla de contenido) al abrir en Word
 st = d.settings.element

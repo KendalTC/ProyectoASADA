@@ -6,7 +6,7 @@ SHORT={"Aviso de respaldo → Ir a respaldos":"Aviso respaldo","Ver avance de di
 "Abrir expediente":"Abrir","Registrar abonado (sin resultados)":"Registrar","Cargar documento / Nueva versión":"Cargar / Nueva versión","Ver versiones":"Versiones",
 "Modificar abonado / Cambiar titular":"Modificar","Ver qué falta":"Qué falta","Anular (confirmado)":"Anular","Dar de baja / Reactivar":"Baja / Reactivar","Confirmar":"Confirmar",
 "Guardar / Cancelar":"Guardar / Cancelar","Cancelar con datos escritos":"Cancelar","Salir sin guardar":"Salir","Confirmar cambio":"Confirmar","Cargar documentos (tras registrar)":"Cargar docs.",
-"Cargar lo que falta":"Cargar faltante","Asignar tipo (tipo pendiente)":"Asignar tipo","Restaurar…":"Restaurar","Restaurar (confirmado)":"Restaurar","Revisar posibles duplicados":"Duplicados",
+"Cargar lo que falta":"Cargar faltante","Asignar tipo (tipo pendiente)":"Asignar tipo","Restaurar…":"Restaurar","Restaurar (confirmado)":"Restaurar","Agregar o buscar persona":"Agregar persona","Agregar":"Agregar","Cancelar con archivos elegidos":"Cancelar",
 "Ver abonados con tipo pendiente":"Tipo pendiente","Fusionar (confirmado)":"Unir","Fusionar":"Unir","Exportar / Volver":"Exportar / Volver","Volver al expediente":"Volver","Cargar nueva versión":"Nueva versión",
 "Sesión cerrada":"Cierra sesión","Ingresar":"Ingresar"}
 L=['digraph G {','graph [rankdir=LR, fontname="Arial", nodesep=0.15, ranksep=0.35, pad=0.15, newrank=true];',

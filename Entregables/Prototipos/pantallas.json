@@ -69,11 +69,6 @@
    "id": "PAN-14",
    "nombre": "Mi cuenta",
    "clase": "PantallaGestionCuenta"
-  },
-  {
-   "id": "PAN-15",
-   "nombre": "Revisar posibles duplicados",
-   "clase": "PantallaDuplicados (propuesta, Anexo B)"
   }
  ],
  "STATES": {
@@ -116,6 +111,7 @@
    "nuevo",
    "modificar",
    "error",
+   "persona-existente",
    "cargando",
    "exito",
    "importado"
@@ -133,7 +129,10 @@
    "error",
    "pendiente",
    "cargando",
-   "hecho"
+   "hecho",
+   "onedrive",
+   "prueba",
+   "cuarentena"
   ],
   "PAN-09": [
    "inicial",
@@ -158,17 +157,13 @@
    "exito"
   ],
   "PAN-13": [
-   "inicial"
+   "inicial",
+   "v1"
   ],
   "PAN-14": [
    "inicial",
    "error",
    "temporal"
-  ],
-  "PAN-15": [
-   "inicial",
-   "vacio",
-   "exito"
   ]
  },
  "NAV": [
@@ -206,11 +201,6 @@
    "*",
    "PAN-09",
    "Importar SADA"
-  ],
-  [
-   "*",
-   "PAN-15",
-   "Posibles duplicados"
   ],
   [
    "*",
@@ -330,7 +320,7 @@
   [
    "PAN-05",
    "D-07",
-   "Cancelar con datos escritos"
+   "Cancelar con archivos elegidos"
   ],
   [
    "D-07",
@@ -351,6 +341,16 @@
    "D-04",
    "PAN-04",
    "Confirmar cambio"
+  ],
+  [
+   "PAN-06",
+   "D-06",
+   "Agregar o buscar persona"
+  ],
+  [
+   "D-06",
+   "PAN-06",
+   "Agregar"
   ],
   [
    "PAN-06",
@@ -384,28 +384,8 @@
   ],
   [
    "PAN-09",
-   "PAN-15",
-   "Revisar posibles duplicados"
-  ],
-  [
-   "PAN-09",
    "PAN-07",
    "Ver abonados con tipo pendiente"
-  ],
-  [
-   "PAN-15",
-   "D-06",
-   "Fusionar"
-  ],
-  [
-   "D-06",
-   "PAN-15",
-   "Fusionar (confirmado)"
-  ],
-  [
-   "PAN-15",
-   "PAN-04",
-   "Abrir expediente"
   ],
   [
    "PAN-11",
@@ -444,7 +424,7 @@
   "D-03": "Dar de baja o reactivar abonado",
   "D-04": "Cambiar titular",
   "D-05": "Confirmar restauración",
-  "D-06": "Fusionar personas",
+  "D-06": "Agregar persona asociada",
   "D-07": "Salir sin guardar",
   "D-08": "Sesión por cerrarse"
  },
@@ -454,7 +434,7 @@
   "D-03": "PAN-04",
   "D-04": "PAN-06?estado=modificar",
   "D-05": "PAN-08",
-  "D-06": "PAN-15",
+  "D-06": "PAN-06?estado=modificar",
   "D-07": "PAN-05?estado=seleccionado",
   "D-08": "PAN-03?estado=exito"
  }

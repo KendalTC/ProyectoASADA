@@ -4,27 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SIGEDA · Prototipo navegable (P-02)</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232e2e2e'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='Arial'%3ES%3C/text%3E%3C/svg%3E">
 <style>
-/* ===== Wireframe (fidelidad media, en gris) ===== */
+/* ===== Wireframe (fidelidad media, en gris; el color solo marca estados) ===== */
 :root{
   --bg:#ececec; --panel:#ffffff; --line:#8c8c8c; --line-soft:#c8c8c8;
   --text:#1e1e1e; --muted:#4d4d4d; --primary:#2e2e2e; --primary-text:#ffffff;
   --secondary:#ffffff; --fill:#f5f5f5; --fill2:#e0e0e0;
-  --error-bg:#ffffff; --error-line:#1e1e1e; --ok-bg:#ffffff; --warn-bg:#f5f5f5;
   --chip:#e6e6e6; --band:#1e1e1e; --band-text:#ffffff;
+  /* Colores de estado (también en el wireframe, siempre con texto) */
+  --ok:#2f7a45; --ok-bg:#e6f2ea; --warn:#7a5600; --warn-bg:#fff4d6; --err:#a61b1b; --err-bg:#fbe9e9;
   --font:"Segoe UI", Arial, Helvetica, sans-serif; --radius:4px;
 }
 body.hifi{
   --bg:#eef3f6; --panel:#ffffff; --line:#9fb3c2; --line-soft:#d5e0e8;
   --text:#14212b; --muted:#43545f; --primary:#0b5c8a; --primary-text:#ffffff;
   --secondary:#ffffff; --fill:#f6f9fb; --fill2:#dbe7ef;
-  --error-bg:#fdecec; --error-line:#a61b1b; --ok-bg:#e8f5ec; --warn-bg:#fff6e0;
   --chip:#e3edf4; --band:#7a4b00; --band-text:#ffffff; --radius:6px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{font-family:var(--font);font-size:15px;line-height:1.45;color:var(--text);background:var(--bg)}
+body{font-family:var(--font);font-size:15px;line-height:1.45;color:var(--text);background:var(--bg);min-width:1280px}
 a{color:var(--text)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .band{background:var(--band);color:var(--band-text);font-size:13px;padding:4px 14px;display:flex;justify-content:space-between;gap:12px}
 .app{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 26px)}
 .side{background:var(--panel);border-right:1px solid var(--line);padding:14px 0;display:flex;flex-direction:column}
@@ -41,7 +43,10 @@ a{color:var(--text)}
 .top .quick{flex:1;display:flex;gap:6px;max-width:520px}
 .top .quick input{flex:1}
 .top .who{margin-left:auto;text-align:right;font-size:13.5px}
-.chipbk{font-size:12.5px;border:1px solid var(--line);border-radius:12px;padding:2px 10px;background:var(--fill);white-space:nowrap}
+.chipbk{font-size:12.5px;border:1px solid var(--line);border-radius:12px;padding:2px 10px;background:var(--fill);white-space:nowrap;text-decoration:none}
+.chipbk.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.chipbk.warn{border-color:var(--warn);background:var(--warn-bg);color:var(--warn);font-weight:600}
+.chipbk.err{border-color:var(--err);background:var(--err-bg);color:var(--err);font-weight:600}
 .content{padding:18px 22px 40px;overflow:auto}
 h1{font-size:22px;margin:0 0 4px}
 h2{font-size:17px;margin:18px 0 8px}
@@ -55,20 +60,20 @@ h3{font-size:15px;margin:12px 0 6px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
 .field{display:flex;flex-direction:column;gap:4px;min-width:160px;flex:1}
-.field label{font-weight:600;font-size:14px}
+.field label,.field .lbl{font-weight:600;font-size:14px}
 .req{font-weight:400;color:var(--muted);font-size:12.5px}
 .hint{font-size:12.5px;color:var(--muted)}
 input,select,textarea{font:inherit;font-size:14.5px;padding:7px 9px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;color:var(--text);min-height:36px}
 input[disabled],select[disabled]{background:var(--fill2);color:var(--muted)}
-input.bad,select.bad{border:2px solid var(--error-line)}
-.errtxt{font-size:13px;font-weight:600}
+input.bad,select.bad{border:2px solid var(--err)}
+.errtxt{font-size:13px;font-weight:600;color:var(--err)}
 .errtxt::before{content:"⚠ "}
 button,.btn{font:inherit;font-size:14.5px;padding:8px 16px;border-radius:var(--radius);border:1px solid var(--primary);background:var(--secondary);color:var(--text);cursor:pointer;text-decoration:none;display:inline-block;min-height:38px;line-height:20px;white-space:nowrap}
 .btn.pri,button.pri{background:var(--primary);color:var(--primary-text);font-weight:600}
 .btn.link{border-color:transparent;background:transparent;text-decoration:underline;padding:8px 6px}
-.btn.danger{border:2px solid var(--error-line);font-weight:600}
+.btn.danger{border:2px solid var(--err);font-weight:600}
 .btn.sm{font-size:13px;padding:4px 10px;min-height:30px}
-.btn[aria-disabled=true]{opacity:.45;pointer-events:none}
+.btn[aria-disabled=true],button[disabled]{opacity:.45;pointer-events:none}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 table{width:100%;border-collapse:collapse;background:var(--panel);font-size:14px}
 th,td{border-bottom:1px solid var(--line-soft);padding:8px 9px;text-align:left;vertical-align:top}
@@ -79,23 +84,22 @@ tr.sel td{background:var(--fill)}
 .tag{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 8px;font-size:12.5px;background:var(--chip);white-space:nowrap;margin:1px 2px 1px 0}
 .tag.strong{border:2px solid var(--text);font-weight:600}
 .tag.dash{border-style:dashed}
-body.hifi .tag.ok{background:#e1f2e6;border-color:#2f7a45}
-body.hifi .tag.no{background:#fde7e7;border-color:#a61b1b}
-body.hifi .tag.pend{background:#fff1cf;border-color:#8a6100}
-.msg{border:1px solid var(--line);border-left:6px solid var(--text);padding:10px 14px;border-radius:var(--radius);margin:0 0 14px;background:var(--fill)}
+.tag.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.tag.no{background:var(--err-bg);border-color:var(--err);color:var(--err)}
+.tag.pend{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.tag.prop{background:#fff;border:1px dashed var(--muted);font-style:italic}
+.msg{border:1px solid var(--line);border-left:6px solid var(--muted);padding:10px 14px;border-radius:var(--radius);margin:0 0 14px;background:var(--fill)}
 .msg b{display:block;margin-bottom:2px}
-.msg.error{border-left-color:var(--error-line);background:var(--error-bg);border-width:2px 2px 2px 6px}
-.msg.ok{background:var(--ok-bg)}
-.msg.warn{background:var(--warn-bg);border-left-style:double}
-body.hifi .msg.ok{border-left-color:#2f7a45}
-body.hifi .msg.warn{border-left-color:#8a6100}
-body.hifi .msg.info{border-left-color:#0b5c8a}
+.msg.error{border-left-color:var(--err);background:var(--err-bg);border-width:2px 2px 2px 6px}
+.msg.ok{border-left-color:var(--ok);background:var(--ok-bg)}
+.msg.warn{border-left-color:var(--warn);background:var(--warn-bg)}
 .tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:14px}
 .tabs a{padding:8px 18px;text-decoration:none;border:1px solid transparent;border-bottom:none;margin-bottom:-1px;border-radius:var(--radius) var(--radius) 0 0}
 .tabs a.on{border-color:var(--line);background:var(--panel);font-weight:600}
 .kpi{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:12px 14px}
 .kpi .n{font-size:26px;font-weight:700}
 .kpi .l{font-size:13px;color:var(--muted)}
+.kpi.ok{border-left:6px solid var(--ok)} .kpi.no{border-left:6px solid var(--err)} .kpi.pend{border-left:6px solid var(--warn)}
 .bar{height:14px;border:1px solid var(--line);border-radius:7px;background:var(--fill);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--muted)}
 body.hifi .bar i{background:#0b5c8a}
@@ -106,7 +110,6 @@ body.hifi .bar i{background:#0b5c8a}
 .ftable table{table-layout:fixed}.ftable select,.ftable input{width:100%;min-width:0}
 td.nm{min-width:170px}
 .acts{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:13px}.acts a{white-space:nowrap}
-.field.compact{min-width:120px}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px}
 .kv dt{color:var(--muted)}
 .kv dd{margin:0;font-weight:600}
@@ -116,33 +119,32 @@ td.nm{min-width:170px}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--muted);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .skel{height:12px;background:var(--fill2);border-radius:3px;margin:6px 0}
-/* Inicio de sesión */
 .login{min-height:calc(100vh - 26px);display:flex;align-items:center;justify-content:center}
 .login .box{width:430px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px}
-/* Diálogos */
-.ov{position:fixed;inset:26px 0 0 0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;padding-top:70px;z-index:50}
-.dlg{background:var(--panel);border:2px solid var(--text);border-radius:var(--radius);width:560px;max-width:92vw;padding:20px 22px}
-.dlg h2{margin-top:0}
+.login h1.brandh{font-size:24px}
+/* Diálogos nativos */
+dialog.dlg{border:2px solid var(--text);border-radius:var(--radius);width:560px;max-width:92vw;padding:20px 22px;background:var(--panel);color:var(--text)}
+dialog.dlg::backdrop{background:rgba(0,0,0,.45)}
+dialog.dlg h2{margin-top:0}
 /* Panel del prototipo (no forma parte del diseño) */
 #proto{position:fixed;right:12px;bottom:12px;z-index:100;font-size:12.5px;font-family:Arial,sans-serif}
 #proto .t{background:#000;color:#fff;border:none;border-radius:16px;padding:6px 12px;cursor:pointer;font-size:12.5px;min-height:0}
 #proto .p{display:none;background:#fff;border:2px solid #000;border-radius:6px;padding:10px;width:300px;max-height:70vh;overflow:auto;margin-bottom:6px}
 #proto.open .p{display:block}
 #proto .p a{display:inline-block;margin:2px 4px 2px 0;font-size:12px}
-#proto h4{margin:8px 0 3px;font-size:12.5px}
+#proto .ph4{margin:8px 0 3px;font-size:12.5px;font-weight:700}
 body.captura #proto{display:none}
-@media (max-width:1300px){.app{grid-template-columns:190px 1fr}.content{padding:14px 16px}.split{grid-template-columns:1fr}}
-@media (max-width:900px){.app{grid-template-columns:1fr}.side{display:none}.grid2,.grid3,.grid4{grid-template-columns:1fr 1fr}}
+.ovbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50}
 </style>
 </head>
 <body>
 <div id="root"></div>
-<div id="proto"><div class="p" id="protoPanel"></div><button class="t" id="protoBtn">Panel del prototipo</button></div>
+<aside id="proto" aria-label="Panel del prototipo"><div class="p" id="protoPanel"></div><button class="t" id="protoBtn" type="button">Panel del prototipo</button></aside>
 <script>
 /* =====================================================================
-   SIGEDA · Prototipo navegable P-02 (desechable, horizontal, fidelidad media)
-   Una sola fuente: inventario (SCREENS), estados (STATES), diálogos (DIALOGS)
-   y mapa de navegación (NAV). Todos los datos son FICTICIOS (Ley 8968).
+   SIGEDA · Prototipo navegable P-02, versión 2 (revisión del docente, 04/11/2026)
+   Una sola fuente: inventario, estados, diálogos y mapa de navegación (NAV).
+   Todos los datos son FICTICIOS (Ley 8968). Uso previsto: computadora.
    ===================================================================== */
 
 const INVENTARIO = [
@@ -159,16 +161,15 @@ const INVENTARIO = [
  {id:"PAN-11",nombre:"Bitácora",clase:"PantallaBitacora"},
  {id:"PAN-12",nombre:"Exportar documentos",clase:"PantallaExportacion"},
  {id:"PAN-13",nombre:"Historial de versiones",clase:"PantallaHistorialVersiones"},
- {id:"PAN-14",nombre:"Mi cuenta",clase:"PantallaGestionCuenta"},
- {id:"PAN-15",nombre:"Revisar posibles duplicados",clase:"PantallaDuplicados (propuesta, Anexo B)"}
+ {id:"PAN-14",nombre:"Mi cuenta",clase:"PantallaGestionCuenta"}
 ];
 
-/* Mapa de navegación: [origen, destino, acción]. "*" = desde el menú lateral (todas las pantallas). */
+/* Mapa de navegación: [origen, destino, acción]. "*" = menú lateral y barra superior (todas las pantallas). */
 const NAV = [
  ["PAN-01","PAN-02","Ingresar"],
  ["PAN-01","PAN-01","Contraseña temporal → cambiarla"],
  ["*","PAN-02","Inicio"],["*","PAN-03","Buscar expediente"],["*","PAN-06","Nuevo abonado"],
- ["*","PAN-07","Completitud"],["*","PAN-09","Importar SADA"],["*","PAN-15","Posibles duplicados"],
+ ["*","PAN-07","Completitud"],["*","PAN-09","Importar SADA"],
  ["*","PAN-10","Tipos de documento"],["*","PAN-11","Bitácora"],["*","PAN-08","Respaldos"],
  ["*","PAN-14","Mi cuenta"],["*","PAN-01","Cerrar sesión"],
  ["PAN-02","PAN-08","Aviso de respaldo → Ir a respaldos"],
@@ -186,18 +187,16 @@ const NAV = [
  ["PAN-04","D-02","Editar datos"],["D-02","PAN-04","Guardar"],
  ["PAN-04","D-03","Dar de baja / Reactivar"],["D-03","PAN-04","Confirmar"],
  ["PAN-05","PAN-04","Guardar / Cancelar"],
- ["PAN-05","D-07","Cancelar con datos escritos"],["D-07","PAN-04","Salir sin guardar"],
+ ["PAN-05","D-07","Cancelar con archivos elegidos"],["D-07","PAN-04","Salir sin guardar"],
  ["PAN-06","PAN-04","Guardar"],
  ["PAN-06","D-04","Cambiar titular"],["D-04","PAN-04","Confirmar cambio"],
+ ["PAN-06","D-06","Agregar o buscar persona"],["D-06","PAN-06","Agregar"],
  ["PAN-06","PAN-05","Cargar documentos (tras registrar)"],
  ["PAN-07","PAN-05","Cargar lo que falta"],
  ["PAN-07","PAN-04","Abrir expediente"],
  ["PAN-07","PAN-06","Asignar tipo (tipo pendiente)"],
  ["PAN-08","D-05","Restaurar…"],["D-05","PAN-08","Restaurar (confirmado)"],
- ["PAN-09","PAN-15","Revisar posibles duplicados"],
  ["PAN-09","PAN-07","Ver abonados con tipo pendiente"],
- ["PAN-15","D-06","Fusionar"],["D-06","PAN-15","Fusionar (confirmado)"],
- ["PAN-15","PAN-04","Abrir expediente"],
  ["PAN-11","PAN-04","Abrir expediente"],
  ["PAN-12","PAN-04","Exportar / Volver"],
  ["PAN-13","PAN-04","Volver al expediente"],
@@ -207,160 +206,198 @@ const NAV = [
 
 const DIALOGOS = {
  "D-01":"Anular documento","D-02":"Editar datos del documento","D-03":"Dar de baja o reactivar abonado",
- "D-04":"Cambiar titular","D-05":"Confirmar restauración","D-06":"Fusionar personas",
+ "D-04":"Cambiar titular","D-05":"Confirmar restauración","D-06":"Agregar persona asociada",
  "D-07":"Salir sin guardar","D-08":"Sesión por cerrarse"
 };
+const DLG_HOST={"D-01":"PAN-04","D-02":"PAN-04","D-03":"PAN-04","D-04":"PAN-06?estado=modificar","D-05":"PAN-08","D-06":"PAN-06?estado=modificar","D-07":"PAN-05?estado=seleccionado","D-08":"PAN-03?estado=exito"};
 
-/* Estados que se pueden ver en cada pantalla (panel del prototipo y capturas) */
 const STATES = {
  "PAN-01":["inicial","error","bloqueada","temporal"],
  "PAN-02":["inicial","aviso"],
  "PAN-03":["inicial","exito","sin-resultados","error","cargando","mas-de-50","documentos"],
  "PAN-04":["exito","vacio","error","cargando","cargado","anulados"],
  "PAN-05":["inicial","seleccionado","error","cargando","exito","version"],
- "PAN-06":["nuevo","modificar","error","cargando","exito","importado"],
+ "PAN-06":["nuevo","modificar","error","persona-existente","cargando","exito","importado"],
  "PAN-07":["exito","vacio","sin-resultados","cargando","detalle"],
- "PAN-08":["exito","vacio","error","pendiente","cargando","hecho"],
+ "PAN-08":["exito","vacio","error","pendiente","cargando","hecho","onedrive","prueba","cuarentena"],
  "PAN-09":["inicial","vista-previa","error","cargando","exito"],
  "PAN-10":["inicial","error","exito"],
  "PAN-11":["inicial","sin-resultados","detalle"],
  "PAN-12":["inicial","error","exito"],
- "PAN-13":["inicial"],
- "PAN-14":["inicial","error","temporal"],
- "PAN-15":["inicial","vacio","exito"]
+ "PAN-13":["inicial","v1"],
+ "PAN-14":["inicial","error","temporal"]
 };
 
 /* ----------------------- Datos ficticios ----------------------- */
-/* Identificaciones con tomo 0000 (no existe en el Registro Civil): no pueden coincidir con personas reales. */
+/* Identificaciones con tomo 0000 (no existe en el Registro Civil). Hoy = 04/11/2026 (miércoles). */
 const HOY="04/11/2026";
 const ABONADOS=[
- {paja:"0412",titular:"Ana Lucía Mora Vega",id:"1-0000-0123",sector:"Bodegas",tipo:"Persona física",estado:"Activo",comp:"Incompleto",faltan:["Certificación de registro de propiedad","Copia de cédula (cotitular Esteban Mora Vega)"]},
- {paja:"0413",titular:"Inversiones Cerro Azul Ficticia S.A.",id:"3-101-000777",sector:"Bodegas",tipo:"Persona jurídica",estado:"Activo",comp:"Completo",faltan:[]},
- {paja:"0255",titular:"Marta Elena Mora Ulate",id:"1-0000-0654",sector:"Trapiche",tipo:"Persona física",estado:"Activo",comp:"Incompleto",faltan:["Plano legible","Contrato de servicio"]},
- {paja:"0587",titular:"Carlos Alberto Mora Rojas",id:"4-0000-0789",sector:"Pilas",tipo:"Persona física",estado:"De baja",comp:"Completo",faltan:[]},
- {paja:"0730",titular:"Sofía Mora Quirós",id:"7-0000-0111",sector:"Calle Central",tipo:"Persona física",estado:"Activo",comp:"Incompleto",faltan:["Formulario de solicitud"]},
- {paja:"1021",titular:"José Antonio Mora Araya",id:"—",sector:"—",tipo:"Pendiente",estado:"Activo",comp:"Tipo pendiente",faltan:[]}
+ {paja:"0255",titular:"Marta Elena Mora Ulate",id:"1-0000-0654",sector:"Trapiche",tipo:"Persona física",estado:"Activo",comp:"Incompleto",faltan:2},
+ {paja:"0412",titular:"Ana Lucía Mora Vega",id:"1-0000-0123",sector:"Bodegas",tipo:"Persona física",estado:"Activo",comp:"Incompleto",faltan:2},
+ {paja:"0413",titular:"Inversiones Cerro Azul Ficticia S.A.",id:"3-101-000777",sector:"Bodegas",tipo:"Persona jurídica",estado:"Activo",comp:"Completo",faltan:0},
+ {paja:"0587",titular:"Carlos Alberto Mora Rojas",id:"4-0000-0789",sector:"Pilas",tipo:"Persona física",estado:"De baja",comp:"Completo",faltan:0},
+ {paja:"0730",titular:"Sofía Mora Quirós",id:"7-0000-0111",sector:"Calle Central",tipo:"Persona física",estado:"Activo",comp:"Incompleto",faltan:1},
+ {paja:"1021",titular:"José Antonio Mora Araya",id:"—",sector:"—",tipo:"Pendiente",estado:"Activo",comp:"Tipo pendiente",faltan:0}
+];
+const BODEGAS=[
+ {paja:"0401",titular:"Rafael Ángel Vargas Solís",id:"1-0000-0201",sector:"Bodegas",tipo:"Persona física",estado:"Activo",comp:"Completo",faltan:0},
+ {paja:"0405",titular:"Lucía Fernanda Arias Mora",id:"2-0000-0310",sector:"Bodegas",tipo:"Persona física",estado:"Activo",comp:"Incompleto",faltan:1},
+ {paja:"0409",titular:"Grupo Agrícola Ficticio Ltda.",id:"3-102-000415",sector:"Bodegas",tipo:"Persona jurídica",estado:"Activo",comp:"Incompleto",faltan:1},
+ ABONADOS[1],ABONADOS[2]
 ];
 const mask = id => id==="—"?"—":id.replace(/^(\d)-(\d{3,4})-(\d+)$/,(m,a,b,c)=>a+"-"+"•".repeat(b.length)+"-"+c);
+const RESPALDOS=[
+ ["03/11/2026 16:30","Automático","Completo","1,8 GB"],["02/11/2026 16:30","Automático","Completo","1,7 GB"],
+ ["01/11/2026 11:05","Manual","Completo","1,7 GB"],["31/10/2026 16:30","Automático","Completo","1,7 GB"],
+ ["30/10/2026 16:30","Automático","Completo","1,6 GB"],["29/10/2026 16:30","Automático","Completo","1,6 GB"],
+ ["28/10/2026 16:30","Automático","Completo","1,6 GB"],["24/10/2026 16:30","Automático","Completo","1,5 GB"],
+ ["17/10/2026 16:30","Automático","Completo","1,4 GB"]];
 
 /* --------------------------- Utilidades --------------------------- */
-const esc=s=>String(s);
+let FID=0;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function go(target){ return `href="#/${target}" data-go="${target}"`; }
+function routeNoDlg(){ return `#/${current.id}${current.st?"?estado="+current.st:""}`; }
+function dl(id,host){ const base=host||`${current.id}${current.st?"?estado="+current.st:""}`; return `href="#/${base}${base.includes("?")?"&":"?"}dlg=${id}" data-dlg="${id}"`; }
+function withId(control){ const m=control.match(/<(?:input|select|textarea)[^>]*\bid="([^"]+)"/); if(m) return [m[1],control]; const id="f"+(++FID); return [id, control.replace(/<(input|select|textarea)/,`<$1 id="${id}"`)]; }
 function F(label,control,{req=false,hint="",err=""}={}){
-  return `<div class="field"><label>${label} ${req?'<span class="req">(obligatorio)</span>':'<span class="req">(opcional)</span>'}</label>${control}${err?`<div class="errtxt">${err}</div>`:""}${hint?`<div class="hint">${hint}</div>`:""}</div>`;
+  const [id,c]=withId(control);
+  return `<div class="field"><label for="${id}">${label} ${req?'<span class="req">(obligatorio)</span>':'<span class="req">(opcional)</span>'}</label>${c}${err?`<div class="errtxt">${err}</div>`:""}${hint?`<div class="hint">${hint}</div>`:""}</div>`;
 }
-function FT(rows){ return `<div class="tablewrap ftable"><table><colgroup><col style="width:22%"><col style="width:20%"><col style="width:24%"><col style="width:14%"><col style="width:13%"><col style="width:7%"></colgroup><thead><tr><th>Archivo</th><th>Tipo de documento <span class="req">(oblig.)</span></th><th>Persona que lo aporta <span class="req">(oblig.)</span></th><th>Nombre identificador <span class="req">(opcional)</span></th><th>Fecha del documento <span class="req">(oblig.)</span></th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`; }
-function FL(label,control,hint=""){ return `<div class="field"><label>${label}</label>${control}${hint?`<div class="hint">${hint}</div>`:""}</div>`; }
-function T(head,rows){ return `<div class="tablewrap"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`; }
+function FL(label,control,hint=""){ const [id,c]=withId(control); return `<div class="field"><label for="${id}">${label}</label>${c}${hint?`<div class="hint">${hint}</div>`:""}</div>`; }
+function FX(label,html){ return `<div class="field"><span class="lbl">${label}</span>${html}</div>`; }
+function T(head,rows,cap=""){ return `<div class="tablewrap"><table>${cap?`<caption class="sr-only">${cap}</caption>`:""}<thead><tr>${head.map(h=>`<th scope="col">${h||'<span class="sr-only">Acciones</span>'}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`; }
 function M(kind,title,body){ return `<div class="msg ${kind}" role="${kind==='error'?'alert':'status'}"><b>${title}</b>${body||""}</div>`; }
-function sectorSel(v="Todos"){ return `<select>${["Todos","Bodegas","Pilas","Calle Cerro","Calle Central","Trapiche"].map(s=>`<option ${s===v?"selected":""}>${s}</option>`).join("")}</select>`; }
+function sectorSel(v="Todos",placeholder=false){ const opts=placeholder?["Elija el sector…","Bodegas","Pilas","Calle Cerro","Calle Central","Trapiche"]:["Todos","Bodegas","Pilas","Calle Cerro","Calle Central","Trapiche"]; return `<select>${opts.map(s=>`<option ${s===v?"selected":""} ${s.endsWith("…")?'value=""':""}>${s}</option>`).join("")}</select>`; }
 const TIPOS=[[1,"Plano legible","Ambas",""],[2,"Formulario de solicitud","Ambas",""],[3,"Copia de cédula","Persona física","Sí"],[4,"Certificación de registro de propiedad","Persona física",""],[5,"Contrato de servicio","Ambas",""],[6,"Cédula jurídica","Persona jurídica",""],[7,"Personería jurídica vigente","Persona jurídica",""],[8,"Cédula de la persona apoderada","Persona jurídica",""],[9,"Permiso de construcción vigente","Grupo: permiso o formulario (jurídica)",""],[10,"Formulario de construcción y uso del agua","Grupo: permiso o formulario (jurídica)",""],[11,"Boletas de trabajo","No obligatorio",""],[12,"Recibos por cobros especiales","No obligatorio",""],[13,"Conexiones ilegales","No obligatorio",""],[14,"Fotos del inmueble","No obligatorio",""]];
-function tipoSel(v=""){ return `<select><option value="">Elija el tipo…</option>${TIPOS.map(t=>`<option ${t[1]===v?"selected":""}>${t[1]}</option>`).join("")}</select>`; }
-function compTag(c){ return c==="Completo"?`<span class="tag ok">✓ Completo</span>`:c==="Tipo pendiente"?`<span class="tag pend dash">Tipo pendiente</span>`:`<span class="tag no strong">Incompleto</span>`; }
+function tipoSel(v="",aria=""){ return `<select ${aria?`aria-label="${aria}"`:""}><option value="">Elija el tipo…</option>${TIPOS.map(t=>`<option ${t[1]===v?"selected":""}>${t[1]}</option>`).join("")}</select>`; }
+function compTag(c,n){ return c==="Completo"?`<span class="tag ok">✓ Completo</span>`:c==="Tipo pendiente"?`<span class="tag pend dash">Tipo pendiente</span>`:`<span class="tag no strong">Incompleto${n?` · faltan ${n}`:""}</span>`; }
 function estTag(e){ return e==="De baja"?`<span class="tag strong">De baja</span>`:`<span class="tag">Activo</span>`; }
+const PROP=`<span class="tag prop" title="Propuesta del equipo para validar con la administradora">Propuesta por validar</span>`;
+
+/* Estado del respaldo que muestra el encabezado (coherente con PAN-02 y PAN-08) */
+function backupChip(){
+  const k=current.id+"|"+(current.st||"");
+  if(k==="PAN-02|aviso"||k==="PAN-08|pendiente") return ["warn","Último respaldo: 02/11/2026 16:30 · el de ayer quedó pendiente ⚠"];
+  if(k==="PAN-08|error") return ["warn","Último respaldo: 03/11/2026 16:30 · el intento de hoy falló ⚠"];
+  if(k==="PAN-08|hecho") return ["ok","Último respaldo: 04/11/2026 10:05 ✓"];
+  if(k==="PAN-08|vacio") return ["err","Sin respaldos ✕"];
+  return ["ok","Último respaldo: 03/11/2026 16:30 ✓"];
+}
 
 /* ---------------------------- Marco ---------------------------- */
-const MENU=[["PAN-02","Inicio"],["PAN-03","Buscar expediente"],["PAN-06","Nuevo abonado"],["PAN-07","Completitud"],null,["PAN-09","Importar SADA"],["PAN-15","Posibles duplicados"],["PAN-10","Tipos de documento"],null,["PAN-11","Bitácora"],["PAN-08","Respaldos"],["PAN-14","Mi cuenta"]];
+const MENU=[["PAN-02","Inicio"],["PAN-03","Buscar expediente"],["PAN-06","Nuevo abonado"],["PAN-07","Completitud"],null,["PAN-09","Importar SADA"],["PAN-10","Tipos de documento"],null,["PAN-11","Bitácora"],["PAN-08","Respaldos"],["PAN-14","Mi cuenta"]];
 const PARENT={"PAN-04":"PAN-03","PAN-05":"PAN-03","PAN-12":"PAN-03","PAN-13":"PAN-03"};
+let HIFI=false;
 function band(){
-  const hifi=document.body.classList.contains("hifi");
-  return `<div class="band"><span>${hifi?"MAQUETA DE ALTA FIDELIDAD (P-04) · solo muestra el aspecto: no funciona":"PROTOTIPO DESECHABLE P-02 · wireframe de fidelidad media · no es el sistema"}</span><span>Datos ficticios · ${current.id}${current.st?" · estado: "+current.st:""}</span></div>`;
+  return `<div class="band" role="region" aria-label="Aviso del prototipo"><span>${HIFI?"MAQUETA DE ALTA FIDELIDAD (P-04) · solo muestra el aspecto: no funciona":"PROTOTIPO DESECHABLE P-02 · los botones no guardan nada · todos los datos son ficticios"}</span><span>${current.id}${current.st?" · estado: "+current.st:""}</span></div>`;
 }
 function shell(id,html){
-  const on=PARENT[id]||id;
-  return band()+`<div class="app"><aside class="side"><div class="brand"><b>SIGEDA</b><div>Acueducto Bodegas y Pilas</div></div><nav class="nav">${MENU.map(m=>m?`<a ${go(m[0])} class="${m[0]===on?"on":""}">${m[1]}</a>`:`<div class="sep"></div>`).join("")}<div class="sep"></div><a ${go("PAN-01")}>Cerrar sesión</a></nav><div class="foot">Sesión: secretaria<br>Se cierra tras 15 min sin uso</div></aside>
-  <div class="main"><div class="top"><form class="quick" onsubmit="return false"><input placeholder="Buscar por número de paja o nombre…" aria-label="Búsqueda rápida"><a class="btn pri" ${go("PAN-03?estado=exito")}>Buscar</a></form><span class="chipbk">Último respaldo: 03/11/2026 16:30 ✓</span><div class="who"><b>Secretaría</b><br><span class="hint">usuario: secretaria</span></div></div>
-  <div class="content">${html}</div></div></div>`;
+  const on=(id==="PAN-06"&&["modificar","importado"].includes(current.st))?"PAN-03":(PARENT[id]||id); const [bk,bt]=backupChip();
+  return band()+`<div class="app"><aside class="side"><div class="brand"><b>SIGEDA</b><div>Acueducto Bodegas y Pilas</div></div><nav class="nav" aria-label="Menú principal">${MENU.map(m=>m?`<a ${go(m[0])} class="${m[0]===on?"on":""}" ${m[0]===on?'aria-current="page"':""}>${m[1]}</a>`:`<div class="sep"></div>`).join("")}<div class="sep"></div><a ${go("PAN-01")}>Cerrar sesión</a></nav><div class="foot">Sesión: Secretaría<br>Se cierra tras 15 min sin uso</div></aside>
+  <div class="main"><header class="top"><form class="quick" role="search" onsubmit="return quickSearch(this)"><label for="qsearch" class="sr-only">Búsqueda rápida por número de paja o nombre</label><input id="qsearch" name="q" placeholder="Buscar por número de paja o nombre…"><button class="pri" type="submit">Buscar</button></form><a class="chipbk ${bk}" ${go("PAN-08")}>${bt}</a><div class="who"><b>Secretaría</b><br><span class="hint">usuario: secretaria</span></div></header>
+  <main class="content" id="contenido">${html}</main></div></div>`;
 }
+function quickSearch(f){ const q=f.q.value.trim()||"mora"; location.hash=`#/PAN-03?estado=exito&q=${encodeURIComponent(q)}`; return false; }
 
 /* --------------------------- Pantallas --------------------------- */
 const SCREENS={};
 
 SCREENS["PAN-01"]=st=>{
-  let msg="",u="secretaria",bad="";
+  let msg="",bad="";
   if(st==="error"){msg=M("error","Usuario o contraseña incorrectos.","Revise que la tecla Bloq Mayús no esté activa e intente de nuevo. Le quedan 2 intentos antes de que la cuenta se bloquee 5 minutos.");bad="bad";}
-  if(st==="bloqueada"){msg=M("error","La cuenta «secretaria» está bloqueada por 5 intentos fallidos.","Podrá intentar de nuevo a las 10:47 (en 4 minutos). Si olvidó la contraseña, pida a la administradora una contraseña temporal desde «Mi cuenta».");}
+  if(st==="bloqueada"){msg=M("error","La cuenta «secretaria» está bloqueada por 5 intentos fallidos.","Podrá intentar de nuevo a las 10:47 (en 4 minutos). Si olvidó la contraseña, pida a la Administración una contraseña temporal desde «Mi cuenta».");}
   if(st==="temporal"){
-    return band()+`<div class="login"><div class="box"><h1>Cree su contraseña</h1><p class="sub">Ingresó con una contraseña temporal asignada por la administradora. Antes de continuar, cree una propia.</p>
-    ${F("Contraseña nueva",`<input type="password" value="••••••••">`,{req:true,hint:"Mínimo 8 caracteres."})}
-    ${F("Repita la contraseña nueva",`<input type="password" value="••••••••">`,{req:true})}
-    <div class="actions"><a class="btn pri" ${go("PAN-02")}>Guardar y entrar</a></div></div></div>`;
+    return band()+`<main class="login"><div class="box"><h1>Cree su contraseña</h1><p class="sub">Ingresó con una contraseña temporal asignada desde la otra cuenta. Antes de continuar, cree una propia.</p>
+    <form onsubmit="return false">${F("Contraseña nueva",`<input type="password" autocomplete="new-password" value="••••••••">`,{req:true,hint:"Mínimo 8 caracteres."})}
+    ${F("Repita la contraseña nueva",`<input type="password" autocomplete="new-password" value="••••••••">`,{req:true})}
+    <div class="actions"><a class="btn pri" ${go("PAN-02")}>Guardar y entrar</a></div></form></div></main>`;
   }
-  return band()+`<div class="login"><div class="box"><div style="font-size:24px;font-weight:700">SIGEDA</div><p class="sub">Sistema de Gestión Documental del Acueducto Bodegas y Pilas</p>${msg}
-  ${F("Usuario",`<input value="${u}" class="${bad}">`,{req:true})}
-  ${F("Contraseña",`<input type="password" value="${st==="inicial"?"":"••••••"}" class="${bad}" ${st==="bloqueada"?"disabled":""}>`,{req:true})}
-  <div class="actions"><a class="btn pri" ${st==="bloqueada"?'aria-disabled="true"':""} ${go(st==="error"?"PAN-01?estado=bloqueada":"PAN-02")}>Ingresar</a></div>
-  <p class="hint" style="margin-top:14px">¿Olvidó su contraseña? Pida a la otra usuaria (secretaría o administradora) que le asigne una contraseña temporal desde «Mi cuenta». <a ${go("PAN-01?estado=temporal")}>Ver cómo se ve</a></p></div></div>`;
+  return band()+`<main class="login"><div class="box"><h1 class="brandh">SIGEDA</h1><p class="sub">Sistema de Gestión Documental del Acueducto Bodegas y Pilas</p>${msg}
+  <form onsubmit="return false">${F("Usuario",`<input value="secretaria" autocomplete="username" class="${bad}">`,{req:true})}
+  ${F("Contraseña",`<input type="password" autocomplete="current-password" value="${st==="inicial"?"":"••••••"}" class="${bad}" ${st==="bloqueada"?"disabled":""}>`,{req:true})}
+  <div class="actions"><a class="btn pri" ${st==="bloqueada"?'aria-disabled="true"':""} ${go(st==="error"?"PAN-01?estado=bloqueada":"PAN-02")}>Ingresar</a></div></form>
+  <p class="hint" style="margin-top:14px">¿Olvidó su contraseña? Pida a la otra cuenta (Secretaría o Administración) que le asigne una contraseña temporal desde «Mi cuenta». <a ${go("PAN-01?estado=temporal")}>Ver cómo se ve</a></p></div></main>`;
 };
 
-SCREENS["PAN-02"]=st=>shell("PAN-02",`<h1>Buenos días, secretaría</h1><p class="sub">Martes 04/11/2026 · ¿Qué necesita hacer?</p>
- ${st==="aviso"?M("warn","El respaldo automático de ayer no se pudo hacer: el disco externo no estaba conectado.",`Conecte el disco y presione «Respaldar ahora». Mientras no se complete, este aviso aparecerá al iniciar sesión. <a ${go("PAN-08?estado=pendiente")}>Ir a respaldos</a>`):""}
+SCREENS["PAN-02"]=st=>shell("PAN-02",`<h1>Buenos días</h1><p class="sub">Miércoles 04/11/2026 · Sesión de la Secretaría · ¿Qué necesita hacer?</p>
+ ${st==="aviso"?M("warn","El respaldo automático de ayer (03/11/2026, 16:30) no se pudo hacer: el disco externo no estaba conectado.",`El último respaldo completo es del 02/11/2026. Conecte el disco y presione «Respaldar ahora». Este aviso aparecerá al iniciar sesión hasta que se complete. <a ${go("PAN-08?estado=pendiente")}>Ir a respaldos</a>`):""}
  <div class="grid3">
   <div class="panel"><h2 style="margin-top:0">Buscar un expediente</h2><p class="hint">Por número de paja, nombre del titular, identificación o sector.</p><a class="btn pri" ${go("PAN-03")}>Buscar expediente</a></div>
   <div class="panel"><h2 style="margin-top:0">Cargar un documento</h2><p class="hint">Primero se abre el expediente; ahí está el botón «Cargar documento».</p><a class="btn" ${go("PAN-05")}>Cargar documento</a></div>
   <div class="panel"><h2 style="margin-top:0">Registrar un abonado</h2><p class="hint">Número de paja, tipo, titular y sector.</p><a class="btn" ${go("PAN-06")}>Nuevo abonado</a></div>
  </div>
  <div class="panel"><h2 style="margin-top:0">Avance de la digitalización</h2>
-  <div class="row" style="align-items:center"><div style="flex:1"><div class="bar"><i style="width:31%"></i></div></div><b>31 %</b></div>
-  <p class="hint">312 de 1 015 expedientes completos · 58 con tipo pendiente · 641 incompletos · 4 de baja</p>
+  <div class="row" style="align-items:center"><div style="flex:1"><div class="bar" role="img" aria-label="31 % de avance"><i style="width:31%"></i></div></div><b>31 %</b></div>
+  <p class="hint">312 de 1 011 abonados activos tienen el expediente completo · 641 incompletos · 58 con tipo pendiente · 4 de baja (no cuentan en el avance)</p>
   <a class="btn" ${go("PAN-07")}>Ver panel de completitud</a></div>
  <div class="panel"><h2 style="margin-top:0">Últimos expedientes abiertos</h2>
- ${T(["Paja","Titular vigente","Sector",""],[["0412","Ana Lucía Mora Vega","Bodegas"],["0413","Inversiones Cerro Azul Ficticia S.A.","Bodegas"]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td><a ${go("PAN-04")}>Abrir</a></td></tr>`))}</div>`);
+ ${T(["Paja","Titular vigente","Sector",""],[["0412","Ana Lucía Mora Vega","Bodegas"],["0413","Inversiones Cerro Azul Ficticia S.A.","Bodegas"]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td><a ${go("PAN-04")}>Abrir <span class="sr-only">expediente ${r[0]}</span></a></td></tr>`))}</div>`);
 
 SCREENS["PAN-03"]=st=>{
   const docs = st==="documentos";
-  const crit = (paja="",nom="mora",idn="",sec="Todos",bad="")=>`<div class="panel"><div class="row">
-    ${FL("Número de paja",`<input value="${paja}" class="${bad}" placeholder="Ej.: 0412">`)}
-    ${FL("Nombre del titular",`<input value="${nom}" placeholder="Ej.: Mora Vega">`,"Basta parte del nombre; no importan mayúsculas ni tildes.")}
+  const q=current.q;
+  const crit = (paja="",nom="mora",idn="",sec="Todos",bad="",err="")=>`<div class="panel"><div class="row">
+    ${err?F("Número de paja",`<input value="${paja}" class="bad" placeholder="Ej.: 0412">`,{err}):FL("Número de paja",`<input value="${paja}" placeholder="Ej.: 0412">`)}
+    ${FL("Nombre del titular",`<input value="${esc(nom)}" placeholder="Ej.: Mora Vega">`,"Basta parte del nombre; no importan mayúsculas ni tildes.")}
     ${FL("Identificación",`<input value="${idn}" placeholder="Ej.: 1-0000-0123">`)}
     ${FL("Sector",sectorSel(sec))}</div>
     <div class="row" style="margin-top:10px;justify-content:space-between"><label><input type="checkbox" checked style="min-height:0"> Incluir abonados de baja</label>
     <div class="actions" style="margin:0"><a class="btn link" ${go("PAN-03")}>Limpiar</a><a class="btn pri" ${go("PAN-03?estado=exito")}>Buscar</a></div></div></div>`;
-  const rows=ABONADOS.map(a=>`<tr class="${a.estado==="De baja"?"muted":""}"><td><b>${a.paja}</b></td><td class="nm">${a.titular}</td><td>${mask(a.id)}</td><td>${a.sector}</td><td>${a.tipo}</td><td>${estTag(a.estado)}</td><td>${compTag(a.comp)}${a.faltan.length?`<div class="hint">Faltan ${a.faltan.length}</div>`:""}</td><td><a class="btn sm" ${go("PAN-04")}>Abrir</a></td></tr>`);
+  const row=a=>`<tr class="${a.estado==="De baja"?"muted":""}"><td><b>${a.paja}</b></td><td class="nm">${a.titular}</td><td>${mask(a.id)}</td><td>${a.sector}</td><td>${a.tipo}</td><td>${estTag(a.estado)}</td><td>${compTag(a.comp,a.faltan)}</td><td><a class="btn sm" ${go("PAN-04")}>Abrir <span class="sr-only">expediente ${a.paja}</span></a></td></tr>`;
   const head=["Paja","Titular vigente","Identificación","Sector","Tipo","Estado","Completitud",""];
   let body="";
   if(docs){
     body=`<div class="panel"><div class="row">${FL("Tipo de documento",tipoSel("Formulario de solicitud"))}${FL("Nombre identificador",`<input value="">`)}${FL("Fecha del documento desde",`<input value="01/01/2005">`,"dd/mm/aaaa")}${FL("hasta",`<input value="31/12/2006">`,"dd/mm/aaaa")}</div>
     <div class="actions"><a class="btn link" ${go("PAN-03?estado=documentos")}>Limpiar</a><a class="btn pri" ${go("PAN-03?estado=documentos")}>Filtrar documentos</a></div></div>
     <p class="hint">3 documentos en todo el archivo · ordenados por fecha del documento</p>
-    ${T(["Fecha del documento","Tipo","Nombre identificador","Paja","Titular vigente",""],[["15/03/2005","Formulario de solicitud","Solicitud original","0412","Ana Lucía Mora Vega"],["02/07/2005","Formulario de solicitud","—","0587","Carlos Alberto Mora Rojas"],["20/11/2006","Formulario de solicitud","Solicitud ampliación","0255","Marta Elena Mora Ulate"]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td><a class="btn sm" ${go("PAN-04?estado=cargado")}>Ver</a></td></tr>`))}`;
+    ${T(["Fecha del documento","Tipo","Nombre identificador","Paja","Titular vigente",""],[["15/03/2005","Formulario de solicitud","Solicitud original","0412","Ana Lucía Mora Vega"],["02/07/2005","Formulario de solicitud","—","0587","Carlos Alberto Mora Rojas"],["20/11/2006","Formulario de solicitud","Solicitud ampliación","0255","Marta Elena Mora Ulate"]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td><a class="btn sm" ${go("PAN-04?estado=cargando")}>Ver</a></td></tr>`))}`;
   } else if(st==="inicial"){ body=crit("","")+M("info","Escriba al menos un criterio y presione «Buscar».","Puede combinar criterios: por ejemplo, un apellido y el sector."); }
-  else if(st==="cargando"){ body=crit()+`<p><span class="spinner"></span>Buscando en 1 015 expedientes…</p><div class="panel"><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div>`; }
+  else if(st==="cargando"){ body=crit()+`<p role="status"><span class="spinner"></span>Buscando en 1 015 expedientes…</p><div class="panel"><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div>`; }
   else if(st==="sin-resultados"){ body=crit("9999","","","Todos")+M("info","No hay expedientes con el número de paja «9999».",`Revise el número o busque por el nombre del titular. Si el abonado es nuevo, puede <a ${go("PAN-06")}>registrarlo</a>.`); }
-  else if(st==="error"){ body=`<div class="panel"><div class="row">${F("Número de paja",`<input value="04 12" class="bad">`,{err:"El número de paja no puede llevar espacios. Escríbalo sin espacios, por ejemplo 0412."})}${FL("Nombre del titular",`<input value="">`)}${FL("Identificación",`<input value="">`)}${FL("Sector",sectorSel())}</div><div class="actions"><a class="btn link" ${go("PAN-03")}>Limpiar</a><a class="btn pri" ${go("PAN-03?estado=exito")}>Buscar</a></div></div>`; }
-  else if(st==="mas-de-50"){ body=crit("","","","Bodegas")+M("warn","Se muestran los primeros 50 de 214 expedientes del sector Bodegas.","Agregue el nombre o el número de paja para acotar la búsqueda.")+T(head,rows.slice(0,3)); }
-  else { body=crit()+`<p class="hint">6 expedientes encontrados para «mora» en 0,4 s · ordenados por número de paja · el titular anterior no aparece</p>`+T(head,[rows[2],rows[0],rows[1],rows[3],rows[4],rows[5]]); }
+  else if(st==="error"){ body=crit("04 12","","","Todos","bad","El número de paja no puede llevar espacios. Escríbalo sin espacios, por ejemplo 0412."); }
+  else if(st==="mas-de-50"){ body=crit("","","","Bodegas")+M("warn","Se muestran los primeros 50 de 214 expedientes del sector Bodegas.","Agregue el nombre o el número de paja para acotar la búsqueda.")+T(head,BODEGAS.map(row),"Resultados de la búsqueda"); }
+  else { const term=q||"mora"; const norm=x=>x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    const todos=[...ABONADOS,...BODEGAS.slice(0,3)].sort((a,b)=>a.paja.localeCompare(b.paja));
+    const res=todos.filter(a=>norm(a.titular+" "+a.paja+" "+a.id+" "+a.sector).includes(norm(term)));
+    body=crit("",term)+(res.length?`<p class="hint" role="status">${res.length} expediente${res.length===1?"":"s"} encontrado${res.length===1?"":"s"} para «${esc(term)}» en 0,4 s · ordenados por número de paja · el titular anterior no aparece</p>`+T(head,res.map(row),"Resultados de la búsqueda")
+      :M("info",`No hay expedientes que coincidan con «${esc(term)}».`,`Revise lo escrito o busque por otro criterio. Si el abonado es nuevo, puede <a ${go("PAN-06")}>registrarlo</a>.`)); }
   return shell("PAN-03",`<h1>Buscar expediente</h1><p class="sub">Busque por uno o varios criterios. También puede filtrar documentos en todo el archivo.</p>
-  <div class="tabs"><a ${go("PAN-03?estado=exito")} class="${docs?"":"on"}">Expedientes</a><a ${go("PAN-03?estado=documentos")} class="${docs?"on":""}">Documentos</a></div>${body}`);
+  <div class="tabs" role="tablist"><a role="tab" aria-selected="${!docs}" ${go("PAN-03?estado=exito")} class="${docs?"":"on"}">Expedientes</a><a role="tab" aria-selected="${docs}" ${go("PAN-03?estado=documentos")} class="${docs?"on":""}">Documentos</a></div>${body}`);
 };
 
 const DOCS0412=[
- {p:1,tipo:"Plano legible",nom:"Plano lote 12",per:"Rodrigo Mora Castro (titular anterior)",fd:"15/03/2005",v:"v1",est:"Vigente"},
+ {p:1,tipo:"Plano legible",nom:"Plano lote 12",per:"Rodrigo Mora Castro",ant:true,fd:"15/03/2005",v:"v1",est:"Vigente"},
  {p:2,tipo:"Formulario de solicitud",nom:"Solicitud de servicio",per:"Ana Lucía Mora Vega",fd:"10/02/2026",v:"v2",est:"Vigente"},
- {p:3,tipo:"Copia de cédula",nom:"—",per:"Rodrigo Mora Castro (titular anterior)",fd:"15/03/2005",v:"v1",est:"Vigente"},
+ {p:3,tipo:"Copia de cédula",nom:"—",per:"Rodrigo Mora Castro",ant:true,fd:"15/03/2005",v:"v1",est:"Vigente"},
  {p:3,tipo:"Copia de cédula",nom:"—",per:"Ana Lucía Mora Vega",fd:"10/02/2026",v:"v1",est:"Vigente"},
  {p:3,tipo:"Copia de cédula",nom:"Cédula equivocada",per:"Ana Lucía Mora Vega",fd:"10/02/2026",v:"v1",est:"Anulado"},
  {p:5,tipo:"Contrato de servicio",nom:"Contrato 2026",per:"Ana Lucía Mora Vega",fd:"10/02/2026",v:"v1",est:"Vigente"},
- {p:14,tipo:"Fotos del inmueble",nom:"Fachada",per:"Ana Lucía Mora Vega",fd:"12/06/2019",v:"v1",est:"Vigente"}
+ {p:14,tipo:"Fotos del inmueble",nom:"Fachada",per:"Rodrigo Mora Castro",ant:true,fd:"12/06/2019",v:"v1",est:"Vigente"}
 ];
 SCREENS["PAN-04"]=st=>{
-  const showAnul = st==="anulados";
+  const showAnul = st==="anulados", cargado = st==="cargado";
   let docs = DOCS0412.filter(d=>showAnul||d.est==="Vigente");
+  if(cargado) docs.splice(4,0,{p:4,tipo:"Certificación de registro de propiedad",nom:"—",per:"Ana Lucía Mora Vega",fd:"15/03/2005",v:"v1",est:"Vigente",nuevo:true});
   let msg="";
-  if(st==="error") msg=M("error","No se encontró el archivo de «Plano legible · Plano lote 12» en la laptop.","Los datos del documento siguen guardados. Restaure el último respaldo desde «Respaldos» o avise a la administradora. Esto queda en la bitácora.");
-  if(st==="cargado") msg=M("ok","Documento cargado: Certificación de registro de propiedad (versión 1).","Ya aparece en el expediente, en el lugar que le toca según su tipo.");
+  if(st==="error") msg=M("error","No se encontró el archivo de «Plano legible · Plano lote 12» en la laptop.","Los datos del documento siguen guardados. Restaure el último respaldo desde «Respaldos» o avise a la Administración. Esto queda en la bitácora.");
+  if(cargado) msg=M("ok","Documento cargado: Certificación de registro de propiedad (versión 1).","Ya aparece en el expediente, en el lugar que le toca según su tipo.");
   if(st==="vacio"){ docs=[]; }
-  const rows = docs.map((d,i)=>`<tr class="${d.est==="Anulado"?"muted":""} ${i===0&&st!=="vacio"?"sel":""}"><td>${d.p}</td><td><b>${d.tipo}</b>${d.est==="Anulado"?` <span class="tag strong">Anulado</span><div class="hint">Motivo: se cargó la cédula de otra persona · 03/11/2026</div>`:""}</td><td>${d.nom}</td><td>${d.per.replace(" (titular anterior)",'<div><span class="tag dash">titular anterior</span></div>')}</td><td>${d.fd}</td><td>${d.v==="v2"?`<a ${go("PAN-13")}>v2 · ver versiones</a>`:d.v}</td>
-   <td>${d.est==="Anulado"?`<div class="acts"><a ${go("PAN-04?estado=anulados")}>Ver</a></div>`:`<div class="acts"><a ${go("PAN-04?estado=cargando")}>Ver</a><a ${go("PAN-05?estado=version")}>Nueva versión</a><a href="#" data-dlg="D-02">Editar datos</a><a href="#" data-dlg="D-01">Anular</a></div>`}</td></tr>`);
-  const viewer = st==="cargando" ? `<div class="viewer"><span><span class="spinner"></span>Abriendo «Plano lote 12»… (máximo 5 s)</span></div>`
+  const faltan = cargado?1:2;
+  const rows = docs.map((d,i)=>`<tr class="${d.est==="Anulado"?"muted":""} ${(i===0&&!cargado&&st!=="vacio")||d.nuevo?"sel":""}"><td>${d.p}</td><td><b>${d.tipo}</b>${d.nuevo?` <span class="tag ok">Nuevo</span>`:""}${d.est==="Anulado"?` <span class="tag strong">Anulado</span><div class="hint">Motivo: se cargó la cédula de otra persona · 03/11/2026</div>`:""}</td><td>${d.nom}</td><td>${d.per}${d.ant?'<div><span class="tag dash">titular anterior</span></div>':""}</td><td>${d.fd}</td><td>${d.v==="v2"?`<a ${go("PAN-13")}>v2 · ver versiones</a>`:d.v}</td>
+   <td>${d.est==="Anulado"?`<div class="acts"><a ${go("PAN-04?estado=anulados")}>Ver</a></div>`:`<div class="acts"><a ${go("PAN-04?estado=cargando")}>Ver</a><a ${go("PAN-05?estado=version")}>Nueva versión</a><a ${dl("D-02")}>Editar datos</a><a ${dl("D-01")}>Anular</a></div>`}</td></tr>`);
+  const viewer = st==="cargando" ? `<div class="viewer" role="status"><span><span class="spinner"></span>Abriendo «Plano lote 12»… (máximo 5 s)</span></div>`
     : st==="error" ? `<div class="viewer"><b>⚠ Archivo no disponible</b><span>Datos del documento: Plano legible · fecha del documento 15/03/2005</span></div>`
     : st==="vacio" ? `<div class="viewer"><span>Seleccione un documento para verlo aquí.</span></div>`
-    : `<div class="viewer"><div class="ph"></div><b>Plano legible · Plano lote 12</b><span class="hint">PDF · 2,1 MB · página 1 de 1 · ⊕ Acercar ⊖ Alejar</span><span class="hint">Fecha del documento: 15/03/2005 · Cargado: 04/11/2026 09:12 por secretaria</span></div>`;
+    : cargado ? `<div class="viewer"><div class="ph"></div><b>Certificación de registro de propiedad</b><span class="hint">PDF · 1,3 MB · página 1 de 2</span><span class="hint">Fecha del documento: 15/03/2005 · Cargado: 04/11/2026 09:12 por secretaria</span></div>`
+    : `<div class="viewer"><div class="ph"></div><b>Plano legible · Plano lote 12</b><span class="hint">PDF · 2,1 MB · página 1 de 1 · ⊕ Acercar ⊖ Alejar</span><span class="hint">Fecha del documento: 15/03/2005 · Cargado: 28/10/2026 08:40 por secretaria</span></div>`;
   return shell("PAN-04",`<div class="crumb"><a ${go("PAN-03?estado=exito")}>Buscar expediente</a> › Expediente 0412</div>
-  <div class="row" style="justify-content:space-between;align-items:flex-start"><div><h1>Expediente · paja 0412</h1><p class="sub">Titular vigente: <b>Ana Lucía Mora Vega</b> · Bodegas · Persona física · ${estTag("Activo")} ${compTag("Incompleto")}</p></div>
-  <div class="actions" style="margin:0"><a class="btn pri" ${go("PAN-05")}>Cargar documento</a><a class="btn" ${go("PAN-06?estado=modificar")}>Modificar abonado</a><a class="btn" href="#" data-dlg="D-03">Dar de baja</a><a class="btn" ${go("PAN-12")}>Exportar</a></div></div>
+  <div class="row" style="justify-content:space-between;align-items:flex-start"><div><h1>Expediente · paja 0412</h1><p class="sub">Titular vigente: <b>Ana Lucía Mora Vega</b> · Bodegas · Persona física · ${estTag("Activo")} ${compTag("Incompleto",faltan)}</p></div>
+  <div class="actions" style="margin:0"><a class="btn pri" ${go("PAN-05")}>Cargar documento</a><a class="btn" ${go("PAN-06?estado=modificar")}>Modificar abonado</a><a class="btn" ${dl("D-03")}>Dar de baja</a><a class="btn" ${go("PAN-12")}>Exportar</a></div></div>
   ${msg}
-  ${st==="vacio"?M("info","Este expediente todavía no tiene documentos digitalizados.",`Mientras tanto se consulta en papel. <a ${go("PAN-05")}>Cargar el primer documento</a>`):M("warn","Expediente incompleto: faltan 2 documentos obligatorios.",`Certificación de registro de propiedad (titular) · Copia de cédula del cotitular Esteban Mora Vega. <a ${go("PAN-07?estado=detalle")}>Ver qué falta</a>`)}
+  ${st==="vacio"?M("info","Este expediente todavía no tiene documentos digitalizados.",`Mientras tanto se consulta en papel. <a ${go("PAN-05")}>Cargar el primer documento</a>`)
+   :cargado?M("warn","Expediente incompleto: falta 1 documento obligatorio.",`Copia de cédula del cotitular Esteban Mora Vega. <a ${go("PAN-07?estado=detalle")}>Ver qué falta</a>`)
+   :M("warn","Expediente incompleto: faltan 2 documentos obligatorios.",`Certificación de registro de propiedad (titular) · Copia de cédula del cotitular Esteban Mora Vega. <a ${go("PAN-07?estado=detalle")}>Ver qué falta</a>`)}
   <div class="grid2">
    <div class="panel"><h2 style="margin-top:0">Datos del abonado</h2><dl class="kv"><dt>Número de paja</dt><dd>0412</dd><dt>Sector</dt><dd>Bodegas</dd><dt>Tipo de abonado</dt><dd>Persona física</dd><dt>Estado</dt><dd>Activo</dd></dl></div>
    <div class="panel"><h2 style="margin-top:0">Personas del expediente</h2>
@@ -370,17 +407,17 @@ SCREENS["PAN-04"]=st=>{
   </div>
   <div class="split"><div>
    <h2>Documentos (${docs.length}) · ordenados por prioridad del tipo</h2>
-   <div class="row" style="margin-bottom:10px">${FL("Tipo",tipoSel())}${FL("Nombre identificador",`<input>`)}${FL("Fecha del documento (desde – hasta)",`<div class="row" style="gap:6px;flex-wrap:nowrap"><input placeholder="dd/mm/aaaa" style="width:50%"><input placeholder="dd/mm/aaaa" style="width:50%"></div>`)}<label style="padding-bottom:8px"><input type="checkbox" ${showAnul?"checked":""} style="min-height:0" onclick="location.hash='#/PAN-04${showAnul?"":"?estado=anulados"}'"> Mostrar anulados</label></div>
-   ${st==="vacio"?`<div class="panel hint">No hay documentos.</div>`:T(["Prior.","Tipo","Nombre identificador","Aportado por","Fecha del documento","Versión","Acciones"],rows)}
+   <div class="row" style="margin-bottom:10px">${FL("Tipo",tipoSel())}${FL("Nombre identificador",`<input>`)}${FX("Fecha del documento (desde – hasta)",`<div class="row" style="gap:6px;flex-wrap:nowrap"><input aria-label="Fecha del documento desde" placeholder="desde" style="width:50%;min-width:0"><input aria-label="Fecha del documento hasta" placeholder="hasta" style="width:50%;min-width:0"></div><div class="hint">dd/mm/aaaa</div>`)}<label style="padding-bottom:8px"><input type="checkbox" ${showAnul?"checked":""} style="min-height:0" onclick="location.hash='#/PAN-04${showAnul?"":"?estado=anulados"}'"> Mostrar anulados</label></div>
+   ${st==="vacio"?`<div class="panel hint">No hay documentos.</div>`:T(["Prior.","Tipo","Nombre identificador","Aportado por","Fecha del documento","Versión","Acciones"],rows,"Documentos del expediente")}
   </div><div><h2>Vista del documento</h2>${viewer}</div></div>`);
 };
 
 SCREENS["PAN-05"]=st=>{
   const version = st==="version";
-  const fileRow=(n,sz,tipo,per,nom,fd,err="")=>`<tr><td><b>${n}</b><div class="hint">${sz}</div>${err?`<div class="errtxt">${err}</div>`:""}</td><td>${tipoSel(tipo)}</td><td><select><option>${per}</option><option>Esteban Mora Vega (cotitular)</option></select></td><td><input value="${nom}" placeholder="Opcional"></td><td><input value="${fd}"><div class="hint">dd/mm/aaaa</div></td><td><a class="btn sm link" href="#">Quitar</a></td></tr>`;
+  const fileRow=(n,sz,tipo,per,nom,fd,err="")=>`<tr><td><b>${n}</b><div class="hint">${sz}</div>${err?`<div class="errtxt">${err}</div>`:""}</td><td>${tipoSel(tipo,"Tipo de documento de "+n)}</td><td><select aria-label="Persona que aporta ${n}"><option>${per}</option><option>Esteban Mora Vega (cotitular)</option></select></td><td><input aria-label="Nombre identificador de ${n}" value="${nom}" placeholder="Opcional"></td><td><input aria-label="Fecha del documento de ${n}" value="${fd}"><div class="hint">dd/mm/aaaa</div></td><td><a class="btn sm link" ${go(version?"PAN-05?estado=version":"PAN-05?estado=seleccionado")}>Quitar <span class="sr-only">${n}</span></a></td></tr>`;
   let files="",msg="",act=`<a class="btn pri" ${go("PAN-05?estado=cargando")}>Guardar documentos</a>`;
-  if(st==="inicial"){ files=""; act=`<a class="btn pri" aria-disabled="true">Guardar documentos</a>`; }
-  if(st==="seleccionado"||st==="cargando"||st==="exito"||st==="version"){
+  if(st==="inicial"){ act=`<a class="btn pri" aria-disabled="true">Guardar documentos</a>`; }
+  if(st==="seleccionado"||st==="cargando"||st==="version"){
     files=FT(version?[fileRow("formulario_2026.pdf","PDF · 0,8 MB","Formulario de solicitud","Ana Lucía Mora Vega (titular)","Solicitud de servicio","10/02/2026")]:
      [fileRow("certificacion_registro.pdf","PDF · 1,3 MB","Certificación de registro de propiedad","Ana Lucía Mora Vega (titular)","","15/03/2005"),
       fileRow("cedula_esteban.png","PNG · 0,6 MB","Copia de cédula","Esteban Mora Vega (cotitular)","","10/02/2026")]);
@@ -392,66 +429,70 @@ SCREENS["PAN-05"]=st=>{
      fileRow("plano_2005.pdf","PDF · 14,2 MB","Plano legible","Ana Lucía Mora Vega (titular)","","15/03/2005","Pesa 14,2 MB y el máximo es 10 MB. Escanéelo a menor resolución o divídalo en dos archivos."),
      fileRow("certificacion_registro.pdf","PDF · 1,3 MB","","Ana Lucía Mora Vega (titular)","","15/03/2005","Falta el tipo de documento. Elíjalo en la lista.")]);
   }
-  if(st==="cargando"){ msg=`<div class="panel"><p style="margin:0 0 6px"><span class="spinner"></span>Cifrando y guardando el archivo 2 de 2…</p><div class="bar"><i style="width:60%"></i></div><p class="hint">No cierre SIGEDA. El botón se activa al terminar.</p></div>`; act=`<a class="btn pri" aria-disabled="true">Guardando…</a>`; }
+  if(st==="cargando"){ msg=`<div class="panel" role="status"><p style="margin:0 0 6px"><span class="spinner"></span>Cifrando y guardando el archivo 2 de 2…</p><div class="bar"><i style="width:60%"></i></div><p class="hint">No cierre SIGEDA. El botón se activa al terminar.</p></div>`; act=`<a class="btn pri" aria-disabled="true">Guardando…</a>`; }
   if(st==="exito"){ return shell("PAN-05",`<div class="crumb"><a ${go("PAN-03?estado=exito")}>Buscar expediente</a> › <a ${go("PAN-04")}>Expediente 0412</a> › Cargar documento</div><h1>Cargar documento</h1>
-    ${M("ok","Se cargaron 2 documentos al expediente 0412.","Certificación de registro de propiedad (fecha del documento 15/03/2005) y Copia de cédula de Esteban Mora Vega (10/02/2026). La carga quedó en la bitácora a nombre de secretaria.")}
+    ${M("ok","Se cargó 1 documento al expediente 0412.","Certificación de registro de propiedad, con fecha del documento 15/03/2005. La carga quedó en la bitácora a nombre de la cuenta secretaria.")}
     <div class="actions"><a class="btn pri" ${go("PAN-04?estado=cargado")}>Ver expediente</a><a class="btn" ${go("PAN-05")}>Cargar otro documento</a></div>`); }
+  const cancel = (st==="inicial"||st==="cargando") ? `<a class="btn" ${go("PAN-04")}>Cancelar</a>` : `<a class="btn" ${dl("D-07")}>Cancelar</a>`;
   return shell("PAN-05",`<div class="crumb"><a ${go("PAN-03?estado=exito")}>Buscar expediente</a> › <a ${go("PAN-04")}>Expediente 0412</a> › Cargar documento</div>
   <h1>Cargar documento</h1><p class="sub">Expediente <b>0412 · Ana Lucía Mora Vega</b> · Persona física · Bodegas <a class="btn sm link" ${go("PAN-03")}>Cambiar de expediente</a></p>${msg}
-  <div class="panel"><h2 style="margin-top:0">1. ¿Qué va a cargar?</h2>
+  <fieldset class="panel" style="margin:0 0 14px"><legend style="font-weight:700;font-size:17px;padding:0 4px">1. ¿Qué va a cargar?</legend>
    <label style="display:block;margin:4px 0"><input type="radio" name="q" ${version?"":"checked"} style="min-height:0"> Documentos nuevos para este expediente</label>
    <label style="display:block;margin:4px 0"><input type="radio" name="q" ${version?"checked":""} style="min-height:0"> Una <b>nueva versión</b> de un documento que ya está en el expediente</label>
-   ${version?`<div style="margin:8px 0 0 26px;max-width:520px">${F("Documento que se reemplaza en pantalla",`<select><option>Formulario de solicitud · Solicitud de servicio · 15/03/2005 (v1)</option></select>`,{req:true,hint:"La versión anterior se conserva con su fecha; la nueva se muestra como vigente."})}</div>`:""}
-  </div>
+   ${version?`<div style="margin:8px 0 0 26px;max-width:520px">${F("Documento del que es nueva versión",`<select><option>Formulario de solicitud · Solicitud de servicio · 15/03/2005 (v1)</option></select>`,{req:true,hint:"La versión anterior se conserva con su fecha; la nueva se muestra como vigente."})}</div>`:""}
+  </fieldset>
   <div class="panel"><h2 style="margin-top:0">2. Archivos</h2>
    <div class="drop">Arrastre aquí los archivos escaneados o <a class="btn sm" ${go(version?"PAN-05?estado=version":"PAN-05?estado=seleccionado")}>Elegir archivos</a><div class="hint" style="margin-top:6px">Solo PDF o PNG · máximo 10 MB por archivo · puede elegir varios a la vez</div></div>
    ${files?`<h3>3. Datos de cada archivo</h3><p class="hint">La fecha del documento se propone con la fecha de hoy (${HOY}). Si digitaliza un papel viejo, ponga la fecha que tiene el papel. La fecha y hora de carga se guardan solas y no se pueden cambiar.</p>`+files:`<p class="hint" style="margin-top:12px">Todavía no ha elegido archivos.</p>`}
   </div>
-  <div class="actions">${st==="inicial"?`<a class="btn" ${go("PAN-04")}>Cancelar</a>`:`<a class="btn" href="#" data-dlg="D-07">Cancelar</a>`}${act}</div>`);
+  <div class="actions">${cancel}${act}</div>`);
 };
+function FT(rows){ return `<div class="tablewrap ftable"><table><colgroup><col style="width:22%"><col style="width:20%"><col style="width:24%"><col style="width:14%"><col style="width:13%"><col style="width:7%"></colgroup><thead><tr><th scope="col">Archivo</th><th scope="col">Tipo de documento <span class="req">(oblig.)</span></th><th scope="col">Persona que lo aporta</th><th scope="col">Nombre identificador <span class="req">(opcional)</span></th><th scope="col">Fecha del documento <span class="req">(oblig.)</span></th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`; }
 
 SCREENS["PAN-06"]=st=>{
-  const nuevo = st==="nuevo"||st==="cargando"||st==="error"||st==="exito";
-  const imp = st==="importado";
-  if(st==="exito") return shell("PAN-06",`<h1>Registrar abonado</h1>${M("ok","Abonado 0533 registrado con su titular vigente.","Quedó en la bitácora a nombre de secretaria. Ahora puede cargar sus documentos.")}<div class="actions"><a class="btn pri" ${go("PAN-05")}>Cargar documentos</a><a class="btn" ${go("PAN-04?estado=vacio")}>Ver expediente</a><a class="btn" ${go("PAN-06")}>Registrar otro</a></div>`);
-  const e = st==="error";
+  const nuevo = ["nuevo","cargando","error","exito","persona-existente"].includes(st);
+  const imp = st==="importado", e = st==="error", pe = st==="persona-existente";
+  if(st==="exito") return shell("PAN-06",`<h1>Registrar abonado</h1>${M("ok","Abonado 0533 registrado con su titular vigente.","Quedó en la bitácora a nombre de la cuenta secretaria. Ahora puede cargar sus documentos.")}<div class="actions"><a class="btn pri" ${go("PAN-05")}>Cargar documentos</a><a class="btn" ${go("PAN-04?estado=vacio")}>Ver expediente</a><a class="btn" ${go("PAN-06")}>Registrar otro</a></div>`);
   const pajaF = F("Número de paja",`<input value="${nuevo?(e?"0412":"0533"):(imp?"1021":"0412")}" ${nuevo?"":"disabled"} class="${e?"bad":""}">`,{req:true,err:e?`El número de paja 0412 ya está registrado (Ana Lucía Mora Vega). Revise el número o abra ese expediente.`:"",hint:nuevo?"No se repite y no se puede cambiar después.":"El número de paja no se puede cambiar."});
-  const tipo = `<div class="field"><label>Tipo de abonado <span class="req">(obligatorio)</span></label><div class="row" style="gap:16px">${["Persona física","Persona jurídica"].map(t=>`<label><input type="radio" name="t" ${(!imp&&t==="Persona física")?"checked":""} style="min-height:0"> ${t}</label>`).join("")}</div>${imp?`<div class="errtxt">Tipo pendiente: elija uno para que se pueda calcular la completitud.</div>`:`<div class="hint">Define qué documentos son obligatorios.</div>`}</div>`;
-  const idF = `<div class="row">${F("Tipo de identificación",`<select class="${e?"bad":""}"><option>Cédula física</option><option>Cédula jurídica</option><option>DIMEX</option><option>Pasaporte</option></select>`,{req:!imp})}${F("Número",`<input value="${imp?"":(e?"1-0000-012":(nuevo?"1-0000-0222":"1-0000-0123"))}" class="${e?"bad":""}" placeholder="1-0000-0000">`,{req:!imp,err:e?"La cédula física tiene 9 dígitos (ejemplo 1-0000-0123) y aquí hay 8. Revise el número.":"",hint:"Cédula física: 9 dígitos (0-0000-0000) · jurídica: 10 (3-000-000000) · DIMEX: 11 o 12 · pasaporte: letras y números."})}</div>`;
+  const tipo = `<fieldset class="field" style="border:none;padding:0;margin:0"><legend class="lbl" style="font-weight:600;font-size:14px">Tipo de abonado <span class="req">(obligatorio)</span></legend><div class="row" style="gap:16px">${["Persona física","Persona jurídica"].map(t=>`<label><input type="radio" name="t" ${(!imp&&t==="Persona física")?"checked":""} style="min-height:0"> ${t}</label>`).join("")}</div>${imp?`<div class="errtxt">Tipo pendiente: elija uno para que se pueda calcular la completitud.</div>`:`<div class="hint">Define qué documentos son obligatorios.</div>`}</fieldset>`;
+  const idNum = imp?"":(e?"1-0000-012":(pe?"1-0000-0123":(nuevo?"1-0000-0222":"1-0000-0123")));
+  const idF = `<div class="row" style="align-items:flex-start">${F("Tipo de identificación",`<select class="${e?"bad":""}"><option>Cédula física</option><option>Cédula jurídica</option><option>DIMEX</option><option>Pasaporte</option></select>`,{req:!imp})}${F("Número de identificación",`<input value="${idNum}" class="${e?"bad":""}" placeholder="1-0000-0000">`,{req:!imp,err:e?"La cédula física tiene 9 dígitos (ejemplo 1-0000-0123) y aquí hay 8. Revise el número.":"",hint:"Cédula física: 9 dígitos (0-0000-0000) · jurídica: 10 (3-000-000000) · DIMEX: 11 o 12 · pasaporte: letras y números."})}</div>`;
   const personas = nuevo?`<p class="hint">Aún no hay personas asociadas.</p>`:T(["Persona","Identificación","Rol","Desde","Hasta",""],[
-     `<tr><td>Esteban Mora Vega</td><td>2-0000-0456</td><td><select><option>Cotitular</option><option>Apoderada</option></select></td><td>10/02/2026</td><td>—</td><td><a class="btn sm" href="#">Quitar del expediente</a></td></tr>`]);
+     `<tr><td>Esteban Mora Vega</td><td>2-0000-0456</td><td><select aria-label="Rol de Esteban Mora Vega"><option>Cotitular</option><option>Apoderada</option></select></td><td>10/02/2026</td><td>—</td><td><a class="btn sm" ${go("PAN-06?estado=modificar")}>Quitar del expediente</a></td></tr>`],"Personas asociadas");
   return shell("PAN-06",`<div class="crumb">${nuevo?"Nuevo abonado":`<a ${go("PAN-04")}>Expediente ${imp?"1021":"0412"}</a> › Modificar`}</div>
   <h1>${nuevo?"Registrar abonado":"Modificar abonado y personas"}</h1>
-  ${imp?M("warn","Abonado importado de SADA el 02/11/2026: faltan el tipo de abonado, el sector y la identificación del titular.","Mientras el tipo esté pendiente, el panel de completitud lo muestra aparte. Complete los datos y guarde."):""}
+  ${imp?M("warn","Abonado importado de SADA el 14/09/2026: faltan el tipo de abonado, el sector y la identificación del titular.","Mientras el tipo esté pendiente, el panel de completitud lo muestra aparte. Complete los datos y guarde."):""}
   ${e?M("error","No se pudo guardar: hay 2 datos por corregir.","Están marcados abajo con ⚠."):""}
-  ${st==="cargando"?`<p><span class="spinner"></span>Guardando abonado, titular y vínculo en una sola operación…</p>`:""}
-  <div class="panel"><h2 style="margin-top:0">Datos del abonado</h2><div class="row">${pajaF}${F("Sector",sectorSel(imp?"Todos":"Bodegas"),{req:true})}${tipo}</div>
+  ${pe?M("warn","Ya existe una persona con la cédula física 1-0000-0123: Ana Lucía Mora Vega, titular de la paja 0412.",`Si es la misma persona, use sus datos registrados para no duplicarla. <a class="btn sm" ${go("PAN-06?estado=nuevo")}>Usar esa persona</a> <a class="btn sm link" ${go("PAN-06?estado=nuevo")}>Revisar el número</a>`):""}
+  ${st==="cargando"?`<p role="status"><span class="spinner"></span>Guardando abonado, titular y vínculo en una sola operación…</p>`:""}
+  <div class="panel"><h2 style="margin-top:0">Datos del abonado</h2><div class="row">${pajaF}${F("Sector",sectorSel(nuevo||imp?"Elija el sector…":"Bodegas",true),{req:true})}${tipo}</div>
    ${nuevo?"":`<p class="hint" style="margin-top:8px">Estado: <b>Activo</b>. Para dar de baja o reactivar use el botón del expediente.</p>`}</div>
   <div class="panel"><h2 style="margin-top:0">Titular vigente</h2>
-   ${nuevo?`<div class="row">${F("Nombre completo o razón social",`<input value="${e?"Ana Lucia Mora Vega":"Luis Fernando Mora Solano"}">`,{req:true})}<div class="field" style="flex:0"><label>&nbsp;</label><a class="btn sm" href="#">Buscar persona ya registrada</a></div></div>${idF}
-     ${e?M("warn","Ya existe una persona con un nombre parecido: Ana Lucía Mora Vega (1-0000-0123), titular de la paja 0412.","Si es la misma persona, use «Buscar persona ya registrada» para no duplicarla."):""}`
-   :`<div class="row" style="align-items:center"><div style="flex:1"><b>${imp?"José Antonio Mora Araya":"Ana Lucía Mora Vega"}</b> · ${imp?"sin identificación":"1-0000-0123"} · titular desde ${imp?"02/11/2026":"10/02/2026"}</div><a class="btn" href="#" data-dlg="D-04">Cambiar titular…</a></div>${imp?idF:""}
-     <details style="margin-top:8px" ${imp?"":"open"}><summary>Historial de titulares</summary>${imp?`<p class="hint">Sin titulares anteriores.</p>`:T(["Titular","Identificación","Desde","Hasta"],[`<tr class="muted"><td>Rodrigo Mora Castro</td><td>1-0000-0098</td><td>15/03/2005</td><td>10/02/2026</td></tr>`])}</details>`}
+   ${nuevo?`<div class="row">${F("Nombre completo o razón social",`<input value="${e||pe?"Ana Lucia Mora Vega":"Luis Fernando Mora Solano"}">`,{req:true})}<div class="field" style="flex:0 0 auto;min-width:0"><span class="lbl">&nbsp;</span><a class="btn sm" ${dl("D-06")}>Buscar persona ya registrada</a></div></div>${idF}`
+   :`<div class="row" style="align-items:center"><div style="flex:1"><b>${imp?"José Antonio Mora Araya":"Ana Lucía Mora Vega"}</b> · ${imp?"sin identificación":"1-0000-0123"} · titular desde ${imp?"14/09/2026":"10/02/2026"}</div><a class="btn" ${dl("D-04")}>Cambiar titular…</a></div>${imp?idF:""}
+     <details style="margin-top:8px" ${imp?"":"open"}><summary>Historial de titulares</summary>${imp?`<p class="hint">Sin titulares anteriores.</p>`:T(["Titular","Identificación","Desde","Hasta"],[`<tr class="muted"><td>Rodrigo Mora Castro</td><td>1-0000-0098</td><td>15/03/2005</td><td>10/02/2026</td></tr>`],"Historial de titulares")}</details>`}
   </div>
   <div class="panel"><h2 style="margin-top:0">Personas asociadas (cotitulares y persona apoderada)</h2>${personas}
-   <div class="actions"><a class="btn sm" href="#">+ Agregar persona</a></div><p class="hint">Quitar una persona cierra su vínculo con la fecha de hoy; sus documentos se quedan en el expediente.</p></div>
+   <div class="actions"><a class="btn sm" ${dl("D-06")}>+ Agregar persona</a></div><p class="hint">Quitar una persona cierra su vínculo con la fecha de hoy; sus documentos se quedan en el expediente.</p></div>
   <div class="actions"><a class="btn" ${go(nuevo?"PAN-02":"PAN-04")}>Cancelar</a><a class="btn pri" ${go(nuevo?(e?"PAN-06?estado=error":"PAN-06?estado=exito"):"PAN-04")}>Guardar</a></div>`);
 };
 
 SCREENS["PAN-07"]=st=>{
-  const kpis=`<div class="grid4">${[["312","Completos"],["641","Incompletos"],["58","Tipo pendiente"],["4","De baja (no cuentan)"]].map(k=>`<div class="kpi"><div class="n">${k[0]}</div><div class="l">${k[1]} de 1 015</div></div>`).join("")}</div>
-   <div class="panel" style="margin-top:12px"><div class="row" style="align-items:center"><b>Avance de la digitalización</b><div style="flex:1"><div class="bar"><i style="width:31%"></i></div></div><b>31 %</b></div></div>`;
-  const filt=`<div class="panel"><div class="row">${FL("Estado",`<select><option>Incompletos</option><option>Completos</option><option>Tipo pendiente</option><option>Todos</option></select>`)}${FL("Sector",sectorSel())}${FL("Documento que falta",tipoSel())}${FL("Tipo de abonado",`<select><option>Todos</option><option>Persona física</option><option>Persona jurídica</option></select>`)}</div><div class="row" style="justify-content:space-between;margin-top:8px"><label><input type="checkbox" style="min-height:0"> Mostrar abonados de baja</label><a class="btn pri" ${go("PAN-07")}>Aplicar filtros</a></div></div>`;
+  const k=(n,l,c)=>`<div class="kpi ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  const load=st==="cargando";
+  const kpis=`<div class="grid4">${k(load?"—":"312","Completos de 1 011 activos","ok")}${k(load?"—":"641","Incompletos de 1 011 activos","no")}${k(load?"—":"58","Tipo pendiente de 1 011 activos","pend")}${k(load?"—":"4","De baja (no cuentan en el avance)","")}</div>
+   <div class="panel" style="margin-top:12px"><div class="row" style="align-items:center"><b>Avance de la digitalización</b><div style="flex:1"><div class="bar" role="img" aria-label="31 % de avance"><i style="width:${load?0:31}%"></i></div></div><b>${load?"—":"31 %"}</b></div></div>`;
+  const filt=`<div class="panel"><div class="row">${FL("Estado",`<select><option>Incompletos</option><option>Completos</option><option>Tipo pendiente</option><option>Todos</option></select>`)}${FL("Sector",sectorSel(st==="sin-resultados"?"Pilas":"Todos"))}${FL("Documento que falta",tipoSel(st==="sin-resultados"?"Contrato de servicio":""))}${FL("Tipo de abonado",`<select><option>Todos</option><option>Persona física</option><option>Persona jurídica</option></select>`)}</div><div class="row" style="justify-content:space-between;margin-top:8px"><label><input type="checkbox" style="min-height:0"> Mostrar abonados de baja</label><a class="btn pri" ${go("PAN-07")}>Aplicar filtros</a></div></div>`;
   const rowsFull=[
-   ["0412","Ana Lucía Mora Vega","Bodegas","Física",`<span class="tag no">Certificación de registro de propiedad</span><span class="tag no">Copia de cédula · cotitular Esteban</span>`,"Certificación de registro de propiedad"],
-   ["0255","Marta Elena Mora Ulate","Trapiche","Física",`<span class="tag no">Plano legible</span><span class="tag no">Contrato de servicio</span>`,"Plano legible"],
-   ["0418","Servicios Hídricos Ficticios Ltda.","Pilas","Jurídica",`<span class="tag no dash">Uno de: Permiso de construcción vigente o Formulario de construcción y uso del agua</span>`,"Permiso de construcción vigente"],
-   ["0730","Sofía Mora Quirós","Calle Central","Física",`<span class="tag no">Formulario de solicitud</span>`,"Formulario de solicitud"]];
-  const rows=rowsFull.map(r=>`<tr><td><b>${r[0]}</b></td><td class="nm">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${compTag("Incompleto")}</td><td>${r[4]}</td><td><a class="btn sm pri" ${go("PAN-05")}>Cargar lo que falta</a> <a class="btn sm" ${go("PAN-04")}>Abrir</a></td></tr>`);
-  const pend=`<h2>Tipo pendiente (58) · importados de SADA</h2>${T(["Paja","Titular","Estado",""],[`<tr><td><b>1021</b></td><td>José Antonio Mora Araya</td><td>${compTag("Tipo pendiente")}</td><td><a class="btn sm" ${go("PAN-06?estado=importado")}>Asignar tipo</a></td></tr>`])}`;
+   ["0412","Ana Lucía Mora Vega","Bodegas","Física",`<span class="tag no">Certificación de registro de propiedad</span><span class="tag no">Copia de cédula · cotitular Esteban</span>`],
+   ["0255","Marta Elena Mora Ulate","Trapiche","Física",`<span class="tag no">Plano legible</span><span class="tag no">Contrato de servicio</span>`],
+   ["0409","Grupo Agrícola Ficticio Ltda.","Bodegas","Jurídica",`<span class="tag no dash">Uno de: Permiso de construcción vigente o Formulario de construcción y uso del agua</span>`],
+   ["0730","Sofía Mora Quirós","Calle Central","Física",`<span class="tag no">Formulario de solicitud</span>`]];
+  const rows=rowsFull.map(r=>`<tr><td><b>${r[0]}</b></td><td class="nm">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${compTag("Incompleto")}</td><td>${r[4]}</td><td><a class="btn sm pri" ${go("PAN-05")}>Cargar lo que falta <span class="sr-only">de ${r[0]}</span></a> <a class="btn sm" ${go("PAN-04")}>Abrir <span class="sr-only">${r[0]}</span></a></td></tr>`);
+  const pend=`<h2>Tipo pendiente (58) · importados de SADA el 14/09/2026</h2>${T(["Paja","Titular","Estado",""],[`<tr><td><b>1021</b></td><td>José Antonio Mora Araya</td><td>${compTag("Tipo pendiente")}</td><td><a class="btn sm" ${go("PAN-06?estado=importado")}>Asignar tipo</a></td></tr>`],"Abonados con tipo pendiente")}`;
   let body="";
   if(st==="vacio") body=M("info","Todavía no hay abonados registrados.",`Importe el listado de SADA para empezar a medir el avance. <a ${go("PAN-09")}>Importar SADA</a>`);
-  else if(st==="cargando") body=kpis.replace(/\d[\d ]*<\/div><div class="l">/g,'—</div><div class="l">')+`<p><span class="spinner"></span>Calculando la completitud de 1 015 expedientes…</p>`;
+  else if(load) body=kpis+`<p role="status"><span class="spinner"></span>Calculando la completitud de 1 011 expedientes activos…</p>`;
   else if(st==="sin-resultados") body=kpis+filt+M("info","Ningún abonado del sector Pilas tiene pendiente el «Contrato de servicio».","Cambie el filtro «Documento que falta» o elija otro sector.");
   else if(st==="detalle") body=kpis+`<div class="panel"><h2 style="margin-top:0">Paja 0412 · Ana Lucía Mora Vega · Persona física</h2><p class="hint">Se revisan solo los documentos vigentes del titular vigente y de los cotitulares vigentes. Los del titular anterior se conservan, pero no cuentan.</p>
      ${T(["Documento obligatorio","Titular · Ana Lucía Mora Vega","Cotitular · Esteban Mora Vega"],[
@@ -459,173 +500,183 @@ SCREENS["PAN-07"]=st=>{
       `<tr><td>Formulario de solicitud</td><td><span class="tag ok">✓ Tiene</span></td><td class="hint">No se le exige</td></tr>`,
       `<tr><td>Copia de cédula</td><td><span class="tag ok">✓ Tiene</span></td><td><span class="tag no strong">✗ Falta</span> <a class="btn sm" ${go("PAN-05")}>Cargar</a></td></tr>`,
       `<tr><td>Certificación de registro de propiedad</td><td><span class="tag no strong">✗ Falta</span> <a class="btn sm" ${go("PAN-05")}>Cargar</a></td><td class="hint">No se le exige</td></tr>`,
-      `<tr><td>Contrato de servicio</td><td><span class="tag ok">✓ Tiene</span></td><td class="hint">No se le exige</td></tr>`])}
+      `<tr><td>Contrato de servicio</td><td><span class="tag ok">✓ Tiene</span></td><td class="hint">No se le exige</td></tr>`],"Detalle de completitud por persona")}
      <div class="actions"><a class="btn" ${go("PAN-07")}>Volver al panel</a><a class="btn" ${go("PAN-04")}>Abrir expediente</a></div></div>`;
-  else body=kpis+filt+`<h2>Incompletos (641) · por número de paja</h2>`+T(["Paja","Titular vigente","Sector","Tipo","Estado","Qué falta",""],rows)+pend;
-  return shell("PAN-07",`<h1>Panel de completitud</h1><p class="sub">Qué expedientes tienen todos los documentos obligatorios según su tipo de abonado.</p>${body}`);
+  else body=kpis+filt+`<h2>Incompletos (641) · por número de paja</h2>`+T(["Paja","Titular vigente","Sector","Tipo","Estado","Qué falta",""],rows,"Expedientes incompletos")+pend;
+  return shell("PAN-07",`<h1>Panel de completitud</h1><p class="sub">Qué expedientes tienen todos los documentos obligatorios según su tipo de abonado. El avance se mide sobre los abonados activos.</p>${body}`);
 };
 
 SCREENS["PAN-08"]=st=>{
-  const hist=T(["Fecha y hora","Tipo","Estado","Disco externo","OneDrive","Tamaño"],[
-   `<tr><td>03/11/2026 16:30</td><td>Automático</td><td><span class="tag ok">Completo</span></td><td>Verificada ✓</td><td>No configurado</td><td>1,8 GB</td></tr>`,
-   `<tr><td>02/11/2026 16:30</td><td>Automático</td><td><span class="tag ok">Completo</span></td><td>Verificada ✓</td><td>No configurado</td><td>1,7 GB</td></tr>`,
-   `<tr><td>01/11/2026 11:05</td><td>Manual</td><td><span class="tag ok">Completo</span></td><td>Verificada ✓</td><td>No configurado</td><td>1,7 GB</td></tr>`]);
-  let estado=`<div class="panel"><h2 style="margin-top:0">Último respaldo completo</h2><dl class="kv"><dt>Fecha</dt><dd>03/11/2026 16:30 (hace 18 horas)</dd><dt>Disco externo</dt><dd>Copia verificada ✓ (la huella SHA-256 coincide)</dd><dt>OneDrive</dt><dd>No configurado</dd><dt>Próximo automático</dt><dd>Hoy 16:30 · con el disco conectado</dd></dl></div>`;
+  const hecho=st==="hecho", pend=st==="pendiente";
+  let lista=RESPALDOS.slice();
+  if(hecho) lista=[["04/11/2026 10:05","Manual","Completo","1,8 GB"],...lista.slice(0,8)];
+  if(pend) lista=[["03/11/2026 16:30","Automático","Pendiente","—"],...lista.slice(1)];
+  if(st==="error") lista=[["04/11/2026 10:05","Manual","Fallido","—"],...lista.slice(0,8)];
+  const etq=e=>e==="Completo"?`<span class="tag ok">Completo</span>`:e==="Pendiente"?`<span class="tag pend">Pendiente</span>`:`<span class="tag no">Fallido</span>`;
+  const hist=T(["Fecha y hora","Tipo","Estado","Disco externo","OneDrive","Tamaño"],lista.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${etq(r[2])}</td><td>${r[2]==="Completo"?"Verificada ✓":r[2]==="Pendiente"?"Disco no conectado":"La copia no coincide"}</td><td>No configurado</td><td>${r[3]}</td></tr>`),"Últimos respaldos");
+  const ult = hecho?"04/11/2026 10:05 (hace unos segundos)":pend?"02/11/2026 16:30 (hace 2 días)":"03/11/2026 16:30 (hace 18 horas)";
+  const prox = pend?"Reintentando cada 30 minutos: conecte el disco externo":"Hoy 16:30 · con el disco conectado";
+  let estado=`<div class="panel"><h2 style="margin-top:0">Último respaldo completo</h2><dl class="kv"><dt>Fecha</dt><dd>${ult}</dd><dt>Disco externo</dt><dd>Copia verificada ✓ (la huella SHA-256 coincide)</dd><dt>OneDrive</dt><dd>No configurado · <a ${go("PAN-08?estado=onedrive")}>Configurar</a></dd><dt>Próximo automático</dt><dd>${prox}</dd></dl></div>`;
   let msg="";
-  if(st==="pendiente"){ msg=M("warn","El disco externo no está conectado. El respaldo de las 16:30 quedó pendiente.","SIGEDA lo reintentará cada 30 minutos y avisará al iniciar sesión. Conecte el disco y presione «Respaldar ahora»."); estado=estado.replace("hace 18 horas","hace 2 días").replace("03/11/2026 16:30","02/11/2026 16:30"); }
-  if(st==="error") msg=M("error","El respaldo de las 10:05 falló: la copia en el disco externo no coincide con el original.","No se usará esa copia. Revise que el disco tenga espacio y no esté dañado, y presione «Respaldar ahora». Si vuelve a fallar, cambie de disco.");
-  if(st==="hecho") msg=M("ok","Respaldo completo y verificado: 04/11/2026 10:05.","La copia en el disco externo coincide con el original. Ya puede desconectar el disco al cerrar la jornada.");
+  if(pend) msg=M("warn","El disco externo no está conectado. El respaldo automático de ayer (03/11/2026, 16:30) quedó pendiente.","SIGEDA lo reintenta cada 30 minutos y avisa al iniciar sesión. Conecte el disco y presione «Respaldar ahora».");
+  if(st==="error") msg=M("error","El respaldo de hoy a las 10:05 falló: la copia en el disco externo no coincide con el original.","No se usará esa copia. Revise que el disco tenga espacio y no esté dañado, y presione «Respaldar ahora». Si vuelve a fallar, cambie de disco.");
+  if(hecho) msg=M("ok","Respaldo completo y verificado: 04/11/2026 10:05.","La copia en el disco externo coincide con el original. Ya puede desconectar el disco al cerrar la jornada.");
   if(st==="vacio") return shell("PAN-08",`<h1>Respaldo y restauración</h1>${M("warn","Aún no hay ningún respaldo.","Conecte el disco externo y presione «Respaldar ahora». Después SIGEDA respaldará solo todos los días.")}<div class="actions"><a class="btn pri" ${go("PAN-08?estado=cargando")}>Respaldar ahora</a></div>`);
-  const act = st==="cargando"?`<div class="panel"><p style="margin:0 0 6px"><span class="spinner"></span>Respaldando… copiando documentos (45 %)</p><div class="bar"><i style="width:45%"></i></div><p class="hint">Puede seguir trabajando. No desconecte el disco hasta que termine.</p></div>`:"";
+  if(st==="onedrive") return shell("PAN-08",`<div class="crumb"><a ${go("PAN-08")}>Respaldos</a> › OneDrive</div><h1>Configurar copia en OneDrive</h1><p class="sub">Copia adicional del respaldo cifrado en la carpeta de OneDrive de esta computadora. Solo si la ASADA confirma que su licencia de Microsoft incluye OneDrive (S-10).</p>
+    <div class="panel">${F("Carpeta de OneDrive sincronizada",`<input value="C:\\Users\\Acueducto\\OneDrive\\Respaldos SIGEDA">`,{req:true,hint:"En el sistema real, «Elegir…» abre el selector de carpetas de Windows."})}
+    <label style="display:block;margin-top:10px"><input type="checkbox" checked style="min-height:0"> Copiar cada respaldo también a OneDrive y verificar su huella SHA-256</label>
+    <p class="hint">El respaldo queda «completo» si al menos una copia se verifica (disco externo u OneDrive). Los archivos van cifrados: sin la clave no se pueden abrir.</p>
+    <div class="actions"><a class="btn" ${go("PAN-08")}>Cancelar</a><a class="btn pri" ${go("PAN-08")}>Guardar configuración</a></div></div>`);
+  if(st==="prueba") return shell("PAN-08",`<div class="crumb"><a ${go("PAN-08")}>Respaldos</a> › Prueba de restauración</div><h1>Registrar una prueba de restauración</h1><p class="sub">Cada 3 meses (propuesta) se restaura un respaldo en otra computadora para comprobar que sirve (RNF-04). Aquí se anota el resultado.</p>
+    <div class="panel"><div class="row">${F("Fecha de la prueba",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}${F("Respaldo probado",`<select><option>03/11/2026 16:30 · Completo</option><option>02/11/2026 16:30 · Completo</option></select>`,{req:true})}${F("Computadora usada",`<input value="Computadora personal de la Administración">`,{req:true})}</div>
+    <fieldset style="border:none;padding:0;margin:10px 0 0"><legend class="lbl" style="font-weight:600">Resultado <span class="req">(obligatorio)</span></legend><label style="margin-right:16px"><input type="radio" name="res" checked style="min-height:0"> Se recuperó todo y las huellas coinciden</label><label><input type="radio" name="res" style="min-height:0"> Hubo problemas</label></fieldset>
+    ${F("Observaciones",`<textarea rows="2"></textarea>`)}
+    <div class="actions"><a class="btn" ${go("PAN-08")}>Cancelar</a><a class="btn pri" ${go("PAN-08")}>Guardar prueba</a></div></div>`);
+  if(st==="cuarentena") return shell("PAN-08",`<div class="crumb"><a ${go("PAN-08")}>Respaldos</a> › Archivos en cuarentena</div><h1>Archivos en cuarentena</h1><p class="sub">Archivos que estaban en la carpeta de documentos pero no tienen registro en la base (por ejemplo, tras un corte de luz durante una carga). Se apartan, no se borran.</p>
+    ${T(["Archivo","Tamaño","Detectado el","Motivo"],[`<tr><td>doc_7f3a.enc</td><td>1,2 MB</td><td>28/10/2026 16:31</td><td>Sin registro en la base (carga interrumpida)</td></tr>`,`<tr><td>doc_91bc.enc</td><td>0,4 MB</td><td>28/10/2026 16:31</td><td>Sin registro en la base (carga interrumpida)</td></tr>`],"Archivos en cuarentena")}
+    <p class="hint" style="margin-top:10px">Si alguno corresponde a un documento real, vuelva a cargarlo desde el expediente. Cada detección quedó en la bitácora.</p><div class="actions"><a class="btn" ${go("PAN-08")}>Volver a respaldos</a></div>`);
+  const act = st==="cargando"?`<div class="panel" role="status"><p style="margin:0 0 6px"><span class="spinner"></span>Respaldando… copiando documentos (45 %)</p><div class="bar"><i style="width:45%"></i></div><p class="hint">Puede seguir trabajando. No desconecte el disco hasta que termine.</p></div>`:"";
   return shell("PAN-08",`<h1>Respaldo y restauración</h1><p class="sub">SIGEDA hace un respaldo completo y cifrado todos los días. Aquí ve si salió bien y puede hacer uno a mano o restaurar.</p>${msg}${act}
   <div class="grid2">${estado}
-   <div class="panel"><h2 style="margin-top:0">Acciones</h2><div class="actions" style="margin-top:0"><a class="btn pri" ${st==="cargando"?'aria-disabled="true"':""} ${go("PAN-08?estado=hecho")}>Respaldar ahora</a><a class="btn danger" href="#" data-dlg="D-05">Restaurar un respaldo…</a></div>
-   <p class="hint">Restaurar reemplaza los abonados y documentos actuales por los del respaldo elegido. La bitácora no se borra: se agrega el registro de la restauración.</p>
-   <dl class="kv" style="margin-top:8px"><dt>Prueba de restauración en otro equipo</dt><dd>Pendiente (propuesta: cada 3 meses)</dd><dt>Archivos en cuarentena</dt><dd>0 · <a href="#">ver lista</a></dd></dl></div></div>
-  <h2>Historial de respaldos (se conservan 7 diarios y 4 semanales)</h2>${hist}`);
+   <div class="panel"><h2 style="margin-top:0">Acciones</h2><div class="actions" style="margin-top:0"><a class="btn pri" ${st==="cargando"?'aria-disabled="true"':""} ${go("PAN-08?estado=hecho")}>Respaldar ahora</a><a class="btn danger" ${dl("D-05")}>Restaurar un respaldo…</a></div>
+   <p class="hint">Restaurar reemplaza los abonados y documentos actuales por los del respaldo elegido. La bitácora no se borra: se agrega el registro de la restauración. ${PROP} restaurar requiere la autorización de la Administración.</p>
+   <dl class="kv" style="margin-top:8px"><dt>Prueba de restauración en otra computadora</dt><dd>Pendiente (propuesta: cada 3 meses) · <a ${go("PAN-08?estado=prueba")}>Registrar prueba</a></dd><dt>Archivos en cuarentena</dt><dd>2 · <a ${go("PAN-08?estado=cuarentena")}>ver lista</a></dd></dl></div></div>
+  <h2>Últimos respaldos (se conservan 7 diarios y 4 semanales)</h2>${hist}`);
 };
 
 SCREENS["PAN-09"]=st=>{
-  const steps=n=>`<div class="steps">${["1. Elegir archivo","2. Revisar columnas","3. Importar","4. Resumen"].map((s,i)=>`<span class="${i===n?"on":""}">${s}</span>`).join("")}</div>`;
+  const steps=n=>`<ol class="steps" aria-label="Pasos de la importación" style="list-style:none;padding:0">${["1. Elegir archivo","2. Revisar columnas","3. Importar","4. Resumen"].map((s,i)=>`<li><span class="${i===n?"on":""}" ${i===n?'aria-current="step"':""}>${s}</span></li>`).join("")}</ol>`;
   let b="";
   if(st==="inicial") b=steps(0)+`<div class="panel"><div class="drop">Arrastre aquí el archivo exportado por SADA o <a class="btn sm" ${go("PAN-09?estado=vista-previa")}>Elegir archivo</a><div class="hint" style="margin-top:6px">Excel (.xlsx) o texto delimitado (.csv)</div></div><p class="hint">Solo se crean los números de paja que no estén registrados. Los abonados importados quedan con tipo pendiente.</p></div>`;
-  if(st==="vista-previa") b=steps(1)+`<div class="panel"><p><b>abonados_sada_nov2026.xlsx</b> · 1 015 filas</p>${T(["Columna del archivo","Se usa como","Ejemplo (fila 2)"],[`<tr><td>PAJA</td><td><select><option>Número de paja</option></select></td><td>0412</td></tr>`,`<tr><td>NOMBRE</td><td><select><option>Nombre del titular</option></select></td><td>MORA VEGA ANA LUCIA</td></tr>`,`<tr><td>DIRECCION</td><td><select><option>No se usa</option></select></td><td>—</td></tr>`])}<div class="actions"><a class="btn" ${go("PAN-09")}>Elegir otro archivo</a><a class="btn pri" ${go("PAN-09?estado=cargando")}>Importar</a></div></div>`;
+  if(st==="vista-previa") b=steps(1)+`<div class="panel"><p><b>abonados_sada_sep2026.xlsx</b> · 1 015 filas</p>${T(["Columna del archivo","Se usa como","Ejemplo (fila 2)"],[`<tr><td>PAJA</td><td><select aria-label="Uso de la columna PAJA"><option>Número de paja</option></select></td><td>0412</td></tr>`,`<tr><td>NOMBRE</td><td><select aria-label="Uso de la columna NOMBRE"><option>Nombre del titular</option></select></td><td>MORA VEGA ANA LUCIA</td></tr>`,`<tr><td>DIRECCION</td><td><select aria-label="Uso de la columna DIRECCION"><option>No se usa</option></select></td><td>—</td></tr>`],"Columnas detectadas")}<div class="actions"><a class="btn" ${go("PAN-09")}>Elegir otro archivo</a><a class="btn pri" ${go("PAN-09?estado=cargando")}>Importar</a></div></div>`;
   if(st==="error") b=steps(0)+M("error","El archivo «abonados.pdf» no se puede importar: es un PDF.","Exporte el listado desde SADA como Excel (.xlsx) o texto (.csv) y elíjalo de nuevo.")+`<div class="actions"><a class="btn pri" ${go("PAN-09")}>Elegir otro archivo</a></div>`;
-  if(st==="cargando") b=steps(2)+`<div class="panel"><p><span class="spinner"></span>Importando fila 640 de 1 015…</p><div class="bar"><i style="width:63%"></i></div></div>`;
-  if(st==="exito") b=steps(3)+M("ok","Importación terminada: 1 002 abonados creados.","Quedó en la bitácora a nombre de administradora.")+`<div class="grid3"><div class="kpi"><div class="n">1 002</div><div class="l">Importados (tipo pendiente)</div></div><div class="kpi"><div class="n">9</div><div class="l">Omitidos: la paja ya existía</div></div><div class="kpi"><div class="n">4</div><div class="l">Rechazados por error de formato</div></div></div>
-   <h2>Rechazados</h2>${T(["Fila","Problema","Qué hacer"],[`<tr><td>233</td><td>No tiene número de paja</td><td>Complete la fila en SADA o registre el abonado a mano</td></tr>`,`<tr><td>518</td><td>Número de paja con espacios («04 88»)</td><td>Corríjalo en SADA y vuelva a importar</td></tr>`])}
-   ${M("warn","Hay 17 posibles personas repetidas (mismo nombre en varias pajas).",`Revíselas antes de completar los expedientes. <a ${go("PAN-15")}>Revisar posibles duplicados</a>`)}
+  if(st==="cargando") b=steps(2)+`<div class="panel" role="status"><p><span class="spinner"></span>Importando fila 640 de 1 015…</p><div class="bar"><i style="width:63%"></i></div></div>`;
+  if(st==="exito") b=steps(3)+M("ok","Importación terminada: 1 002 abonados creados (14/09/2026).","Quedó en la bitácora a nombre de la cuenta administracion.")+`<div class="grid3"><div class="kpi ok"><div class="n">1 002</div><div class="l">Importados (tipo pendiente)</div></div><div class="kpi"><div class="n">9</div><div class="l">Omitidos: la paja ya existía</div></div><div class="kpi no"><div class="n">4</div><div class="l">Rechazados por error de formato</div></div></div>
+   <h2>Rechazados</h2>${T(["Fila","Problema","Qué hacer"],[`<tr><td>233</td><td>No tiene número de paja</td><td>Complete la fila en SADA o registre el abonado a mano</td></tr>`,`<tr><td>518</td><td>Número de paja con espacios («04 88»)</td><td>Corríjalo en SADA y vuelva a importar</td></tr>`],"Filas rechazadas")}
+   ${M("info","Los nombres repetidos no se unen solos.","SADA no trae la cédula. Cuando la complete en el expediente, SIGEDA avisa si esa persona ya existe y le ofrece usar sus datos.")}
    <div class="actions"><a class="btn pri" ${go("PAN-07")}>Ver abonados con tipo pendiente</a></div>`;
   return shell("PAN-09",`<h1>Importar datos de SADA</h1><p class="sub">Crea los abonados a partir del listado que exporta SADA (número de paja y nombre).</p>${b}`);
 };
 
 SCREENS["PAN-10"]=st=>{
-  const rows=TIPOS.map(t=>`<tr class="${t[0]===4&&st!=="inicial"?"sel":""}"><td>${t[0]}</td><td><b>${t[1]}</b></td><td>${t[2]}</td><td>${t[3]||"No"}</td><td><a class="btn sm" ${go("PAN-10?estado=exito")}>Editar</a></td></tr>`);
+  const rows=TIPOS.map(t=>`<tr class="${t[0]===4&&st!=="inicial"?"sel":""}"><td>${t[0]}</td><td><b>${t[1]}</b></td><td>${t[2]}</td><td>${t[3]||"No"}</td><td><a class="btn sm" ${go("PAN-10?estado=exito")}>Editar <span class="sr-only">${t[1]}</span></a></td></tr>`);
   return shell("PAN-10",`<h1>Tipos de documento</h1><p class="sub">La prioridad define el orden del expediente (1 = primero). La obligatoriedad define la completitud.</p>
   ${st==="error"?M("error","No se puede guardar el grupo «Permiso o formulario»: tiene un solo tipo.","Un grupo de alternativas necesita al menos 2 tipos. Agregue otro tipo al grupo o elimine el grupo."):""}
   ${st==="exito"?M("ok","Tipo «Certificación de registro de propiedad» guardado.","El cambio quedó en la bitácora con el valor anterior y el nuevo."):""}
-  <div class="split"><div>${T(["Prior.","Tipo","Obligatorio para","Exigido a cotitulares",""],rows)}</div>
+  <div class="split"><div>${T(["Prior.","Tipo","Obligatorio para","Exigido a cotitulares",""],rows,"Tipos de documento")}</div>
   <div><div class="panel"><h2 style="margin-top:0">${st==="inicial"?"Nuevo tipo":"Editar tipo"}</h2>
    ${F("Nombre",`<input value="${st==="inicial"?"":"Certificación de registro de propiedad"}">`,{req:true,hint:"No se repite."})}
    ${F("Prioridad",`<input value="${st==="inicial"?"":"4"}" style="width:90px">`,{req:true,hint:"Número mayor que cero. Si dos tipos tienen la misma, se ordenan por nombre."})}
-   <div class="field"><label>Obligatorio para</label>${["Persona física","Persona jurídica","Ambas","Ninguna (complementario)","Pertenece a un grupo de alternativas"].map((o,i)=>`<label><input type="radio" name="o" ${(st!=="inicial"&&i===0)?"checked":""} style="min-height:0"> ${o}</label>`).join("")}</div>
+   <fieldset class="field" style="border:none;padding:0;margin:0"><legend class="lbl" style="font-weight:600">Obligatorio para</legend>${["Persona física","Persona jurídica","Ambas","Ninguna (complementario)","Pertenece a un grupo de alternativas"].map((o,i)=>`<label><input type="radio" name="o" ${(st!=="inicial"&&i===0)?"checked":""} style="min-height:0"> ${o}</label>`).join("")}</fieldset>
    <label style="display:block;margin-top:8px"><input type="checkbox" style="min-height:0"> Exigirlo también a cada cotitular</label>
    <div class="actions"><a class="btn" ${go("PAN-10")}>Cancelar</a><a class="btn pri" ${go("PAN-10?estado=exito")}>Guardar tipo</a></div></div>
    <div class="panel"><h2 style="margin-top:0">Grupos de alternativas</h2><p><b>Permiso o formulario</b> · Persona jurídica · basta 1 de 2</p><p class="hint">Permiso de construcción vigente · Formulario de construcción y uso del agua</p><a class="btn sm" ${go("PAN-10?estado=error")}>+ Nuevo grupo</a></div></div></div>`);
 };
 
 SCREENS["PAN-11"]=st=>{
-  const rows=[["04/11/2026 09:12","secretaria","Creación","Documento: Certificación de registro de propiedad","0412"],
+  const rows=[["04/11/2026 09:12","secretaria","Creación","Documento: Copia de cédula","0255"],
    ["03/11/2026 16:30","Sistema","Respaldo","Respaldo automático 03/11/2026 · completo","—"],
    ["03/11/2026 15:02","secretaria","Anulación","Documento: Copia de cédula «Cédula equivocada»","0412"],
-   ["03/11/2026 14:40","administradora","Modificación","Abonado: tipo de abonado","1021"],
-   ["02/11/2026 10:15","administradora","Importación","Listado SADA: 1 002 creados, 9 omitidos, 4 rechazados","—"],
-   ["10/02/2026 08:30","administradora","Cambio de titular","Vínculo titular: Rodrigo Mora Castro → Ana Lucía Mora Vega","0412"]];
-  const tr=rows.map((r,i)=>`<tr class="${st==="detalle"&&i===2?"sel":""}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]!=="—"?`<a ${go("PAN-04")}>${r[4]}</a>`:"—"}</td><td>${(r[2]==="Anulación"||r[2]==="Modificación")?`<a ${go("PAN-11?estado=detalle")}>Ver cambios</a>`:""}</td></tr>`+(st==="detalle"&&i===2?`<tr><td colspan="6">${T(["Campo","Valor anterior","Valor nuevo"],[`<tr><td>documento.estado</td><td>VIGENTE</td><td>ANULADO</td></tr>`,`<tr><td>documento.motivo_anulacion</td><td>—</td><td>Se cargó la cédula de otra persona</td></tr>`,`<tr><td>documento.fecha_anulacion</td><td>—</td><td>03/11/2026</td></tr>`])}</td></tr>`:""));
+   ["03/11/2026 14:40","administracion","Modificación","Abonado: tipo de abonado","0730"],
+   ["14/09/2026 10:15","administracion","Importación","Listado SADA: 1 002 creados, 9 omitidos, 4 rechazados","—"]];
+  const tr=rows.map((r,i)=>`<tr class="${st==="detalle"&&i===2?"sel":""}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]!=="—"?`<a ${go("PAN-04")}>${r[4]}</a>`:"—"}</td><td>${(r[2]==="Anulación"||r[2]==="Modificación")?`<a ${go("PAN-11?estado=detalle")}>Ver cambios</a>`:""}</td></tr>`+(st==="detalle"&&i===2?`<tr><td colspan="6">${T(["Campo","Valor anterior","Valor nuevo"],[`<tr><td>documento.estado</td><td>VIGENTE</td><td>ANULADO</td></tr>`,`<tr><td>documento.motivo_anulacion</td><td>—</td><td>Se cargó la cédula de otra persona</td></tr>`,`<tr><td>documento.fecha_anulacion</td><td>—</td><td>03/11/2026</td></tr>`],"Detalle del cambio")}</td></tr>`:""));
   return shell("PAN-11",`<h1>Bitácora</h1><p class="sub">Registro de todo lo que se hizo en SIGEDA. Nadie lo puede modificar ni borrar.</p>
-  <div class="panel"><div class="row">${FL("Usuaria",`<select><option>Todas</option><option>secretaria</option><option>administradora</option><option>Sistema</option></select>`)}${FL("Desde",`<input value="01/11/2026">`,"dd/mm/aaaa")}${FL("Hasta",`<input value="${HOY}">`,"dd/mm/aaaa")}${FL("Número de paja",`<input value="${st==="sin-resultados"?"0999":""}">`)}${FL("Acción",`<select><option>Todas</option><option>Creación</option><option>Modificación</option><option>Anulación</option><option>Cambio de titular</option><option>Baja</option><option>Reactivación</option><option>Importación</option><option>Exportación</option><option>Respaldo</option><option>Restauración</option><option>Restablecimiento de contraseña</option><option>Cuarentena</option></select>`)}</div><div class="actions"><a class="btn pri" ${go("PAN-11")}>Filtrar</a></div></div>
-  ${st==="sin-resultados"?M("info","No hay registros de la paja 0999 entre el 01/11/2026 y el 04/11/2026.","Amplíe el rango de fechas o revise el número de paja."):T(["Fecha y hora","Usuaria / origen","Acción","Elemento afectado","Paja",""],tr)}`);
+  <div class="panel"><div class="row">${FL("Cuenta",`<select><option>Todas</option><option>secretaria</option><option>administracion</option><option>Sistema</option></select>`)}${FL("Desde",`<input value="01/09/2026">`,"dd/mm/aaaa")}${FL("Hasta",`<input value="${HOY}">`,"dd/mm/aaaa")}${FL("Número de paja",`<input value="${st==="sin-resultados"?"0999":""}">`)}${FL("Acción",`<select><option>Todas</option><option>Creación</option><option>Modificación</option><option>Anulación</option><option>Cambio de titular</option><option>Baja</option><option>Reactivación</option><option>Importación</option><option>Exportación</option><option>Respaldo</option><option>Restauración</option><option>Restablecimiento de contraseña</option><option>Cuarentena</option></select>`)}</div><div class="actions"><a class="btn pri" ${go("PAN-11")}>Filtrar</a></div></div>
+  ${st==="sin-resultados"?M("info","No hay registros de la paja 0999 entre el 01/09/2026 y el 04/11/2026.","Amplíe el rango de fechas o revise el número de paja."):T(["Fecha y hora","Cuenta u origen","Acción","Elemento afectado","Paja",""],tr,"Registros de la bitácora")}`);
 };
 
 SCREENS["PAN-12"]=st=>{
-  const docs=DOCS0412.filter(d=>d.est==="Vigente").map((d,i)=>`<tr><td><input type="checkbox" ${i<3?"checked":""} style="min-height:0"></td><td>${d.tipo}</td><td>${d.nom}</td><td>${d.fd}</td></tr>`);
+  const docs=DOCS0412.filter(d=>d.est==="Vigente").map((d,i)=>`<tr><td><input type="checkbox" class="expchk" aria-label="Seleccionar ${d.tipo} ${d.nom!=="—"?d.nom:""}" ${i<3?"checked":""} style="min-height:0" onchange="updExp()"></td><td>${d.tipo}</td><td>${d.nom}</td><td>${d.fd}</td></tr>`);
   return shell("PAN-12",`<div class="crumb"><a ${go("PAN-04")}>Expediente 0412</a> › Exportar</div><h1>Exportar documentos</h1><p class="sub">Para una solicitud de la Junta Directiva o de una entidad con facultad legal (por ejemplo, ARESEP).</p>
   ${st==="error"?M("error","No se pudo copiar a la carpeta E:\\Solicitud ARESEP: no hay espacio suficiente.","Elija otra carpeta o libere espacio y vuelva a exportar. No se copió ningún archivo."):""}
   ${st==="exito"?M("ok","Se exportaron 3 documentos a C:\\Exportaciones\\0412_04-11-2026.","La exportación quedó en la bitácora. Los archivos exportados ya no están cifrados: entréguelos solo a quien corresponda."):""}
-  <div class="split"><div>${T(["","Tipo","Nombre identificador","Fecha del documento"],docs)}</div>
-  <div class="panel"><h2 style="margin-top:0">Destino</h2><label style="display:block"><input type="radio" checked name="d" style="min-height:0"> Copiar a una carpeta</label><div class="row" style="margin:6px 0 10px 24px"><input value="C:\\Exportaciones\\0412_04-11-2026"><a class="btn sm" href="#">Elegir…</a></div><label style="display:block"><input type="radio" name="d" style="min-height:0"> Imprimir</label>
+  <div class="split"><div>${T(["Elegir","Tipo","Nombre identificador","Fecha del documento"],docs,"Documentos para exportar")}</div>
+  <div class="panel"><h2 style="margin-top:0">Destino</h2><fieldset style="border:none;padding:0;margin:0"><legend class="sr-only">Destino de la exportación</legend><label style="display:block"><input type="radio" checked name="d" style="min-height:0"> Copiar a una carpeta</label><div class="row" style="margin:6px 0 4px 24px"><input aria-label="Carpeta de destino" value="C:\\Exportaciones\\0412_04-11-2026"><span class="btn sm" title="En el sistema real abre el selector de carpetas de Windows" aria-disabled="true">Elegir…</span></div><p class="hint" style="margin:0 0 10px 24px">En el sistema real, «Elegir…» abre el selector de carpetas de Windows.</p><label style="display:block"><input type="radio" name="d" style="min-height:0"> Imprimir</label></fieldset>
   ${M("warn","Los datos de las personas solo se entregan a quien tenga facultad legal (RN-10).","")}
-  <div class="actions"><a class="btn" ${go("PAN-04")}>Cancelar</a><a class="btn pri" ${go("PAN-12?estado=exito")}>Exportar 3 documentos</a></div></div></div>`);
+  <div class="actions"><a class="btn" ${go("PAN-04")}>Cancelar</a><a class="btn pri" id="expbtn" ${go("PAN-12?estado=exito")}>Exportar 3 documentos</a></div></div></div>`);
+};
+function updExp(){ const n=document.querySelectorAll(".expchk:checked").length; const b=document.getElementById("expbtn"); if(b){ b.textContent=n?`Exportar ${n} documento${n===1?"":"s"}`:"Elija al menos un documento"; b.setAttribute("aria-disabled",n?"false":"true"); } }
+
+SCREENS["PAN-13"]=st=>{
+  const v1=st==="v1";
+  return shell("PAN-13",`<div class="crumb"><a ${go("PAN-04")}>Expediente 0412</a> › Versiones</div><h1>Versiones · Formulario de solicitud</h1><p class="sub">Expediente 0412 · Solicitud de servicio · Ninguna versión se borra ni se sobrescribe.</p>
+ <div class="split"><div>${T(["Versión","Fecha del documento","Cargada el","Por","Archivo",""],[
+  `<tr class="${v1?"":"sel"}"><td><b>v2 · vigente</b></td><td>10/02/2026</td><td>04/11/2026 09:20</td><td>secretaria</td><td>formulario_2026.pdf · 0,8 MB</td><td><a class="btn sm" ${go("PAN-13")}>Ver <span class="sr-only">versión 2</span></a></td></tr>`,
+  `<tr class="${v1?"sel":""}"><td>v1</td><td>15/03/2005</td><td>04/11/2026 09:05</td><td>secretaria</td><td>formulario_2005.pdf · 1,1 MB</td><td><a class="btn sm" ${go("PAN-13?estado=v1")}>Ver <span class="sr-only">versión 1</span></a></td></tr>`],"Versiones del documento")}
+  <div class="actions"><a class="btn" ${go("PAN-04")}>Volver al expediente</a><a class="btn pri" ${go("PAN-05?estado=version")}>Cargar nueva versión</a></div></div>
+  <div><div class="viewer"><div class="ph"></div><b>${v1?"v1":"v2 · vigente"} · Formulario de solicitud</b><span class="hint">Fecha del documento ${v1?"15/03/2005":"10/02/2026"}</span></div></div></div>`);
 };
 
-SCREENS["PAN-13"]=st=>shell("PAN-13",`<div class="crumb"><a ${go("PAN-04")}>Expediente 0412</a> › Versiones</div><h1>Versiones · Formulario de solicitud</h1><p class="sub">Expediente 0412 · Solicitud de servicio · Ninguna versión se borra ni se sobrescribe.</p>
- <div class="split"><div>${T(["Versión","Fecha del documento","Cargada el","Por","Archivo",""],[
-  `<tr class="sel"><td><b>v2 · vigente</b></td><td>10/02/2026</td><td>04/11/2026 09:20</td><td>secretaria</td><td>formulario_2026.pdf · 0,8 MB</td><td><a class="btn sm" href="#">Ver</a></td></tr>`,
-  `<tr><td>v1</td><td>15/03/2005</td><td>04/11/2026 09:05</td><td>secretaria</td><td>formulario_2005.pdf · 1,1 MB</td><td><a class="btn sm" href="#">Ver</a></td></tr>`])}
-  <div class="actions"><a class="btn" ${go("PAN-04")}>Volver al expediente</a><a class="btn pri" ${go("PAN-05?estado=version")}>Cargar nueva versión</a></div></div>
-  <div><div class="viewer"><div class="ph"></div><b>v2 · Formulario de solicitud</b><span class="hint">Fecha del documento 10/02/2026</span></div></div></div>`);
-
-SCREENS["PAN-14"]=st=>shell("PAN-14",`<h1>Mi cuenta</h1><p class="sub">Sesión de <b>secretaria</b> (Secretaría). Las dos cuentas tienen los mismos permisos.</p>
+SCREENS["PAN-14"]=st=>shell("PAN-14",`<h1>Mi cuenta</h1><p class="sub">Sesión de la Secretaría (usuario <b>secretaria</b>). Las dos cuentas tienen los mismos permisos ${PROP} salvo restaurar respaldos, que requeriría a la Administración.</p>
  ${st==="error"?M("error","La contraseña nueva tiene 6 caracteres y el mínimo es 8.","Escriba una contraseña de al menos 8 caracteres."):""}
- <div class="grid2"><div class="panel"><h2 style="margin-top:0">Cambiar mi contraseña</h2>
-  ${F("Contraseña actual",`<input type="password" value="••••••••">`,{req:true})}
-  ${F("Contraseña nueva",`<input type="password" value="${st==="error"?"••••••":""}" class="${st==="error"?"bad":""}">`,{req:true,hint:"Mínimo 8 caracteres."})}
-  ${F("Repita la contraseña nueva",`<input type="password">`,{req:true})}
-  <div class="actions"><a class="btn pri" ${go("PAN-14?estado=error")}>Cambiar contraseña</a></div></div>
- <div class="panel"><h2 style="margin-top:0">Contraseña temporal para la otra usuaria</h2><p class="hint">Úselo si la administradora olvidó su contraseña o su cuenta quedó bloqueada.</p>
-  ${F("Cuenta",`<select disabled><option>administradora</option></select>`)}
-  ${st==="temporal"?M("ok","Contraseña temporal de «administradora»: Rio-7425-Agua","Désela en persona. Solo se muestra esta vez y deberá cambiarla al entrar. Quedó en la bitácora."):""}
+ <div class="grid2"><form class="panel" onsubmit="return false"><h2 style="margin-top:0">Cambiar mi contraseña</h2>
+  ${F("Contraseña actual",`<input type="password" autocomplete="current-password" value="••••••••">`,{req:true})}
+  ${F("Contraseña nueva",`<input type="password" autocomplete="new-password" value="${st==="error"?"••••••":""}" class="${st==="error"?"bad":""}">`,{req:true,hint:"Mínimo 8 caracteres.",err:st==="error"?"Tiene 6 caracteres; el mínimo es 8.":""})}
+  ${F("Repita la contraseña nueva",`<input type="password" autocomplete="new-password">`,{req:true})}
+  <div class="actions"><a class="btn pri" ${go("PAN-14?estado=error")}>Cambiar contraseña</a></div></form>
+ <div class="panel"><h2 style="margin-top:0">Contraseña temporal para la otra cuenta</h2><p class="hint">Use esta opción si la Administración olvidó su contraseña o su cuenta quedó bloqueada.</p>
+  <dl class="kv"><dt>Cuenta</dt><dd>administracion (Administración)</dd></dl>
+  ${st==="temporal"?M("ok","Contraseña temporal de «administracion»: Rio-7425-Agua","Désela en persona. Solo se muestra esta vez y deberá cambiarla al entrar. Quedó en la bitácora."):""}
   <div class="actions"><a class="btn" ${go("PAN-14?estado=temporal")}>Generar contraseña temporal</a></div></div></div>`);
 
-SCREENS["PAN-15"]=st=>{
-  if(st==="vacio") return shell("PAN-15",`<h1>Revisar posibles duplicados</h1>${M("ok","No hay personas repetidas por revisar.","Cuando importe de nuevo desde SADA, aquí aparecerán los nombres que se repitan.")}`);
-  return shell("PAN-15",`<h1>Revisar posibles duplicados</h1><p class="sub">Personas con el mismo nombre en distintas pajas. Usted decide si son la misma persona; SIGEDA nunca las une solo.</p>
-  ${st==="exito"?M("ok","Se unieron las 2 fichas de «José Antonio Mora Araya».","Ahora es titular de las pajas 1021 y 0215. Cada cambio quedó en la bitácora."):""}
-  <p class="hint">17 grupos por revisar</p>
-  <div class="panel"><h2 style="margin-top:0">JOSÉ ANTONIO MORA ARAYA · 2 fichas</h2>${T(["","Nombre","Identificación","Pajas y rol","Origen",""],[
-   `<tr><td><input type="radio" name="k" checked style="min-height:0"> Conservar</td><td>José Antonio Mora Araya</td><td>1-0000-0345</td><td>0215 · titular</td><td>Registro manual</td><td><a ${go("PAN-04")}>Abrir</a></td></tr>`,
-   `<tr><td><input type="radio" name="k" style="min-height:0"> Conservar</td><td>JOSE ANTONIO MORA ARAYA</td><td>—</td><td>1021 · titular</td><td>Importado de SADA 02/11/2026</td><td><a ${go("PAN-04")}>Abrir</a></td></tr>`])}
-   <div class="actions"><a class="btn pri" href="#" data-dlg="D-06">Son la misma persona: unir</a><a class="btn" ${go("PAN-15")}>Revisar después</a></div></div>
-  <div class="panel"><h2 style="margin-top:0">MARÍA FERNANDA SOLÍS ROJAS · 2 fichas</h2><p class="hint">0301 · titular · 1-0000-0567 &nbsp;|&nbsp; 0844 · cotitular · sin identificación</p></div>`);
-};
-
 /* --------------------------- Diálogos --------------------------- */
+const back = ()=>`href="${routeNoDlg()}" data-close`;
 const DLG={
- "D-01":()=>`<h2>Anular documento</h2><p><b>Copia de cédula · Ana Lucía Mora Vega · 10/02/2026</b></p><p>El documento no se borra: deja de verse en el expediente y no cuenta para la completitud. Se puede ver con «Mostrar anulados».</p>${F("Motivo de la anulación",`<textarea rows="3">Se cargó la cédula de otra persona</textarea>`,{req:true})}<p class="hint">El motivo y la fecha de hoy (${HOY}) quedan en la bitácora.</p><div class="actions"><a class="btn" data-close href="#">Cancelar</a><a class="btn danger" ${go("PAN-04?estado=anulados")}>Anular documento</a></div>`,
- "D-02":()=>`<h2>Editar datos del documento</h2>${F("Tipo de documento",tipoSel("Formulario de solicitud"),{req:true})}${F("Nombre identificador",`<input value="Solicitud de servicio">`)}<p class="hint">El archivo, la fecha del documento y las versiones anteriores no cambian. El valor anterior y el nuevo quedan en la bitácora.</p><div class="actions"><a class="btn" data-close href="#">Cancelar</a><a class="btn pri" ${go("PAN-04")}>Guardar</a></div>`,
- "D-03":()=>`<h2>Dar de baja el abonado 0412</h2><p>El expediente y sus documentos se conservan y se pueden consultar. El abonado deja de contar en el panel de completitud. Puede reactivarlo después.</p>${F("Fecha de la baja",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}<div class="actions"><a class="btn" data-close href="#">Cancelar</a><a class="btn danger" ${go("PAN-04")}>Dar de baja</a></div>`,
- "D-04":()=>`<h2>Cambiar titular · paja 0412</h2><p>Titular actual: <b>Ana Lucía Mora Vega</b></p>${F("Nuevo titular",`<input value="Esteban Mora Vega (cotitular, 2-0000-0456)">`,{req:true,hint:"Busque una persona registrada o agregue una nueva."})}${F("Fecha del cambio",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}${M("warn","Ana Lucía Mora Vega dejará de verse como titular en búsquedas y pantallas.","Queda en el historial de titulares con fecha fin 04/11/2026. Sus documentos se conservan. El tipo de abonado no cambia.")}<div class="actions"><a class="btn" data-close href="#">Cancelar</a><a class="btn pri" ${go("PAN-04")}>Confirmar cambio de titular</a></div>`,
- "D-05":()=>`<h2>Restaurar un respaldo</h2>${F("Respaldo",`<select><option>02/11/2026 16:30 · Completo · 1,7 GB</option></select>`,{req:true})}${M("error","Se reemplazarán TODOS los abonados y documentos actuales por los del 02/11/2026.","Lo que se haya hecho después de esa fecha se perderá. Antes de restaurar, SIGEDA hace un respaldo del estado actual. La bitácora no se borra.")}${F("Clave de cifrado",`<input type="password" placeholder="Copia física o digital de la clave">`,{req:true})}${F("Escriba RESTAURAR para confirmar",`<input>`,{req:true})}<div class="actions"><a class="btn" data-close href="#">Cancelar</a><a class="btn danger" ${go("PAN-08?estado=hecho")}>Restaurar</a></div>`,
- "D-06":()=>`<h2>Unir dos fichas de persona</h2><p>Se conserva <b>José Antonio Mora Araya (1-0000-0345)</b>. La ficha importada de SADA pasa sus vínculos y documentos a esta y deja de aparecer en las búsquedas. No se borra nada.</p><p class="hint">Cada cambio queda en la bitácora. Esta acción no se puede deshacer desde SIGEDA.</p><div class="actions"><a class="btn" data-close href="#">Cancelar</a><a class="btn danger" ${go("PAN-15?estado=exito")}>Unir fichas</a></div>`,
- "D-07":()=>`<h2>¿Salir sin guardar?</h2><p>Eligió 2 archivos y escribió sus datos. Si sale ahora, no se guarda nada.</p><div class="actions"><a class="btn" data-close href="#">Seguir cargando</a><a class="btn danger" ${go("PAN-04")}>Salir sin guardar</a></div>`,
- "D-08":()=>`<h2>Su sesión se va a cerrar</h2><p>Lleva casi 15 minutos sin usar SIGEDA. Por seguridad, la sesión se cerrará en <b>60 segundos</b>. Lo que no haya guardado se perderá.</p><div class="actions"><a class="btn" ${go("PAN-01")}>Cerrar sesión</a><a class="btn pri" data-close href="#">Seguir trabajando</a></div>`
+ "D-01":()=>`<h2 id="dlgt">Anular documento</h2><p><b>Copia de cédula · Ana Lucía Mora Vega · 10/02/2026</b></p><p>El documento no se borra: deja de verse en el expediente y no cuenta para la completitud. Se puede ver con «Mostrar anulados».</p>${F("Motivo de la anulación",`<textarea rows="3">Se cargó la cédula de otra persona</textarea>`,{req:true})}<p class="hint">El motivo y la fecha de hoy (${HOY}) quedan en la bitácora.</p><div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn danger" ${go("PAN-04?estado=anulados")}>Anular documento</a></div>`,
+ "D-02":()=>`<h2 id="dlgt">Editar datos del documento</h2>${F("Tipo de documento",tipoSel("Formulario de solicitud"),{req:true})}${F("Nombre identificador",`<input value="Solicitud de servicio">`)}<p class="hint">El archivo, la fecha del documento y las versiones anteriores no cambian. El valor anterior y el nuevo quedan en la bitácora.</p><div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn pri" ${go("PAN-04")}>Guardar</a></div>`,
+ "D-03":()=>`<h2 id="dlgt">Dar de baja el abonado 0412</h2><p>El expediente y sus documentos se conservan y se pueden consultar. El abonado deja de contar en el avance de completitud. Puede reactivarlo después.</p>${F("Fecha de la baja",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}<div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn danger" ${go("PAN-04")}>Dar de baja</a></div>`,
+ "D-04":()=>`<h2 id="dlgt">Cambiar titular · paja 0412</h2><p>Titular actual: <b>Ana Lucía Mora Vega</b></p>${F("Nuevo titular",`<input value="Esteban Mora Vega (cotitular, 2-0000-0456)">`,{req:true,hint:"Busque una persona registrada o agregue una nueva."})}${F("Fecha del cambio",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}${M("warn","Ana Lucía Mora Vega dejará de verse como titular en búsquedas y pantallas.","Queda en el historial de titulares con fecha fin 04/11/2026. Sus documentos se conservan. El tipo de abonado no cambia.")}<div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn pri" ${go("PAN-04")}>Confirmar cambio de titular</a></div>`,
+ "D-05":()=>`<h2 id="dlgt">Restaurar un respaldo</h2><form onsubmit="return false" oninput="checkD05()">${F("Respaldo",`<select>${RESPALDOS.map(r=>`<option>${r[0]} · ${r[1]} · ${r[3]}</option>`).join("")}</select>`,{req:true})}${M("error","Se reemplazarán TODOS los abonados y documentos actuales por los del respaldo elegido.","Lo que se haya hecho después de esa fecha se perderá. Antes de restaurar, SIGEDA hace un respaldo del estado actual. La bitácora no se borra.")}${F("Clave de cifrado",`<input type="password" id="d5k" autocomplete="off" placeholder="Copia física o digital de la clave">`,{req:true})}<p class="hint" style="margin:6px 0">${PROP} Autorización de la Administración (usuario <b>administracion</b>):</p>${F("Contraseña de la Administración",`<input type="password" id="d5a" autocomplete="off">`,{req:true})}${F("Escriba RESTAURAR para confirmar",`<input id="d5c" autocomplete="off">`,{req:true})}<div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn danger" id="d5b" aria-disabled="true" ${go("PAN-08?estado=hecho")}>Restaurar</a></div><p class="hint" id="d5h">El botón se activa al completar la clave, la autorización y la palabra RESTAURAR.</p></form>`,
+ "D-06":()=>`<h2 id="dlgt">Agregar persona asociada</h2><p class="hint">Busque primero si la persona ya está registrada, para no duplicarla.</p>${F("Buscar por cédula o nombre",`<input value="2-0000-0456">`)}${T(["Persona","Identificación","Vínculos actuales",""],[`<tr><td>Esteban Mora Vega</td><td>2-0000-0456</td><td>Cotitular de 0412</td><td><a class="btn sm" ${go("PAN-06?estado=modificar")}>Elegir</a></td></tr>`],"Personas encontradas")}<p class="hint" style="margin-top:10px">¿No aparece? Registre una persona nueva:</p><div class="row">${F("Nombre completo",`<input>`,{req:true})}${F("Rol",`<select><option>Cotitular</option><option>Apoderada</option></select>`,{req:true})}</div><div class="row">${F("Tipo de identificación",`<select><option>Cédula física</option><option>Cédula jurídica</option><option>DIMEX</option><option>Pasaporte</option></select>`,{req:true})}${F("Número",`<input placeholder="1-0000-0000">`,{req:true})}${F("Desde",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}</div><div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn pri" ${go("PAN-06?estado=modificar")}>Agregar al expediente</a></div>`,
+ "D-07":()=>`<h2 id="dlgt">¿Salir sin guardar?</h2><p>Eligió 2 archivos y escribió sus datos. Si sale ahora, no se guarda nada.</p><div class="actions"><a class="btn" ${back()}>Seguir cargando</a><a class="btn danger" ${go("PAN-04")}>Salir sin guardar</a></div>`,
+ "D-08":()=>`<h2 id="dlgt">Su sesión se va a cerrar</h2><p>Lleva casi 15 minutos sin usar SIGEDA. Por seguridad, la sesión se cerrará en <b>60 segundos</b>. Lo que no haya guardado se perderá.</p><div class="actions"><a class="btn" ${go("PAN-01")}>Cerrar sesión</a><a class="btn pri" ${back()}>Seguir trabajando</a></div>`
 };
-const DLG_HOST={"D-01":"PAN-04","D-02":"PAN-04","D-03":"PAN-04","D-04":"PAN-06?estado=modificar","D-05":"PAN-08","D-06":"PAN-15","D-07":"PAN-05?estado=seleccionado","D-08":"PAN-03?estado=exito"};
+function checkD05(){ const ok=(document.getElementById("d5k").value.trim()&&document.getElementById("d5a").value.trim()&&document.getElementById("d5c").value.trim()==="RESTAURAR"); const b=document.getElementById("d5b"); b.setAttribute("aria-disabled",ok?"false":"true"); document.getElementById("d5h").textContent=ok?"Listo: puede restaurar.":"El botón se activa al completar la clave, la autorización y la palabra RESTAURAR."; }
 
 /* ---------------------------- Router ---------------------------- */
-let current={id:"PAN-01",st:"",dlg:""};
+let current={id:"PAN-01",st:"",dlg:"",q:""};
 function parse(){
   const h=decodeURIComponent(location.hash.replace(/^#\/?/,""))||"PAN-01";
-  const [id,q]=h.split("?"); const p=new URLSearchParams(q||"");
-  return {id:SCREENS[id]?id:"PAN-01",st:p.get("estado")||"",dlg:p.get("dlg")||""};
+  const i=h.indexOf("?"); const id=i<0?h:h.slice(0,i); const p=new URLSearchParams(i<0?"":h.slice(i+1));
+  return {id:SCREENS[id]?id:"PAN-01",st:p.get("estado")||"",dlg:p.get("dlg")||"",q:p.get("q")||""};
 }
 function render(){
-  current=parse();
+  document.querySelectorAll("dialog.dlg").forEach(d=>{d.dataset.silent="1";d.remove();}); document.querySelectorAll(".ovbg").forEach(o=>o.remove());
+  current=parse(); FID=0;
   const sp=new URLSearchParams(location.search);
-  document.body.classList.toggle("hifi",sp.get("hifi")==="1"||localStorage_get("hifi")==="1");
+  if(sp.get("hifi")==="1") HIFI=true;
+  document.body.classList.toggle("hifi",HIFI);
   document.body.classList.toggle("captura",sp.get("captura")==="1");
   const st=current.st||STATES[current.id][0];
   document.getElementById("root").innerHTML=SCREENS[current.id](st);
-  if(current.dlg&&DLG[current.dlg]) openDlg(current.dlg,false);
   document.title=`SIGEDA · ${current.id} ${INVENTARIO.find(s=>s.id===current.id).nombre}`;
-  buildPanel(); window.scrollTo(0,0);
+  buildPanel();
+  if(current.dlg&&DLG[current.dlg]) openDlg(current.dlg); else window.scrollTo(0,0);
 }
-function localStorage_get(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
-function localStorage_set(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
 function openDlg(id){
-  const ov=document.createElement("div"); ov.className="ov"; ov.innerHTML=`<div class="dlg" role="dialog" aria-modal="true"><div class="hint" style="float:right">${id}</div>${DLG[id]()}</div>`;
-  document.body.appendChild(ov);
+  const d=document.createElement("dialog"); d.className="dlg"; d.setAttribute("aria-labelledby","dlgt");
+  d.innerHTML=`<div class="hint" style="float:right">${id}</div>${DLG[id]()}`;
+  document.body.appendChild(d); d.showModal();
+  if(document.body.classList.contains("captura")){ const o=document.createElement("div"); o.className="ovbg"; document.body.appendChild(o); }
+  const first=d.querySelector("input,select,textarea,a.btn"); if(first) first.focus();
+  d.addEventListener("close",()=>{ if(d.dataset.silent) return; d.remove(); if(current.dlg) location.hash=routeNoDlg(); });
 }
-document.addEventListener("click",e=>{
-  const d=e.target.closest("[data-dlg]");
-  if(d&&d.dataset.dlg){ e.preventDefault(); openDlg(d.dataset.dlg); return; }
-  const c=e.target.closest("[data-close]");
-  if(c){ e.preventDefault(); document.querySelectorAll(".ov").forEach(o=>o.remove()); return; }
-  const a=e.target.closest("a[href='#']"); if(a){ e.preventDefault(); }
-});
-window.addEventListener("hashchange",()=>{document.querySelectorAll(".ov").forEach(o=>o.remove());render();});
+window.addEventListener("hashchange",render);
 
 /* Panel del prototipo: no es parte del diseño; sirve para recorrer pantallas, estados y diálogos */
 function buildPanel(){
   const st=STATES[current.id]||[];
-  document.getElementById("protoPanel").innerHTML=`<b>${current.id} · ${INVENTARIO.find(s=>s.id===current.id).nombre}</b>
-  <h4>Estados de esta pantalla</h4>${st.map(s=>`<a href="#/${current.id}?estado=${s}">${s}</a>`).join(" ")}
-  <h4>Pantallas</h4>${INVENTARIO.map(s=>`<a href="#/${s.id}" title="${s.nombre}">${s.id}</a>`).join(" ")}
-  <h4>Diálogos</h4>${Object.keys(DIALOGOS).map(k=>`<a href="#/${DLG_HOST[k]}${DLG_HOST[k].includes("?")?"&":"?"}dlg=${k}" title="${DIALOGOS[k]}">${k}</a>`).join(" ")}
-  <h4>Aspecto</h4><a href="#" id="tg">${document.body.classList.contains("hifi")?"Ver wireframe (gris)":"Ver maqueta de alta fidelidad"}</a>`;
-  document.getElementById("tg").onclick=e=>{e.preventDefault();const on=!document.body.classList.contains("hifi");localStorage_set("hifi",on?"1":"0");const u=new URL(location.href);u.searchParams.delete("hifi");history.replaceState(null,"",u);render();};
+  const p=document.getElementById("protoPanel");
+  p.innerHTML=`<p class="ph4" style="margin-top:0">${current.id} · ${INVENTARIO.find(s=>s.id===current.id).nombre}</p>
+  <p class="ph4">Estados de esta pantalla</p>${st.map(s=>`<a href="#/${current.id}?estado=${s}">${s}</a>`).join(" ")}
+  <p class="ph4">Pantallas</p>${INVENTARIO.map(s=>`<a href="#/${s.id}" title="${s.nombre}">${s.id}</a>`).join(" ")}
+  <p class="ph4">Diálogos</p>${Object.keys(DIALOGOS).map(k=>`<a href="#/${DLG_HOST[k]}${DLG_HOST[k].includes("?")?"&":"?"}dlg=${k}" title="${DIALOGOS[k]}">${k}</a>`).join(" ")}
+  <p class="ph4">Aspecto</p><a href="#" id="tg">${HIFI?"Ver wireframe (gris)":"Ver maqueta de alta fidelidad"}</a>`;
+  p.querySelectorAll("a:not(#tg)").forEach(a=>a.addEventListener("click",()=>document.getElementById("proto").classList.remove("open")));
+  document.getElementById("tg").onclick=e=>{e.preventDefault();HIFI=!HIFI;const u=new URL(location.href);u.searchParams.delete("hifi");history.replaceState(null,"",u);render();};
 }
 document.getElementById("protoBtn").onclick=()=>document.getElementById("proto").classList.toggle("open");
+document.addEventListener("click",e=>{ const a=e.target.closest('a[aria-disabled="true"]'); if(a){ e.preventDefault(); } });
 render();
 </script>
 </body>

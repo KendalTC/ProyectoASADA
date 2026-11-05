@@ -1,7 +1,7 @@
 // Genera las capturas PNG de todas las pantallas, estados y diálogos, y verifica los enlaces contra NAV.
 const {chromium}=require('playwright'); const fs=require('fs'); const path=require('path');
 const OUT=process.argv[2]||'capturas'; fs.mkdirSync(OUT,{recursive:true});
-const URL0='file://'+path.resolve(__dirname,'..','prototipo','index.html');
+const URL0='file://'+path.resolve('prototipo/index.html');
 const slug=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 (async()=>{
  const b=await chromium.launch(); const pg=await b.newPage({viewport:{width:1366,height:768},deviceScaleFactor:2});
