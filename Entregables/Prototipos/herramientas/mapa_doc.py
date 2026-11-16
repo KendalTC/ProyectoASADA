@@ -4,7 +4,7 @@ m=json.load(open(sys.argv[1],encoding='utf-8')); out=sys.argv[2]
 inv={s['id']:s['nombre'] for s in m['INVENTARIO']}
 SHORT={"Aviso de respaldo → Ir a respaldos":"Aviso respaldo","Ver avance de digitalización":"Ver avance","Cargar documento":"Cargar","Últimos expedientes → Abrir":"Abrir reciente",
 "Abrir expediente":"Abrir","Registrar abonado (sin resultados)":"Registrar","Cargar documento / Nueva versión":"Cargar / Nueva versión","Ver versiones":"Versiones",
-"Modificar abonado / Cambiar titular":"Modificar","Ver qué falta":"Qué falta","Anular (confirmado)":"Anular","Dar de baja / Reactivar":"Baja / Reactivar","Confirmar":"Confirmar",
+"Modificar abonado / Agregar o quitar personas":"Modificar","Ver qué falta":"Qué falta","Anular (confirmado)":"Anular","Dar de baja / Reactivar":"Baja / Reactivar","Confirmar":"Confirmar",
 "Guardar / Cancelar":"Guardar / Cancelar","Cancelar con datos escritos":"Cancelar","Salir sin guardar":"Salir","Confirmar cambio":"Confirmar","Cargar documentos (tras registrar)":"Cargar docs.",
 "Cargar lo que falta":"Cargar faltante","Asignar tipo (tipo pendiente)":"Asignar tipo","Restaurar…":"Restaurar","Restaurar (confirmado)":"Restaurar","Agregar o buscar persona":"Agregar persona","Agregar":"Agregar","Cancelar con archivos elegidos":"Cancelar",
 "Ver abonados con tipo pendiente":"Tipo pendiente","Fusionar (confirmado)":"Unir","Fusionar":"Unir","Exportar / Volver":"Exportar / Volver","Volver al expediente":"Volver","Cargar nueva versión":"Nueva versión",

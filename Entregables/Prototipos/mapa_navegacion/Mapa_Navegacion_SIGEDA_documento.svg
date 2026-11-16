@@ -160,7 +160,7 @@
 <text text-anchor="middle" x="1129.5" y="-237.6" font-family="Arial" font-size="13.00" fill="#222222">Modificar ⇄ Guardar</text>
 </g>
 <!-- PAN&#45;04&#45;&gt;PAN&#45;07 -->
-<g id="edge13" class="edge">
+<g id="edge14" class="edge">
 <title>PAN&#45;04&#45;&gt;PAN&#45;07</title>
 <path fill="none" stroke="#555555" d="M822.14,-304.66C831.06,-334.85 849,-378.23 882,-400 914.2,-421.24 1017.09,-406.88 1055,-414 1062.52,-415.41 1070.36,-417.3 1078,-419.37"/>
 <polygon fill="#555555" stroke="#555555" points="824.43,-303.74 820.16,-297.67 819.71,-305.07 824.43,-303.74"/>
@@ -176,7 +176,7 @@
 <text text-anchor="start" x="1088.5" y="-308.5" font-family="Arial" font-size="15.00">documentos</text>
 </g>
 <!-- PAN&#45;04&#45;&gt;PAN&#45;12 -->
-<g id="edge12" class="edge">
+<g id="edge13" class="edge">
 <title>PAN&#45;04&#45;&gt;PAN&#45;12</title>
 <path fill="none" stroke="#555555" d="M863.02,-283.97C869.39,-285.4 875.84,-286.78 882,-288 948.24,-301.07 1025.18,-312.68 1075.24,-319.76"/>
 <polygon fill="#555555" stroke="#555555" points="863.53,-281.57 856.16,-282.4 862.44,-286.35 863.53,-281.57"/>
@@ -207,7 +207,7 @@
 <text text-anchor="start" x="1074" y="-261.8" font-family="Arial" font-size="14.00">Anular documento</text>
 </g>
 <!-- PAN&#45;04&#45;&gt;D&#45;01 -->
-<g id="edge14" class="edge">
+<g id="edge15" class="edge">
 <title>PAN&#45;04&#45;&gt;D&#45;01</title>
 <path fill="none" stroke="#555555" d="M863.41,-272C916.37,-272 1001.24,-272 1060.64,-272"/>
 <polygon fill="#555555" stroke="#555555" points="863.2,-269.55 856.2,-272 863.2,-274.45 863.2,-269.55"/>
@@ -223,7 +223,7 @@
 <text text-anchor="start" x="1095.5" y="-165.8" font-family="Arial" font-size="14.00">documento</text>
 </g>
 <!-- PAN&#45;04&#45;&gt;D&#45;02 -->
-<g id="edge15" class="edge">
+<g id="edge16" class="edge">
 <title>PAN&#45;04&#45;&gt;D&#45;02</title>
 <path fill="none" stroke="#555555" d="M838.56,-240.97C850.23,-228.23 865.32,-214.69 882,-207 941.49,-179.59 1017.46,-176.3 1069.24,-178.13"/>
 <polygon fill="#555555" stroke="#555555" points="836.59,-239.5 833.78,-246.37 840.26,-242.75 836.59,-239.5"/>
@@ -239,12 +239,27 @@
 <text text-anchor="start" x="1075" y="-106.8" font-family="Arial" font-size="14.00">reactivar abonado</text>
 </g>
 <!-- PAN&#45;04&#45;&gt;D&#45;03 -->
-<g id="edge16" class="edge">
+<g id="edge17" class="edge">
 <title>PAN&#45;04&#45;&gt;D&#45;03</title>
 <path fill="none" stroke="#555555" d="M825.7,-239.48C836.19,-214.16 854.42,-180.33 882,-162 935.23,-126.61 1009.04,-119.4 1061.99,-119.64"/>
 <polygon fill="#555555" stroke="#555555" points="823.4,-238.64 823.08,-246.05 827.95,-240.46 823.4,-238.64"/>
 <polygon fill="#555555" stroke="#555555" points="1061.97,-122.09 1068.99,-119.71 1062.02,-117.19 1061.97,-122.09"/>
 <text text-anchor="middle" x="968.5" y="-165.6" font-family="Arial" font-size="13.00" fill="#222222">Baja / Reactivar ⇄ Confirmar</text>
+</g>
+<!-- D&#45;04 -->
+<g id="node18" class="node">
+<title>D&#45;04</title>
+<path fill="white" stroke="#444444" stroke-width="1.3" stroke-dasharray="5,2" d="M1879,-147C1879,-147 1802,-147 1802,-147 1796,-147 1790,-141 1790,-135 1790,-135 1790,-123 1790,-123 1790,-117 1796,-111 1802,-111 1802,-111 1879,-111 1879,-111 1885,-111 1891,-117 1891,-123 1891,-123 1891,-135 1891,-135 1891,-141 1885,-147 1879,-147"/>
+<text text-anchor="start" x="1825.5" y="-132.8" font-family="Arial" font-weight="bold" font-size="14.00">D&#45;04</text>
+<text text-anchor="start" x="1796" y="-118.8" font-family="Arial" font-size="14.00">Cambiar titular</text>
+</g>
+<!-- PAN&#45;04&#45;&gt;D&#45;04 -->
+<g id="edge12" class="edge">
+<title>PAN&#45;04&#45;&gt;D&#45;04</title>
+<path fill="none" stroke="#555555" d="M819.26,-239.17C826.31,-203.3 843.18,-147.09 882,-118 953.95,-64.09 1588.02,-109.15 1782.82,-124.41"/>
+<polygon fill="#555555" stroke="#555555" points="816.77,-239.17 817.9,-246.5 821.59,-240.06 816.77,-239.17"/>
+<polygon fill="#555555" stroke="#555555" points="1782.67,-126.85 1789.84,-124.96 1783.06,-121.97 1782.67,-126.85"/>
+<text text-anchor="middle" x="1340" y="-107.6" font-family="Arial" font-size="13.00" fill="#222222">Cambiar titular… ⇄ Confirmar</text>
 </g>
 <!-- D&#45;07 -->
 <g id="node21" class="node">
@@ -254,7 +269,7 @@
 <text text-anchor="start" x="1996" y="-37.8" font-family="Arial" font-size="14.00">Salir sin guardar</text>
 </g>
 <!-- PAN&#45;05&#45;&gt;D&#45;07 -->
-<g id="edge17" class="edge">
+<g id="edge18" class="edge">
 <title>PAN&#45;05&#45;&gt;D&#45;07</title>
 <path fill="none" stroke="#555555" d="M1853,-353.65C1887.54,-298.52 1990.43,-134.31 2029.35,-72.18"/>
 <polygon fill="#555555" stroke="#555555" points="2031.49,-73.38 2033.13,-66.15 2027.34,-70.78 2031.49,-73.38"/>
@@ -267,15 +282,8 @@
 <polygon fill="#555555" stroke="#555555" points="1793.42,-353.07 1800.8,-353.82 1795.5,-348.63 1793.42,-353.07"/>
 <text text-anchor="middle" x="1675.5" y="-337.6" font-family="Arial" font-size="13.00" fill="#222222">Cargar docs.</text>
 </g>
-<!-- D&#45;04 -->
-<g id="node18" class="node">
-<title>D&#45;04</title>
-<path fill="white" stroke="#444444" stroke-width="1.3" stroke-dasharray="5,2" d="M1879,-147C1879,-147 1802,-147 1802,-147 1796,-147 1790,-141 1790,-135 1790,-135 1790,-123 1790,-123 1790,-117 1796,-111 1802,-111 1802,-111 1879,-111 1879,-111 1885,-111 1891,-117 1891,-123 1891,-123 1891,-135 1891,-135 1891,-141 1885,-147 1879,-147"/>
-<text text-anchor="start" x="1825.5" y="-132.8" font-family="Arial" font-weight="bold" font-size="14.00">D&#45;04</text>
-<text text-anchor="start" x="1796" y="-118.8" font-family="Arial" font-size="14.00">Cambiar titular</text>
-</g>
 <!-- PAN&#45;06&#45;&gt;D&#45;04 -->
-<g id="edge19" class="edge">
+<g id="edge20" class="edge">
 <title>PAN&#45;06&#45;&gt;D&#45;04</title>
 <path fill="none" stroke="#555555" d="M1577.02,-215.2C1630.59,-197.61 1723.4,-167.13 1783.09,-147.53"/>
 <polygon fill="#555555" stroke="#555555" points="1783.95,-149.82 1789.84,-145.31 1782.42,-145.17 1783.95,-149.82"/>
@@ -378,15 +386,8 @@
 <text text-anchor="start" x="17.5" y="-232" font-family="Arial" font-weight="bold" font-size="15.00">PAN&#45;14</text>
 <text text-anchor="start" x="10.5" y="-217" font-family="Arial" font-size="15.00">Mi cuenta</text>
 </g>
-<!-- D&#45;04&#45;&gt;PAN&#45;04 -->
-<g id="edge20" class="edge">
-<title>D&#45;04&#45;&gt;PAN&#45;04</title>
-<path fill="none" stroke="#555555" d="M1789.84,-124.96C1603.78,-110.27 954.84,-63.42 882,-118 843.18,-147.09 826.31,-203.3 819.26,-239.17"/>
-<polygon fill="#555555" stroke="#555555" points="816.77,-239.17 817.9,-246.5 821.59,-240.06 816.77,-239.17"/>
-<text text-anchor="middle" x="1340" y="-107.6" font-family="Arial" font-size="13.00" fill="#222222">Confirmar</text>
-</g>
 <!-- D&#45;07&#45;&gt;PAN&#45;04 -->
-<g id="edge18" class="edge">
+<g id="edge19" class="edge">
 <title>D&#45;07&#45;&gt;PAN&#45;04</title>
 <path fill="none" stroke="#555555" d="M1989.83,-43.43C1949,-40.41 1891.8,-37 1841.5,-37 1128.5,-37 1128.5,-37 1128.5,-37 1018.81,-37 968.46,18.49 882,-49 823.5,-94.66 814.18,-189.42 813.6,-239.44"/>
 <polygon fill="#555555" stroke="#555555" points="811.15,-239.48 813.57,-246.49 816.05,-239.5 811.15,-239.48"/>

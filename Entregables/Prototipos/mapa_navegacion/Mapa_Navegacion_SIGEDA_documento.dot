@@ -36,6 +36,7 @@ edge [fontname="Arial", fontsize=13, color="#555555", fontcolor="#222222", arrow
 "PAN-04" -> "PAN-05" [dir=both, label="Cargar / Nueva versión ⇄ Guardar / Cancelar", style=bold, penwidth=2];
 "PAN-04" -> "PAN-13" [dir=both, label="Versiones ⇄ Volver"];
 "PAN-04" -> "PAN-06" [dir=both, label="Modificar ⇄ Guardar"];
+"PAN-04" -> "D-04" [dir=both, label="Cambiar titular… ⇄ Confirmar"];
 "PAN-04" -> "PAN-12" [dir=both, label="Exportar ⇄ Exportar / Volver"];
 "PAN-04" -> "PAN-07" [dir=both, label="Qué falta ⇄ Abrir"];
 "PAN-04" -> "D-01" [dir=both, label="Anular ⇄ Anular"];
@@ -44,7 +45,6 @@ edge [fontname="Arial", fontsize=13, color="#555555", fontcolor="#222222", arrow
 "PAN-05" -> "D-07" [label="Cancelar"];
 "D-07" -> "PAN-04" [label="Salir"];
 "PAN-06" -> "D-04" [label="Cambiar titular"];
-"D-04" -> "PAN-04" [label="Confirmar"];
 "PAN-06" -> "D-06" [dir=both, label="Agregar persona ⇄ Agregar"];
 "PAN-06" -> "PAN-05" [label="Cargar docs."];
 "PAN-07" -> "PAN-05" [label="Cargar faltante", style=bold, penwidth=2];

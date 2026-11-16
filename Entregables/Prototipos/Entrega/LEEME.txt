@@ -1,0 +1,19 @@
+SIGEDA · Prototipos de interfaz · Entrega final (v1.1, 10/11/2026)
+IF6100 Análisis y Diseño de Sistemas · UCR, Sede de Occidente · Grupo 02
+Equipo: Mariangel Arias Alfaro, Alejandro Arias Rojas, Sebastián Alfaro Arias y Kendal Trejos Cubero
+
+CONTENIDO
+- Prototipos_Interfaz_SIGEDA_v1.1.docx / .pdf  Documento de la plantilla, completo.
+- prototipo/index.html     Copia sin conexión del prototipo navegable (P-02). Se abre con doble clic.
+- capturas/                77 capturas: 14 pantallas con sus estados, 8 diálogos y 4 de alta fidelidad.
+- mapa_navegacion/         Mapa de navegación (Figura 1) y versión detallada (DOT, SVG y PNG).
+- pantallas.json           Inventario, estados, diálogos y mapa de navegación del prototipo.
+- prototipo_vertical/      Prototipo vertical de CU-04 (P-03): capturas reales, prueba de terminado
+                           (prueba_terminado_CU04.md) y script DDL del Modelo ER v1.1 (sigeda_v1.1.sql).
+- herramientas/            Scripts que generan las capturas, el mapa, la revisión de accesibilidad
+                           y el documento.
+
+ENLACES
+- Prototipo navegable (solo lectura): https://kendaltc.github.io/sigeda-prototipo/
+
+- Código del prototipo vertical: https://github.com/KendalTC/SIGEDA 

@@ -46,7 +46,8 @@ edge [fontname="Arial", fontsize=12, color="#555555", fontcolor="#333333", arrow
 "PAN-03" -> "PAN-06" [label="Registrar abonado (sin resultados)"];
 "PAN-04" -> "PAN-05" [label="Cargar documento / Nueva versión", style=bold];
 "PAN-04" -> "PAN-13" [label="Ver versiones"];
-"PAN-04" -> "PAN-06" [label="Modificar abonado / Cambiar titular"];
+"PAN-04" -> "PAN-06" [label="Modificar abonado / Agregar o quitar personas"];
+"PAN-04" -> "D-04" [label="Cambiar titular…"];
 "PAN-04" -> "PAN-12" [label="Exportar"];
 "PAN-04" -> "PAN-07" [label="Ver qué falta"];
 "PAN-04" -> "D-01" [label="Anular"];

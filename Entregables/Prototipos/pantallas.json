@@ -270,7 +270,12 @@
   [
    "PAN-04",
    "PAN-06",
-   "Modificar abonado / Cambiar titular"
+   "Modificar abonado / Agregar o quitar personas"
+  ],
+  [
+   "PAN-04",
+   "D-04",
+   "Cambiar titular…"
   ],
   [
    "PAN-04",

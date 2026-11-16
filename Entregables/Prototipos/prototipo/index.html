@@ -133,7 +133,10 @@ dialog.dlg h2{margin-top:0}
 #proto.open .p{display:block}
 #proto .p a{display:inline-block;margin:2px 4px 2px 0;font-size:12px}
 #proto .ph4{margin:8px 0 3px;font-size:12.5px;font-weight:700}
-body.captura #proto{display:none}
+body.captura #proto,body.evaluacion #proto{display:none}
+.picker{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:12px 14px;margin-top:10px;text-align:left}
+.picker label{display:flex;gap:10px;align-items:center;padding:6px 4px;border-bottom:1px solid var(--line-soft)}
+.picker label span.hint{margin-left:auto}
 .ovbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50}
 </style>
 </head>
@@ -180,7 +183,8 @@ const NAV = [
  ["PAN-03","PAN-06","Registrar abonado (sin resultados)"],
  ["PAN-04","PAN-05","Cargar documento / Nueva versión"],
  ["PAN-04","PAN-13","Ver versiones"],
- ["PAN-04","PAN-06","Modificar abonado / Cambiar titular"],
+ ["PAN-04","PAN-06","Modificar abonado / Agregar o quitar personas"],
+ ["PAN-04","D-04","Cambiar titular…"],
  ["PAN-04","PAN-12","Exportar"],
  ["PAN-04","PAN-07","Ver qué falta"],
  ["PAN-04","D-01","Anular"],["D-01","PAN-04","Anular (confirmado)"],
@@ -273,7 +277,25 @@ const TIPOS=[[1,"Plano legible","Ambas",""],[2,"Formulario de solicitud","Ambas"
 function tipoSel(v="",aria=""){ return `<select ${aria?`aria-label="${aria}"`:""}><option value="">Elija el tipo…</option>${TIPOS.map(t=>`<option ${t[1]===v?"selected":""}>${t[1]}</option>`).join("")}</select>`; }
 function compTag(c,n){ return c==="Completo"?`<span class="tag ok">✓ Completo</span>`:c==="Tipo pendiente"?`<span class="tag pend dash">Tipo pendiente</span>`:`<span class="tag no strong">Incompleto${n?` · faltan ${n}`:""}</span>`; }
 function estTag(e){ return e==="De baja"?`<span class="tag strong">De baja</span>`:`<span class="tag">Activo</span>`; }
-const PROP=`<span class="tag prop" title="Propuesta del equipo para validar con la administradora">Propuesta por validar</span>`;
+/* ===== Estado de la sesión (en memoria; se reinicia al recargar la página) =====
+   Permite que la evaluación con la administradora recorra T-01 a T-06 de punta a punta. */
+const S={cargas:[],versiones:{},titular:null,fechaCambio:"",sel:[],picker:false,verDoc:"",pend:false,ultima:null,aviso:"",msgCarga:""};
+const INTERACTIVO=()=>!document.body.classList.contains("captura");
+const ESCANEOS=[{n:"certificacion_0412.pdf",fmt:"PDF",mb:1.3},{n:"plano_2026.pdf",fmt:"PDF",mb:2.4},{n:"cedula_esteban.png",fmt:"PNG",mb:0.6},{n:"foto_cedula_esteban.jpg",fmt:"JPG",mb:2.1},{n:"escaneo_completo.pdf",fmt:"PDF",mb:14.2}];
+const mbTxt=x=>x.toFixed(1).replace(".",",")+" MB";
+const ANA="Ana Lucía Mora Vega", ESTEBAN="Esteban Mora Vega";
+const VERSIONABLES=[{k:"Plano legible",txt:"Plano legible · Plano lote 12 · 15/03/2005 (v1)",v:1},{k:"Formulario de solicitud",txt:"Formulario de solicitud · Solicitud de servicio · 10/02/2026 (v2)",v:2},{k:"Contrato de servicio",txt:"Contrato de servicio · Contrato 2026 · 10/02/2026 (v1)",v:1}];
+function titularActual(){ return S.titular||ANA; }
+function personasVigentes(){ const t=titularActual(); const l=[{n:t,rol:"titular"}]; if(t!==ESTEBAN) l.push({n:ESTEBAN,rol:"cotitular"}); return l; }
+function prioridad(tipo){ const t=TIPOS.find(x=>x[1]===tipo); return t?t[0]:99; }
+function faltantes(){
+  const t=titularActual(), tiene=(tipo,per)=>S.cargas.some(c=>c.tipo===tipo&&c.per===per), f=[];
+  if(!tiene("Certificación de registro de propiedad",t)) f.push({tipo:"Certificación de registro de propiedad",per:t,rol:"titular"});
+  if(t!==ANA && !tiene("Copia de cédula",t)) f.push({tipo:"Copia de cédula",per:t,rol:"titular"});
+  if(t!==ESTEBAN && !tiene("Copia de cédula",ESTEBAN)) f.push({tipo:"Copia de cédula",per:ESTEBAN,rol:"cotitular"});
+  return f;
+}
+function irA(h){ if(location.hash===h) render(); else location.hash=h; }
 
 /* Estado del respaldo que muestra el encabezado (coherente con PAN-02 y PAN-08) */
 function backupChip(){
@@ -343,8 +365,8 @@ SCREENS["PAN-03"]=st=>{
     ${FL("Identificación",`<input value="${idn}" placeholder="Ej.: 1-0000-0123">`)}
     ${FL("Sector",sectorSel(sec))}</div>
     <div class="row" style="margin-top:10px;justify-content:space-between"><label><input type="checkbox" checked style="min-height:0"> Incluir abonados de baja</label>
-    <div class="actions" style="margin:0"><a class="btn link" ${go("PAN-03")}>Limpiar</a><a class="btn pri" ${go("PAN-03?estado=exito")}>Buscar</a></div></div></div>`;
-  const row=a=>`<tr class="${a.estado==="De baja"?"muted":""}"><td><b>${a.paja}</b></td><td class="nm">${a.titular}</td><td>${mask(a.id)}</td><td>${a.sector}</td><td>${a.tipo}</td><td>${estTag(a.estado)}</td><td>${compTag(a.comp,a.faltan)}</td><td><a class="btn sm" ${go("PAN-04")}>Abrir <span class="sr-only">expediente ${a.paja}</span></a></td></tr>`;
+    <div class="actions" style="margin:0"><a class="btn link" ${go("PAN-03")}>Limpiar</a><a class="btn pri" ${go("PAN-03?estado=exito")} onclick="return buscarExp(this)">Buscar</a></div></div></div>`;
+  const row=a=>`<tr class="${a.estado==="De baja"?"muted":""}"><td><b>${a.paja}</b></td><td class="nm">${a.paja==="0412"?titularActual():a.titular}</td><td>${mask(a.id)}</td><td>${a.sector}</td><td>${a.tipo}</td><td>${estTag(a.estado)}</td><td>${compTag(a.comp,a.faltan)}</td><td><a class="btn sm" ${go("PAN-04")}>Abrir <span class="sr-only">expediente ${a.paja}</span></a></td></tr>`;
   const head=["Paja","Titular vigente","Identificación","Sector","Tipo","Estado","Completitud",""];
   let body="";
   if(docs){
@@ -355,13 +377,14 @@ SCREENS["PAN-03"]=st=>{
   } else if(st==="inicial"){ body=crit("","")+M("info","Escriba al menos un criterio y presione «Buscar».","Puede combinar criterios: por ejemplo, un apellido y el sector."); }
   else if(st==="cargando"){ body=crit()+`<p role="status"><span class="spinner"></span>Buscando en 1 015 expedientes…</p><div class="panel"><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div>`; }
   else if(st==="sin-resultados"){ body=crit("9999","","","Todos")+M("info","No hay expedientes con el número de paja «9999».",`Revise el número o busque por el nombre del titular. Si el abonado es nuevo, puede <a ${go("PAN-06")}>registrarlo</a>.`); }
-  else if(st==="error"){ body=crit("04 12","","","Todos","bad","El número de paja no puede llevar espacios. Escríbalo sin espacios, por ejemplo 0412."); }
+  else if(st==="error"){ body=crit("04 12","","","Todos","bad","El número de paja solo lleva números (puede empezar con cero). Escríbalo sin espacios, letras ni guiones, por ejemplo 0412."); }
   else if(st==="mas-de-50"){ body=crit("","","","Bodegas")+M("warn","Se muestran los primeros 50 de 214 expedientes del sector Bodegas.","Agregue el nombre o el número de paja para acotar la búsqueda.")+T(head,BODEGAS.map(row),"Resultados de la búsqueda"); }
-  else { const term=q||"mora"; const norm=x=>x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  else { const term=q||(current.s?"":"mora"); const sec=current.s||"Todos"; const norm=x=>x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
     const todos=[...ABONADOS,...BODEGAS.slice(0,3)].sort((a,b)=>a.paja.localeCompare(b.paja));
-    const res=todos.filter(a=>norm(a.titular+" "+a.paja+" "+a.id+" "+a.sector).includes(norm(term)));
-    body=crit("",term)+(res.length?`<p class="hint" role="status">${res.length} expediente${res.length===1?"":"s"} encontrado${res.length===1?"":"s"} para «${esc(term)}» en 0,4 s · ordenados por número de paja · el titular anterior no aparece</p>`+T(head,res.map(row),"Resultados de la búsqueda")
-      :M("info",`No hay expedientes que coincidan con «${esc(term)}».`,`Revise lo escrito o busque por otro criterio. Si el abonado es nuevo, puede <a ${go("PAN-06")}>registrarlo</a>.`)); }
+    const res=todos.filter(a=>norm((a.paja==="0412"?titularActual():a.titular)+" "+a.paja+" "+a.id+" "+a.sector).includes(norm(term))&&(sec==="Todos"||a.sector===sec));
+    const esPaja=/^\d+$/.test(term), esId=/^\d-\d/.test(term);
+    body=crit(esPaja?term:"",esPaja||esId?"":term,esId?term:"",sec)+(res.length?`<p class="hint" role="status">${res.length} expediente${res.length===1?"":"s"} encontrado${res.length===1?"":"s"} para «${esc(term||sec)}» en 0,4 s · ordenados por número de paja · el titular anterior no aparece</p>`+T(head,res.map(row),"Resultados de la búsqueda")
+      :M("info",`No hay expedientes que coincidan con «${esc(term||sec)}».`,`Revise lo escrito o busque por otro criterio. Si el abonado es nuevo, puede <a ${go("PAN-06")}>registrarlo</a>.`)); }
   return shell("PAN-03",`<h1>Buscar expediente</h1><p class="sub">Busque por uno o varios criterios. También puede filtrar documentos en todo el archivo.</p>
   <div class="tabs" role="tablist"><a role="tab" aria-selected="${!docs}" ${go("PAN-03?estado=exito")} class="${docs?"":"on"}">Expedientes</a><a role="tab" aria-selected="${docs}" ${go("PAN-03?estado=documentos")} class="${docs?"on":""}">Documentos</a></div>${body}`);
 };
@@ -377,33 +400,44 @@ const DOCS0412=[
 ];
 SCREENS["PAN-04"]=st=>{
   const showAnul = st==="anulados", cargado = st==="cargado";
-  let docs = DOCS0412.filter(d=>showAnul||d.est==="Vigente");
-  if(cargado) docs.splice(4,0,{p:4,tipo:"Certificación de registro de propiedad",nom:"—",per:"Ana Lucía Mora Vega",fd:"15/03/2005",v:"v1",est:"Vigente",nuevo:true});
+  const tit=titularActual();
+  let docs = DOCS0412.filter(d=>showAnul||d.est==="Vigente").map(d=>{
+    const nv=S.versiones[d.tipo]; if(nv && d.est==="Vigente" && d.nom!=="—") return {...d,fd:nv.fd,v:"v"+nv.n,link:true,nueva:true};
+    return d; });
+  let extra = S.cargas.map(c=>({p:prioridad(c.tipo),tipo:c.tipo,nom:c.nom||"—",per:c.per,fd:c.fd,v:"v1",est:"Vigente",nuevo:true}));
+  if(cargado && !extra.length && !Object.keys(S.versiones).length) extra=[{p:4,tipo:"Certificación de registro de propiedad",nom:"—",per:ANA,fd:"15/03/2005",v:"v1",est:"Vigente",nuevo:true}];
+  docs = [...docs,...extra].sort((a,b)=>a.p-b.p);
   let msg="";
   if(st==="error") msg=M("error","No se encontró el archivo de «Plano legible · Plano lote 12» en la laptop.","Los datos del documento siguen guardados. Restaure el último respaldo desde «Respaldos» o avise a la Administración. Esto queda en la bitácora.");
-  if(cargado) msg=M("ok","Documento cargado: Certificación de registro de propiedad (versión 1).","Ya aparece en el expediente, en el lugar que le toca según su tipo.");
+  if(cargado && S.msgCarga) msg=S.msgCarga; else if(cargado) msg=M("ok","Documento cargado: Certificación de registro de propiedad (versión 1).","Ya aparece en el expediente, en el lugar que le toca según su tipo.");
+  if(S.aviso){ msg=S.aviso+msg; S.aviso=""; }
   if(st==="vacio"){ docs=[]; }
-  const faltan = cargado?1:2;
-  const rows = docs.map((d,i)=>`<tr class="${d.est==="Anulado"?"muted":""} ${(i===0&&!cargado&&st!=="vacio")||d.nuevo?"sel":""}"><td>${d.p}</td><td><b>${d.tipo}</b>${d.nuevo?` <span class="tag ok">Nuevo</span>`:""}${d.est==="Anulado"?` <span class="tag strong">Anulado</span><div class="hint">Motivo: se cargó la cédula de otra persona · 03/11/2026</div>`:""}</td><td>${d.nom}</td><td>${d.per}${d.ant?'<div><span class="tag dash">titular anterior</span></div>':""}</td><td>${d.fd}</td><td>${d.v==="v2"?`<a ${go("PAN-13")}>v2 · ver versiones</a>`:d.v}</td>
-   <td>${d.est==="Anulado"?`<div class="acts"><a ${go("PAN-04?estado=anulados")}>Ver</a></div>`:`<div class="acts"><a ${go("PAN-04?estado=cargando")}>Ver</a><a ${go("PAN-05?estado=version")}>Nueva versión</a><a ${dl("D-02")}>Editar datos</a><a ${dl("D-01")}>Anular</a></div>`}</td></tr>`);
+  const falt = (cargado && !S.cargas.length && !S.titular) ? [{tipo:"Copia de cédula",per:ESTEBAN,rol:"cotitular"}] : faltantes();
+  const faltTxt = falt.map(f=>f.rol==="cotitular"?`Copia de cédula del cotitular ${f.per}`:`${f.tipo} (titular)`).join(" · ");
+  const comp = falt.length?compTag("Incompleto",falt.length):compTag("Completo");
+  const rows = docs.map((d,i)=>`<tr class="${d.est==="Anulado"?"muted":""} ${(i===0&&!cargado&&!d.nuevo&&st!=="vacio"&&!extra.length)||d.nuevo||d.nueva?"sel":""}"><td>${d.p}</td><td><b>${d.tipo}</b>${d.nuevo?` <span class="tag ok">Nuevo</span>`:""}${d.nueva?` <span class="tag ok">Nueva versión</span>`:""}${d.est==="Anulado"?` <span class="tag strong">Anulado</span><div class="hint">Motivo: se cargó la cédula de otra persona · 03/11/2026</div>`:""}</td><td>${d.nom}</td><td>${d.per}${d.ant?'<div><span class="tag dash">titular anterior</span></div>':""}</td><td>${d.fd}</td><td>${d.v!=="v1"?`<a ${go(d.tipo==="Formulario de solicitud"?"PAN-13":"PAN-13?doc="+encodeURIComponent(d.tipo))}>${d.v} · ver versiones</a>`:d.v}</td>
+   <td>${d.est==="Anulado"?`<div class="acts"><a ${go("PAN-04?estado=anulados")}>Ver</a></div>`:`<div class="acts"><a ${go("PAN-04?estado=cargando")}>Ver</a><a ${go("PAN-05?estado=version")} onclick="S.verDoc='${d.tipo}'">Nueva versión</a><a ${dl("D-02")}>Editar datos</a><a ${dl("D-01")}>Anular</a></div>`}</td></tr>`);
+  const prim = extra[0];
   const viewer = st==="cargando" ? `<div class="viewer" role="status"><span><span class="spinner"></span>Abriendo «Plano lote 12»… (máximo 5 s)</span></div>`
     : st==="error" ? `<div class="viewer"><b>⚠ Archivo no disponible</b><span>Datos del documento: Plano legible · fecha del documento 15/03/2005</span></div>`
     : st==="vacio" ? `<div class="viewer"><span>Seleccione un documento para verlo aquí.</span></div>`
-    : cargado ? `<div class="viewer"><div class="ph"></div><b>Certificación de registro de propiedad</b><span class="hint">PDF · 1,3 MB · página 1 de 2</span><span class="hint">Fecha del documento: 15/03/2005 · Cargado: 04/11/2026 09:12 por secretaria</span></div>`
+    : prim ? `<div class="viewer"><div class="ph"></div><b>${prim.tipo}</b><span class="hint">Fecha del documento: ${prim.fd} · Cargado: ${HOY} por secretaria</span></div>`
     : `<div class="viewer"><div class="ph"></div><b>Plano legible · Plano lote 12</b><span class="hint">PDF · 2,1 MB · página 1 de 1 · ⊕ Acercar ⊖ Alejar</span><span class="hint">Fecha del documento: 15/03/2005 · Cargado: 28/10/2026 08:40 por secretaria</span></div>`;
+  const pers = personasVigentes().map(p=>`<tr><td>${p.rol==="titular"?`<b>${p.n}</b>`:p.n}</td><td>${p.n===ANA?"1-0000-0123":p.n===ESTEBAN?"2-0000-0456":"—"}</td><td>${p.rol==="titular"?"Titular":"Cotitular"}</td><td>${p.rol==="titular"&&S.titular?S.fechaCambio:"10/02/2026"}</td></tr>`);
+  const hist = (S.titular?`<p class="hint">${ANA} · 1-0000-0123 · titular del 10/02/2026 al ${S.fechaCambio}</p>`:"")+`<p class="hint">Rodrigo Mora Castro · 1-0000-0098 · titular del 15/03/2005 al 10/02/2026</p>`;
   return shell("PAN-04",`<div class="crumb"><a ${go("PAN-03?estado=exito")}>Buscar expediente</a> › Expediente 0412</div>
-  <div class="row" style="justify-content:space-between;align-items:flex-start"><div><h1>Expediente · paja 0412</h1><p class="sub">Titular vigente: <b>Ana Lucía Mora Vega</b> · Bodegas · Persona física · ${estTag("Activo")} ${compTag("Incompleto",faltan)}</p></div>
+  <div class="row" style="justify-content:space-between;align-items:flex-start"><div><h1>Expediente · paja 0412</h1><p class="sub">Titular vigente: <b>${tit}</b> · Bodegas · Persona física · ${estTag("Activo")} ${comp}</p></div>
   <div class="actions" style="margin:0"><a class="btn pri" ${go("PAN-05")}>Cargar documento</a><a class="btn" ${go("PAN-06?estado=modificar")}>Modificar abonado</a><a class="btn" ${dl("D-03")}>Dar de baja</a><a class="btn" ${go("PAN-12")}>Exportar</a></div></div>
   ${msg}
   ${st==="vacio"?M("info","Este expediente todavía no tiene documentos digitalizados.",`Mientras tanto se consulta en papel. <a ${go("PAN-05")}>Cargar el primer documento</a>`)
-   :cargado?M("warn","Expediente incompleto: falta 1 documento obligatorio.",`Copia de cédula del cotitular Esteban Mora Vega. <a ${go("PAN-07?estado=detalle")}>Ver qué falta</a>`)
-   :M("warn","Expediente incompleto: faltan 2 documentos obligatorios.",`Certificación de registro de propiedad (titular) · Copia de cédula del cotitular Esteban Mora Vega. <a ${go("PAN-07?estado=detalle")}>Ver qué falta</a>`)}
+   :falt.length?M("warn",`Expediente incompleto: ${falt.length===1?"falta 1 documento obligatorio":"faltan "+falt.length+" documentos obligatorios"}.`,`${faltTxt}. <a ${go("PAN-07?estado=detalle")}>Ver qué falta</a>`)
+   :M("ok","Expediente completo.","Tiene todos los documentos obligatorios de persona física.")}
   <div class="grid2">
    <div class="panel"><h2 style="margin-top:0">Datos del abonado</h2><dl class="kv"><dt>Número de paja</dt><dd>0412</dd><dt>Sector</dt><dd>Bodegas</dd><dt>Tipo de abonado</dt><dd>Persona física</dd><dt>Estado</dt><dd>Activo</dd></dl></div>
    <div class="panel"><h2 style="margin-top:0">Personas del expediente</h2>
-   ${T(["Persona","Identificación","Rol","Desde"],[`<tr><td><b>Ana Lucía Mora Vega</b></td><td>1-0000-0123</td><td>Titular</td><td>10/02/2026</td></tr>`,`<tr><td>Esteban Mora Vega</td><td>2-0000-0456</td><td>Cotitular</td><td>10/02/2026</td></tr>`])}
-   <details style="margin-top:8px"><summary>Historial de titulares (1 anterior)</summary><p class="hint">Rodrigo Mora Castro · 1-0000-0098 · titular del 15/03/2005 al 10/02/2026</p></details>
-   <div class="actions"><a class="btn sm" ${go("PAN-06?estado=modificar")}>Agregar o quitar personas</a><a class="btn sm" ${go("PAN-06?estado=modificar")}>Cambiar titular</a></div></div>
+   ${T(["Persona","Identificación","Rol","Desde"],pers)}
+   <details style="margin-top:8px"><summary>Historial de titulares (${S.titular?2:1} anterior${S.titular?"es":""})</summary>${hist}</details>
+   <div class="actions"><a class="btn sm" ${go("PAN-06?estado=modificar")}>Agregar o quitar personas</a><a class="btn sm" ${dl("D-04","PAN-04")}>Cambiar titular…</a></div></div>
   </div>
   <div class="split"><div>
    <h2>Documentos (${docs.length}) · ordenados por prioridad del tipo</h2>
@@ -414,10 +448,19 @@ SCREENS["PAN-04"]=st=>{
 
 SCREENS["PAN-05"]=st=>{
   const version = st==="version";
+  const usarSel = INTERACTIVO() && S.sel.length && (st==="seleccionado"||st==="version");
+  const persOpts = (sel)=>personasVigentes().map(p=>`<option value="${p.n}" ${p.n===sel?"selected":""}>${p.n} (${p.rol})</option>`).join("");
   const fileRow=(n,sz,tipo,per,nom,fd,err="")=>`<tr><td><b>${n}</b><div class="hint">${sz}</div>${err?`<div class="errtxt">${err}</div>`:""}</td><td>${tipoSel(tipo,"Tipo de documento de "+n)}</td><td><select aria-label="Persona que aporta ${n}"><option>${per}</option><option>Esteban Mora Vega (cotitular)</option></select></td><td><input aria-label="Nombre identificador de ${n}" value="${nom}" placeholder="Opcional"></td><td><input aria-label="Fecha del documento de ${n}" value="${fd}"><div class="hint">dd/mm/aaaa</div></td><td><a class="btn sm link" ${go(version?"PAN-05?estado=version":"PAN-05?estado=seleccionado")}>Quitar <span class="sr-only">${n}</span></a></td></tr>`;
-  let files="",msg="",act=`<a class="btn pri" ${go("PAN-05?estado=cargando")}>Guardar documentos</a>`;
+  const selRow=(f,i)=>`<tr><td><b>${f.n}</b><div class="hint">${f.fmt} · ${mbTxt(f.mb)}</div>${f.err?f.err.map(e=>`<div class="errtxt">${e}</div>`).join(""):""}</td>
+    <td>${version?`<span class="hint">El mismo del documento elegido</span>`:`<select aria-label="Tipo de documento de ${f.n}" onchange="S.sel[${i}].tipo=this.value" class="${f.err&&!f.tipo?"bad":""}"><option value="">Elija el tipo…</option>${TIPOS.map(t=>`<option ${t[1]===f.tipo?"selected":""}>${t[1]}</option>`).join("")}</select>`}</td>
+    <td><select aria-label="Persona que aporta ${f.n}" onchange="S.sel[${i}].per=this.value">${persOpts(f.per)}</select></td>
+    <td><input aria-label="Nombre identificador de ${f.n}" value="${esc(f.nom)}" placeholder="Opcional" oninput="S.sel[${i}].nom=this.value"></td>
+    <td><input aria-label="Fecha del documento de ${f.n}" value="${esc(f.fd)}" oninput="S.sel[${i}].fd=this.value"><div class="hint">dd/mm/aaaa</div></td>
+    <td><a class="btn sm link" href="#/PAN-05?estado=${version?"version":"seleccionado"}" onclick="S.sel.splice(${i},1);render();return false">Quitar <span class="sr-only">${f.n}</span></a></td></tr>`;
+  let files="",msg="",act=`<a class="btn pri" ${go("PAN-05?estado=cargando")} onclick="return guardarCarga()">Guardar documentos</a>`;
   if(st==="inicial"){ act=`<a class="btn pri" aria-disabled="true">Guardar documentos</a>`; }
-  if(st==="seleccionado"||st==="cargando"||st==="version"){
+  if(usarSel){ files=FT(S.sel.map(selRow)); if(S.selMsg) msg=S.selMsg; }
+  else if(st==="seleccionado"||st==="cargando"||st==="version"){
     files=FT(version?[fileRow("formulario_2026.pdf","PDF · 0,8 MB","Formulario de solicitud","Ana Lucía Mora Vega (titular)","Solicitud de servicio","10/02/2026")]:
      [fileRow("certificacion_registro.pdf","PDF · 1,3 MB","Certificación de registro de propiedad","Ana Lucía Mora Vega (titular)","","15/03/2005"),
       fileRow("cedula_esteban.png","PNG · 0,6 MB","Copia de cédula","Esteban Mora Vega (cotitular)","","10/02/2026")]);
@@ -429,31 +472,73 @@ SCREENS["PAN-05"]=st=>{
      fileRow("plano_2005.pdf","PDF · 14,2 MB","Plano legible","Ana Lucía Mora Vega (titular)","","15/03/2005","Pesa 14,2 MB y el máximo es 10 MB. Escanéelo a menor resolución o divídalo en dos archivos."),
      fileRow("certificacion_registro.pdf","PDF · 1,3 MB","","Ana Lucía Mora Vega (titular)","","15/03/2005","Falta el tipo de documento. Elíjalo en la lista.")]);
   }
-  if(st==="cargando"){ msg=`<div class="panel" role="status"><p style="margin:0 0 6px"><span class="spinner"></span>Cifrando y guardando el archivo 2 de 2…</p><div class="bar"><i style="width:60%"></i></div><p class="hint">No cierre SIGEDA. El botón se activa al terminar.</p></div>`; act=`<a class="btn pri" aria-disabled="true">Guardando…</a>`; }
-  if(st==="exito"){ return shell("PAN-05",`<div class="crumb"><a ${go("PAN-03?estado=exito")}>Buscar expediente</a> › <a ${go("PAN-04")}>Expediente 0412</a> › Cargar documento</div><h1>Cargar documento</h1>
-    ${M("ok","Se cargó 1 documento al expediente 0412.","Certificación de registro de propiedad, con fecha del documento 15/03/2005. La carga quedó en la bitácora a nombre de la cuenta secretaria.")}
-    <div class="actions"><a class="btn pri" ${go("PAN-04?estado=cargado")}>Ver expediente</a><a class="btn" ${go("PAN-05")}>Cargar otro documento</a></div>`); }
+  if(st==="cargando"){ const n=S.pend&&S.ultima?S.ultima.items.length:2; msg=`<div class="panel" role="status"><p style="margin:0 0 6px"><span class="spinner"></span>Cifrando y guardando ${n===1?"el archivo":"los "+n+" archivos"}…</p><div class="bar"><i style="width:60%"></i></div><p class="hint">No cierre SIGEDA. El botón se activa al terminar.</p></div>`; act=`<a class="btn pri" aria-disabled="true">Guardando…</a>`; }
+  if(st==="exito"){
+    let titulo="Se cargó 1 documento al expediente 0412.", cuerpo="Certificación de registro de propiedad, con fecha del documento 15/03/2005. La carga quedó en la bitácora a nombre de la cuenta secretaria.";
+    if(S.ultima){ const it=S.ultima.items;
+      if(S.ultima.version){ titulo=`Se cargó la versión ${it[0].n} de «${S.ultima.version}» en el expediente 0412.`; cuerpo=`Fecha del documento ${it[0].fd}. La versión anterior se conserva en el historial. La carga quedó en la bitácora a nombre de la cuenta secretaria.`; }
+      else { titulo=it.length===1?"Se cargó 1 documento al expediente 0412.":`Se cargaron ${it.length} documentos al expediente 0412.`; cuerpo=`<ul style="margin:6px 0">${it.map(c=>`<li>${c.tipo}, aportado por ${c.per}, con fecha del documento ${c.fd}</li>`).join("")}</ul>La carga quedó en la bitácora a nombre de la cuenta secretaria.`; } }
+    return shell("PAN-05",`<div class="crumb"><a ${go("PAN-03?estado=exito")}>Buscar expediente</a> › <a ${go("PAN-04")}>Expediente 0412</a> › Cargar documento</div><h1>Cargar documento</h1>
+    ${M("ok",titulo,cuerpo)}
+    <div class="actions"><a class="btn pri" ${go("PAN-04?estado=cargado")}>Ver expediente</a><a class="btn" ${go("PAN-05")} onclick="S.sel=[];S.selMsg='';">Cargar otro documento</a></div>`); }
   const cancel = (st==="inicial"||st==="cargando") ? `<a class="btn" ${go("PAN-04")}>Cancelar</a>` : `<a class="btn" ${dl("D-07")}>Cancelar</a>`;
+  const picker = (INTERACTIVO()&&S.picker) ? `<div class="picker" role="group" aria-label="Elegir archivos"><b>Carpeta «Escaneos» de la laptop</b> <span class="hint">(simulada: en el sistema real se abre el explorador de Windows)</span>
+     ${ESCANEOS.map((f,i)=>`<label><input type="checkbox" class="pk" value="${i}" style="min-height:0"> ${f.n} <span class="hint">${f.fmt} · ${mbTxt(f.mb)}</span></label>`).join("")}
+     <div class="actions"><a class="btn" href="#" onclick="S.picker=false;render();return false">Cancelar</a><a class="btn pri" href="#" onclick="return agregarArchivos(${version})">Agregar los archivos marcados</a></div></div>` : "";
+  const verSel = version ? `<div style="margin:8px 0 0 26px;max-width:560px">${F("Documento del que es nueva versión",`<select onchange="S.verDoc=this.value" class="${S.selMsg&&!S.verDoc?"bad":""}"><option value="">Elija el documento…</option>${VERSIONABLES.map(v=>`<option value="${v.k}" ${S.verDoc===v.k?"selected":""}>${v.txt}</option>`).join("")}</select>`,{req:true,hint:"La versión anterior se conserva con su fecha; la nueva se muestra como vigente."})}</div>` : "";
   return shell("PAN-05",`<div class="crumb"><a ${go("PAN-03?estado=exito")}>Buscar expediente</a> › <a ${go("PAN-04")}>Expediente 0412</a> › Cargar documento</div>
-  <h1>Cargar documento</h1><p class="sub">Expediente <b>0412 · Ana Lucía Mora Vega</b> · Persona física · Bodegas <a class="btn sm link" ${go("PAN-03")}>Cambiar de expediente</a></p>${msg}
+  <h1>Cargar documento</h1><p class="sub">Expediente <b>0412 · ${titularActual()}</b> · Persona física · Bodegas <a class="btn sm link" ${go("PAN-03")}>Cambiar de expediente</a></p>${msg}
   <fieldset class="panel" style="margin:0 0 14px"><legend style="font-weight:700;font-size:17px;padding:0 4px">1. ¿Qué va a cargar?</legend>
-   <label style="display:block;margin:4px 0"><input type="radio" name="q" ${version?"":"checked"} style="min-height:0"> Documentos nuevos para este expediente</label>
-   <label style="display:block;margin:4px 0"><input type="radio" name="q" ${version?"checked":""} style="min-height:0"> Una <b>nueva versión</b> de un documento que ya está en el expediente</label>
-   ${version?`<div style="margin:8px 0 0 26px;max-width:520px">${F("Documento del que es nueva versión",`<select><option>Formulario de solicitud · Solicitud de servicio · 15/03/2005 (v1)</option></select>`,{req:true,hint:"La versión anterior se conserva con su fecha; la nueva se muestra como vigente."})}</div>`:""}
+   <label style="display:block;margin:4px 0"><input type="radio" name="q" ${version?"":"checked"} style="min-height:0" onchange="S.selMsg='';irA('#/PAN-05${S.sel.length?"?estado=seleccionado":""}')"> Documentos nuevos para este expediente</label>
+   <label style="display:block;margin:4px 0"><input type="radio" name="q" ${version?"checked":""} style="min-height:0" onchange="S.selMsg='';S.sel=S.sel.slice(0,1);irA('#/PAN-05?estado=version')"> Una <b>nueva versión</b> de un documento que ya está en el expediente</label>
+   ${verSel}
   </fieldset>
   <div class="panel"><h2 style="margin-top:0">2. Archivos</h2>
-   <div class="drop">Arrastre aquí los archivos escaneados o <a class="btn sm" ${go(version?"PAN-05?estado=version":"PAN-05?estado=seleccionado")}>Elegir archivos</a><div class="hint" style="margin-top:6px">Solo PDF o PNG · máximo 10 MB por archivo · puede elegir varios a la vez</div></div>
+   <div class="drop">Arrastre aquí los archivos escaneados o <a class="btn sm" ${go(version?"PAN-05?estado=version":"PAN-05?estado=seleccionado")} onclick="return abrirSelector()">Elegir archivos</a><div class="hint" style="margin-top:6px">Solo PDF o PNG · máximo 10 MB por archivo · ${version?"elija un solo archivo":"puede elegir varios a la vez"}</div>${picker}</div>
    ${files?`<h3>3. Datos de cada archivo</h3><p class="hint">La fecha del documento se propone con la fecha de hoy (${HOY}). Si digitaliza un papel viejo, ponga la fecha que tiene el papel. La fecha y hora de carga se guardan solas y no se pueden cambiar.</p>`+files:`<p class="hint" style="margin-top:12px">Todavía no ha elegido archivos.</p>`}
   </div>
   <div class="actions">${cancel}${act}</div>`);
 };
+function abrirSelector(){ if(!INTERACTIVO()) return true; S.picker=true; render(); return false; }
+function agregarArchivos(version){
+  const marc=[...document.querySelectorAll(".pk:checked")].map(c=>ESCANEOS[+c.value]);
+  if(!marc.length){ S.picker=false; render(); return false; }
+  const nuevos=marc.map(f=>({...f,tipo:"",per:titularActual(),nom:"",fd:HOY,err:null}));
+  S.sel = version ? nuevos.slice(0,1) : [...S.sel,...nuevos];
+  S.picker=false; S.selMsg = (version&&marc.length>1)?M("warn","Para una nueva versión se usa un solo archivo.",`Se dejó «${marc[0].n}».`):"";
+  irA(version?"#/PAN-05?estado=version":"#/PAN-05?estado=seleccionado"); return false;
+}
+function fechaValida(t){ const m=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(t.trim()); if(!m) return false; const d=+m[1],mo=+m[2],y=+m[3]; const dt=new Date(y,mo-1,d); return dt.getFullYear()===y&&dt.getMonth()===mo-1&&dt.getDate()===d&&y>=1950&&y<=2026; }
+function guardarCarga(){
+  if(!INTERACTIVO()||!S.sel.length) return true;
+  const version=current.st==="version"; let malos=0;
+  S.sel.forEach(f=>{ const e=[];
+    if(f.fmt==="JPG") e.push("Es un archivo JPG. Solo se aceptan PDF o PNG: conviértalo con la fotocopiadora o elija otro archivo.");
+    if(f.mb>10) e.push(`Pesa ${mbTxt(f.mb)} y el máximo es 10 MB. Escanéelo a menor resolución o divídalo en dos archivos.`);
+    if(!version&&!f.tipo) e.push("Falta el tipo de documento. Elíjalo en la lista.");
+    if(!fechaValida(f.fd)) e.push("La fecha del documento debe escribirse como día/mes/año, por ejemplo 15/03/2005.");
+    f.err=e.length?e:null; if(e.length) malos++; });
+  if(version&&!S.verDoc){ S.selMsg=M("error","Falta elegir de qué documento es la nueva versión.","Elíjalo en la lista «Documento del que es nueva versión»."); render(); return false; }
+  if(malos){ S.selMsg=M("error",malos===1?"Hay 1 archivo con problemas. No se guardó ninguno todavía.":`Hay ${malos} archivos con problemas. No se guardó ninguno todavía.`,"Corrija lo que se indica con ⚠ en cada archivo (o quítelo) y vuelva a presionar «Guardar documentos»."); render(); return false; }
+  if(version){ const base=VERSIONABLES.find(v=>v.k===S.verDoc); const prev=S.versiones[S.verDoc]; const n=(prev?prev.n:base.v)+1;
+    S.versiones[S.verDoc]={n,fd:S.sel[0].fd,archivo:S.sel[0].n,anteriores:(prev?prev.anteriores.concat([{n:prev.n,fd:prev.fd,archivo:prev.archivo}]):[])};
+    S.ultima={version:S.verDoc,items:[{n,fd:S.sel[0].fd}]};
+    S.msgCarga=M("ok",`Nueva versión cargada: ${S.verDoc} (versión ${n}).`,"La versión anterior se conserva en el historial de versiones.");
+  } else {
+    const items=S.sel.map(f=>({tipo:f.tipo,per:f.per,nom:f.nom,fd:f.fd}));
+    S.cargas.push(...items); S.ultima={items};
+    S.msgCarga=M("ok",items.length===1?`Documento cargado: ${items[0].tipo} (versión 1).`:`Se cargaron ${items.length} documentos.`,"Ya aparece en el expediente, en el lugar que le toca según su tipo.");
+  }
+  S.sel=[]; S.selMsg=""; S.verDoc=""; S.pend=true;
+  location.hash="#/PAN-05?estado=cargando"; return false;
+}
 function FT(rows){ return `<div class="tablewrap ftable"><table><colgroup><col style="width:22%"><col style="width:20%"><col style="width:24%"><col style="width:14%"><col style="width:13%"><col style="width:7%"></colgroup><thead><tr><th scope="col">Archivo</th><th scope="col">Tipo de documento <span class="req">(oblig.)</span></th><th scope="col">Persona que lo aporta</th><th scope="col">Nombre identificador <span class="req">(opcional)</span></th><th scope="col">Fecha del documento <span class="req">(oblig.)</span></th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`; }
 
 SCREENS["PAN-06"]=st=>{
   const nuevo = ["nuevo","cargando","error","exito","persona-existente"].includes(st);
   const imp = st==="importado", e = st==="error", pe = st==="persona-existente";
   if(st==="exito") return shell("PAN-06",`<h1>Registrar abonado</h1>${M("ok","Abonado 0533 registrado con su titular vigente.","Quedó en la bitácora a nombre de la cuenta secretaria. Ahora puede cargar sus documentos.")}<div class="actions"><a class="btn pri" ${go("PAN-05")}>Cargar documentos</a><a class="btn" ${go("PAN-04?estado=vacio")}>Ver expediente</a><a class="btn" ${go("PAN-06")}>Registrar otro</a></div>`);
-  const pajaF = F("Número de paja",`<input value="${nuevo?(e?"0412":"0533"):(imp?"1021":"0412")}" ${nuevo?"":"disabled"} class="${e?"bad":""}">`,{req:true,err:e?`El número de paja 0412 ya está registrado (Ana Lucía Mora Vega). Revise el número o abra ese expediente.`:"",hint:nuevo?"No se repite y no se puede cambiar después.":"El número de paja no se puede cambiar."});
+  const pajaF = F("Número de paja",`<input value="${nuevo?(e?"0412":"0533"):(imp?"1021":"0412")}" ${nuevo?"":"disabled"} class="${e?"bad":""}">`,{req:true,err:e?`El número de paja 0412 ya está registrado (Ana Lucía Mora Vega). Revise el número o abra ese expediente.`:"",hint:nuevo?"Solo números; puede empezar con cero. No se repite y no se puede cambiar después.":"El número de paja no se puede cambiar."});
   const tipo = `<fieldset class="field" style="border:none;padding:0;margin:0"><legend class="lbl" style="font-weight:600;font-size:14px">Tipo de abonado <span class="req">(obligatorio)</span></legend><div class="row" style="gap:16px">${["Persona física","Persona jurídica"].map(t=>`<label><input type="radio" name="t" ${(!imp&&t==="Persona física")?"checked":""} style="min-height:0"> ${t}</label>`).join("")}</div>${imp?`<div class="errtxt">Tipo pendiente: elija uno para que se pueda calcular la completitud.</div>`:`<div class="hint">Define qué documentos son obligatorios.</div>`}</fieldset>`;
   const idNum = imp?"":(e?"1-0000-012":(pe?"1-0000-0123":(nuevo?"1-0000-0222":"1-0000-0123")));
   const idF = `<div class="row" style="align-items:flex-start">${F("Tipo de identificación",`<select class="${e?"bad":""}"><option>Cédula física</option><option>Cédula jurídica</option><option>DIMEX</option><option>Pasaporte</option></select>`,{req:!imp})}${F("Número de identificación",`<input value="${idNum}" class="${e?"bad":""}" placeholder="1-0000-0000">`,{req:!imp,err:e?"La cédula física tiene 9 dígitos (ejemplo 1-0000-0123) y aquí hay 8. Revise el número.":"",hint:"Cédula física: 9 dígitos (0-0000-0000) · jurídica: 10 (3-000-000000) · DIMEX: 11 o 12 · pasaporte: letras y números."})}</div>`;
@@ -484,7 +569,7 @@ SCREENS["PAN-07"]=st=>{
    <div class="panel" style="margin-top:12px"><div class="row" style="align-items:center"><b>Avance de la digitalización</b><div style="flex:1"><div class="bar" role="img" aria-label="31 % de avance"><i style="width:${load?0:31}%"></i></div></div><b>${load?"—":"31 %"}</b></div></div>`;
   const filt=`<div class="panel"><div class="row">${FL("Estado",`<select><option>Incompletos</option><option>Completos</option><option>Tipo pendiente</option><option>Todos</option></select>`)}${FL("Sector",sectorSel(st==="sin-resultados"?"Pilas":"Todos"))}${FL("Documento que falta",tipoSel(st==="sin-resultados"?"Contrato de servicio":""))}${FL("Tipo de abonado",`<select><option>Todos</option><option>Persona física</option><option>Persona jurídica</option></select>`)}</div><div class="row" style="justify-content:space-between;margin-top:8px"><label><input type="checkbox" style="min-height:0"> Mostrar abonados de baja</label><a class="btn pri" ${go("PAN-07")}>Aplicar filtros</a></div></div>`;
   const rowsFull=[
-   ["0412","Ana Lucía Mora Vega","Bodegas","Física",`<span class="tag no">Certificación de registro de propiedad</span><span class="tag no">Copia de cédula · cotitular Esteban</span>`],
+   ["0412",titularActual(),"Bodegas","Física",faltantes().map(f=>`<span class="tag no">${f.rol==="cotitular"?"Copia de cédula · cotitular "+f.per.split(" ")[0]:f.tipo}</span>`).join("")||`<span class="tag ok">Ya está completo</span>`],
    ["0255","Marta Elena Mora Ulate","Trapiche","Física",`<span class="tag no">Plano legible</span><span class="tag no">Contrato de servicio</span>`],
    ["0409","Grupo Agrícola Ficticio Ltda.","Bodegas","Jurídica",`<span class="tag no dash">Uno de: Permiso de construcción vigente o Formulario de construcción y uso del agua</span>`],
    ["0730","Sofía Mora Quirós","Calle Central","Física",`<span class="tag no">Formulario de solicitud</span>`]];
@@ -494,14 +579,12 @@ SCREENS["PAN-07"]=st=>{
   if(st==="vacio") body=M("info","Todavía no hay abonados registrados.",`Importe el listado de SADA para empezar a medir el avance. <a ${go("PAN-09")}>Importar SADA</a>`);
   else if(load) body=kpis+`<p role="status"><span class="spinner"></span>Calculando la completitud de 1 011 expedientes activos…</p>`;
   else if(st==="sin-resultados") body=kpis+filt+M("info","Ningún abonado del sector Pilas tiene pendiente el «Contrato de servicio».","Cambie el filtro «Documento que falta» o elija otro sector.");
-  else if(st==="detalle") body=kpis+`<div class="panel"><h2 style="margin-top:0">Paja 0412 · Ana Lucía Mora Vega · Persona física</h2><p class="hint">Se revisan solo los documentos vigentes del titular vigente y de los cotitulares vigentes. Los del titular anterior se conservan, pero no cuentan.</p>
-     ${T(["Documento obligatorio","Titular · Ana Lucía Mora Vega","Cotitular · Esteban Mora Vega"],[
-      `<tr><td>Plano legible</td><td><span class="tag ok">✓ Tiene</span></td><td class="hint">No se le exige</td></tr>`,
-      `<tr><td>Formulario de solicitud</td><td><span class="tag ok">✓ Tiene</span></td><td class="hint">No se le exige</td></tr>`,
-      `<tr><td>Copia de cédula</td><td><span class="tag ok">✓ Tiene</span></td><td><span class="tag no strong">✗ Falta</span> <a class="btn sm" ${go("PAN-05")}>Cargar</a></td></tr>`,
-      `<tr><td>Certificación de registro de propiedad</td><td><span class="tag no strong">✗ Falta</span> <a class="btn sm" ${go("PAN-05")}>Cargar</a></td><td class="hint">No se le exige</td></tr>`,
-      `<tr><td>Contrato de servicio</td><td><span class="tag ok">✓ Tiene</span></td><td class="hint">No se le exige</td></tr>`],"Detalle de completitud por persona")}
-     <div class="actions"><a class="btn" ${go("PAN-07")}>Volver al panel</a><a class="btn" ${go("PAN-04")}>Abrir expediente</a></div></div>`;
+  else if(st==="detalle"){ const pv=personasVigentes(), fl=faltantes();
+    const cel=(tipo,p,exige)=>!exige?`<td class="hint">No se le exige</td>`:fl.some(f=>f.tipo===tipo&&f.per===p.n)?`<td><span class="tag no strong">✗ Falta</span> <a class="btn sm" ${go("PAN-05")}>Cargar</a></td>`:`<td><span class="tag ok">✓ Tiene</span></td>`;
+    const filas=[["Plano legible",false],["Formulario de solicitud",false],["Copia de cédula",true],["Certificación de registro de propiedad",false],["Contrato de servicio",false]];
+    body=kpis+`<div class="panel"><h2 style="margin-top:0">Paja 0412 · ${titularActual()} · Persona física</h2><p class="hint">Se revisan solo los documentos vigentes del titular vigente y de los cotitulares vigentes. Los del titular anterior se conservan, pero no cuentan.</p>
+     ${T(["Documento obligatorio",...pv.map(p=>`${p.rol==="titular"?"Titular":"Cotitular"} · ${p.n}`)],filas.map(([t,cot])=>`<tr><td>${t}</td>${pv.map(p=>cel(t,p,p.rol==="titular"||cot)).join("")}</tr>`),"Detalle de completitud por persona")}
+     <div class="actions"><a class="btn" ${go("PAN-07")}>Volver al panel</a><a class="btn" ${go("PAN-04")}>Abrir expediente</a></div></div>`; }
   else body=kpis+filt+`<h2>Incompletos (641) · por número de paja</h2>`+T(["Paja","Titular vigente","Sector","Tipo","Estado","Qué falta",""],rows,"Expedientes incompletos")+pend;
   return shell("PAN-07",`<h1>Panel de completitud</h1><p class="sub">Qué expedientes tienen todos los documentos obligatorios según su tipo de abonado. El avance se mide sobre los abonados activos.</p>${body}`);
 };
@@ -538,8 +621,8 @@ SCREENS["PAN-08"]=st=>{
   const act = st==="cargando"?`<div class="panel" role="status"><p style="margin:0 0 6px"><span class="spinner"></span>Respaldando… copiando documentos (45 %)</p><div class="bar"><i style="width:45%"></i></div><p class="hint">Puede seguir trabajando. No desconecte el disco hasta que termine.</p></div>`:"";
   return shell("PAN-08",`<h1>Respaldo y restauración</h1><p class="sub">SIGEDA hace un respaldo completo y cifrado todos los días. Aquí ve si salió bien y puede hacer uno a mano o restaurar.</p>${msg}${act}
   <div class="grid2">${estado}
-   <div class="panel"><h2 style="margin-top:0">Acciones</h2><div class="actions" style="margin-top:0"><a class="btn pri" ${st==="cargando"?'aria-disabled="true"':""} ${go("PAN-08?estado=hecho")}>Respaldar ahora</a><a class="btn danger" ${dl("D-05")}>Restaurar un respaldo…</a></div>
-   <p class="hint">Restaurar reemplaza los abonados y documentos actuales por los del respaldo elegido. La bitácora no se borra: se agrega el registro de la restauración. ${PROP} restaurar requiere la autorización de la Administración.</p>
+   <div class="panel"><h2 style="margin-top:0">Acciones</h2><div class="actions" style="margin-top:0"><a class="btn pri" ${st==="cargando"?'aria-disabled="true"':""} ${go("PAN-08?estado=hecho")} onclick="if(INTERACTIVO()){location.hash='#/PAN-08?estado=cargando';return false}">Respaldar ahora</a><a class="btn danger" ${dl("D-05")}>Restaurar un respaldo…</a></div>
+   <p class="hint">Restaurar reemplaza los abonados y documentos actuales por los del respaldo elegido. La bitácora no se borra: se agrega el registro de la restauración. Restaurar requiere la autorización de la Administración.</p>
    <dl class="kv" style="margin-top:8px"><dt>Prueba de restauración en otra computadora</dt><dd>Pendiente (propuesta: cada 3 meses) · <a ${go("PAN-08?estado=prueba")}>Registrar prueba</a></dd><dt>Archivos en cuarentena</dt><dd>2 · <a ${go("PAN-08?estado=cuarentena")}>ver lista</a></dd></dl></div></div>
   <h2>Últimos respaldos (se conservan 7 diarios y 4 semanales)</h2>${hist}`);
 };
@@ -598,16 +681,21 @@ SCREENS["PAN-12"]=st=>{
 function updExp(){ const n=document.querySelectorAll(".expchk:checked").length; const b=document.getElementById("expbtn"); if(b){ b.textContent=n?`Exportar ${n} documento${n===1?"":"s"}`:"Elija al menos un documento"; b.setAttribute("aria-disabled",n?"false":"true"); } }
 
 SCREENS["PAN-13"]=st=>{
-  const v1=st==="v1";
-  return shell("PAN-13",`<div class="crumb"><a ${go("PAN-04")}>Expediente 0412</a> › Versiones</div><h1>Versiones · Formulario de solicitud</h1><p class="sub">Expediente 0412 · Solicitud de servicio · Ninguna versión se borra ni se sobrescribe.</p>
- <div class="split"><div>${T(["Versión","Fecha del documento","Cargada el","Por","Archivo",""],[
-  `<tr class="${v1?"":"sel"}"><td><b>v2 · vigente</b></td><td>10/02/2026</td><td>04/11/2026 09:20</td><td>secretaria</td><td>formulario_2026.pdf · 0,8 MB</td><td><a class="btn sm" ${go("PAN-13")}>Ver <span class="sr-only">versión 2</span></a></td></tr>`,
-  `<tr class="${v1?"sel":""}"><td>v1</td><td>15/03/2005</td><td>04/11/2026 09:05</td><td>secretaria</td><td>formulario_2005.pdf · 1,1 MB</td><td><a class="btn sm" ${go("PAN-13?estado=v1")}>Ver <span class="sr-only">versión 1</span></a></td></tr>`],"Versiones del documento")}
-  <div class="actions"><a class="btn" ${go("PAN-04")}>Volver al expediente</a><a class="btn pri" ${go("PAN-05?estado=version")}>Cargar nueva versión</a></div></div>
-  <div><div class="viewer"><div class="ph"></div><b>${v1?"v1":"v2 · vigente"} · Formulario de solicitud</b><span class="hint">Fecha del documento ${v1?"15/03/2005":"10/02/2026"}</span></div></div></div>`);
+  const v1=st==="v1"; const plano=current.doc==="Plano legible", contrato=current.doc==="Contrato de servicio";
+  const tipo=plano?"Plano legible":contrato?"Contrato de servicio":"Formulario de solicitud";
+  const nombre=plano?"Plano lote 12":contrato?"Contrato 2026":"Solicitud de servicio";
+  let vers = plano?[{n:1,fd:"15/03/2005",c:"28/10/2026 08:40",a:"plano_2005.pdf · 2,1 MB"}]:contrato?[{n:1,fd:"10/02/2026",c:"28/10/2026 08:50",a:"contrato_2026.pdf · 0,9 MB"}]
+     :[{n:1,fd:"15/03/2005",c:"04/11/2026 09:05",a:"formulario_2005.pdf · 1,1 MB"},{n:2,fd:"10/02/2026",c:"04/11/2026 09:20",a:"formulario_2026.pdf · 0,8 MB"}];
+  const nv=S.versiones[tipo]; if(nv){ nv.anteriores.forEach(x=>vers.push({n:x.n,fd:x.fd,c:HOY,a:x.archivo})); vers.push({n:nv.n,fd:nv.fd,c:HOY,a:nv.archivo}); }
+  vers=vers.sort((a,b)=>b.n-a.n); const top=vers[0].n; const selN=v1?1:top; const selV=vers.find(x=>x.n===selN)||vers[0];
+  const extra=current.doc?"&doc="+encodeURIComponent(current.doc):"";
+  return shell("PAN-13",`<div class="crumb"><a ${go("PAN-04")}>Expediente 0412</a> › Versiones</div><h1>Versiones · ${tipo}</h1><p class="sub">Expediente 0412 · ${nombre} · Ninguna versión se borra ni se sobrescribe.</p>
+ <div class="split"><div>${T(["Versión","Fecha del documento","Cargada el","Por","Archivo",""],vers.map(x=>`<tr class="${x.n===selN?"sel":""}"><td>${x.n===top?`<b>v${x.n} · vigente</b>`:"v"+x.n}</td><td>${x.fd}</td><td>${x.c}</td><td>secretaria</td><td>${x.a}</td><td><a class="btn sm" ${go(x.n===1?"PAN-13?estado=v1"+extra:"PAN-13"+(extra?"?"+extra.slice(1):""))}>Ver <span class="sr-only">versión ${x.n}</span></a></td></tr>`),"Versiones del documento")}
+  <div class="actions"><a class="btn" ${go("PAN-04")}>Volver al expediente</a><a class="btn pri" ${go("PAN-05?estado=version")} onclick="S.verDoc='${tipo}'">Cargar nueva versión</a></div></div>
+  <div><div class="viewer"><div class="ph"></div><b>${selV.n===top?"v"+selV.n+" · vigente":"v"+selV.n} · ${tipo}</b><span class="hint">Fecha del documento ${selV.fd}</span></div></div></div>`);
 };
 
-SCREENS["PAN-14"]=st=>shell("PAN-14",`<h1>Mi cuenta</h1><p class="sub">Sesión de la Secretaría (usuario <b>secretaria</b>). Las dos cuentas tienen los mismos permisos ${PROP} salvo restaurar respaldos, que requeriría a la Administración.</p>
+SCREENS["PAN-14"]=st=>shell("PAN-14",`<h1>Mi cuenta</h1><p class="sub">Sesión de la Secretaría (usuario <b>secretaria</b>). Las dos cuentas tienen los mismos permisos, salvo restaurar respaldos, que requiere la autorización de la Administración.</p>
  ${st==="error"?M("error","La contraseña nueva tiene 6 caracteres y el mínimo es 8.","Escriba una contraseña de al menos 8 caracteres."):""}
  <div class="grid2"><form class="panel" onsubmit="return false"><h2 style="margin-top:0">Cambiar mi contraseña</h2>
   ${F("Contraseña actual",`<input type="password" autocomplete="current-password" value="••••••••">`,{req:true})}
@@ -625,33 +713,57 @@ const DLG={
  "D-01":()=>`<h2 id="dlgt">Anular documento</h2><p><b>Copia de cédula · Ana Lucía Mora Vega · 10/02/2026</b></p><p>El documento no se borra: deja de verse en el expediente y no cuenta para la completitud. Se puede ver con «Mostrar anulados».</p>${F("Motivo de la anulación",`<textarea rows="3">Se cargó la cédula de otra persona</textarea>`,{req:true})}<p class="hint">El motivo y la fecha de hoy (${HOY}) quedan en la bitácora.</p><div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn danger" ${go("PAN-04?estado=anulados")}>Anular documento</a></div>`,
  "D-02":()=>`<h2 id="dlgt">Editar datos del documento</h2>${F("Tipo de documento",tipoSel("Formulario de solicitud"),{req:true})}${F("Nombre identificador",`<input value="Solicitud de servicio">`)}<p class="hint">El archivo, la fecha del documento y las versiones anteriores no cambian. El valor anterior y el nuevo quedan en la bitácora.</p><div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn pri" ${go("PAN-04")}>Guardar</a></div>`,
  "D-03":()=>`<h2 id="dlgt">Dar de baja el abonado 0412</h2><p>El expediente y sus documentos se conservan y se pueden consultar. El abonado deja de contar en el avance de completitud. Puede reactivarlo después.</p>${F("Fecha de la baja",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}<div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn danger" ${go("PAN-04")}>Dar de baja</a></div>`,
- "D-04":()=>`<h2 id="dlgt">Cambiar titular · paja 0412</h2><p>Titular actual: <b>Ana Lucía Mora Vega</b></p>${F("Nuevo titular",`<input value="Esteban Mora Vega (cotitular, 2-0000-0456)">`,{req:true,hint:"Busque una persona registrada o agregue una nueva."})}${F("Fecha del cambio",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}${M("warn","Ana Lucía Mora Vega dejará de verse como titular en búsquedas y pantallas.","Queda en el historial de titulares con fecha fin 04/11/2026. Sus documentos se conservan. El tipo de abonado no cambia.")}<div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn pri" ${go("PAN-04")}>Confirmar cambio de titular</a></div>`,
- "D-05":()=>`<h2 id="dlgt">Restaurar un respaldo</h2><form onsubmit="return false" oninput="checkD05()">${F("Respaldo",`<select>${RESPALDOS.map(r=>`<option>${r[0]} · ${r[1]} · ${r[3]}</option>`).join("")}</select>`,{req:true})}${M("error","Se reemplazarán TODOS los abonados y documentos actuales por los del respaldo elegido.","Lo que se haya hecho después de esa fecha se perderá. Antes de restaurar, SIGEDA hace un respaldo del estado actual. La bitácora no se borra.")}${F("Clave de cifrado",`<input type="password" id="d5k" autocomplete="off" placeholder="Copia física o digital de la clave">`,{req:true})}<p class="hint" style="margin:6px 0">${PROP} Autorización de la Administración (usuario <b>administracion</b>):</p>${F("Contraseña de la Administración",`<input type="password" id="d5a" autocomplete="off">`,{req:true})}${F("Escriba RESTAURAR para confirmar",`<input id="d5c" autocomplete="off">`,{req:true})}<div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn danger" id="d5b" aria-disabled="true" ${go("PAN-08?estado=hecho")}>Restaurar</a></div><p class="hint" id="d5h">El botón se activa al completar la clave, la autorización y la palabra RESTAURAR.</p></form>`,
+ "D-04":()=>`<h2 id="dlgt">Cambiar titular · paja 0412</h2><p>Titular actual: <b>${titularActual()}</b></p>${F("Nuevo titular",`<input id="d4n" list="d4l" placeholder="Escriba el nombre o la cédula"><datalist id="d4l"><option value="Esteban Mora Vega (cotitular, 2-0000-0456)"></option></datalist>`,{req:true,hint:"Busque una persona registrada o agregue una nueva."})}<div class="errtxt" id="d4e" style="display:none">Escriba el nombre del nuevo titular.</div>${F("Fecha del cambio",`<input id="d4f" value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}${M("warn",`${titularActual()} dejará de verse como titular en búsquedas y pantallas.`,`Queda en el historial de titulares con la fecha del cambio como fecha fin. Sus documentos se conservan. El tipo de abonado no cambia.`)}<div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn pri" ${go("PAN-04")} onclick="return cambiarTitular()">Confirmar cambio de titular</a></div>`,
+ "D-05":()=>`<h2 id="dlgt">Restaurar un respaldo</h2><form onsubmit="return false" oninput="checkD05()">${F("Respaldo",`<select>${RESPALDOS.map(r=>`<option>${r[0]} · ${r[1]} · ${r[3]}</option>`).join("")}</select>`,{req:true})}${M("error","Se reemplazarán TODOS los abonados y documentos actuales por los del respaldo elegido.","Lo que se haya hecho después de esa fecha se perderá. Antes de restaurar, SIGEDA hace un respaldo del estado actual. La bitácora no se borra.")}${F("Clave de cifrado",`<input type="password" id="d5k" autocomplete="off" placeholder="Copia física o digital de la clave">`,{req:true})}<p class="hint" style="margin:6px 0">Autorización de la Administración (usuario <b>administracion</b>):</p>${F("Contraseña de la Administración",`<input type="password" id="d5a" autocomplete="off">`,{req:true})}${F("Escriba RESTAURAR para confirmar",`<input id="d5c" autocomplete="off">`,{req:true})}<div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn danger" id="d5b" aria-disabled="true" ${go("PAN-08?estado=hecho")}>Restaurar</a></div><p class="hint" id="d5h">El botón se activa al completar la clave, la autorización y la palabra RESTAURAR.</p></form>`,
  "D-06":()=>`<h2 id="dlgt">Agregar persona asociada</h2><p class="hint">Busque primero si la persona ya está registrada, para no duplicarla.</p>${F("Buscar por cédula o nombre",`<input value="2-0000-0456">`)}${T(["Persona","Identificación","Vínculos actuales",""],[`<tr><td>Esteban Mora Vega</td><td>2-0000-0456</td><td>Cotitular de 0412</td><td><a class="btn sm" ${go("PAN-06?estado=modificar")}>Elegir</a></td></tr>`],"Personas encontradas")}<p class="hint" style="margin-top:10px">¿No aparece? Registre una persona nueva:</p><div class="row">${F("Nombre completo",`<input>`,{req:true})}${F("Rol",`<select><option>Cotitular</option><option>Apoderada</option></select>`,{req:true})}</div><div class="row">${F("Tipo de identificación",`<select><option>Cédula física</option><option>Cédula jurídica</option><option>DIMEX</option><option>Pasaporte</option></select>`,{req:true})}${F("Número",`<input placeholder="1-0000-0000">`,{req:true})}${F("Desde",`<input value="${HOY}">`,{req:true,hint:"dd/mm/aaaa"})}</div><div class="actions"><a class="btn" ${back()}>Cancelar</a><a class="btn pri" ${go("PAN-06?estado=modificar")}>Agregar al expediente</a></div>`,
  "D-07":()=>`<h2 id="dlgt">¿Salir sin guardar?</h2><p>Eligió 2 archivos y escribió sus datos. Si sale ahora, no se guarda nada.</p><div class="actions"><a class="btn" ${back()}>Seguir cargando</a><a class="btn danger" ${go("PAN-04")}>Salir sin guardar</a></div>`,
  "D-08":()=>`<h2 id="dlgt">Su sesión se va a cerrar</h2><p>Lleva casi 15 minutos sin usar SIGEDA. Por seguridad, la sesión se cerrará en <b>60 segundos</b>. Lo que no haya guardado se perderá.</p><div class="actions"><a class="btn" ${go("PAN-01")}>Cerrar sesión</a><a class="btn pri" ${back()}>Seguir trabajando</a></div>`
 };
+function cambiarTitular(){
+  if(!INTERACTIVO()) return true;
+  const v=document.getElementById("d4n").value.trim(), f=document.getElementById("d4f").value.trim();
+  if(!v){ document.getElementById("d4e").style.display="block"; return false; }
+  const ant=titularActual();
+  S.titular=/esteban/i.test(v)||v.includes("2-0000-0456")?ESTEBAN:v.replace(/\s*\(.*$/,""); S.fechaCambio=fechaValida(f)?f:HOY;
+  S.aviso=M("ok",`Titular cambiado: ahora es ${S.titular}.`,`${ant} pasó al historial de titulares con fecha fin ${S.fechaCambio}. Sus documentos se conservan en el expediente.`);
+  location.hash="#/PAN-04"; return false;
+}
+function buscarExp(btn){
+  if(!INTERACTIVO()) return true;
+  const pn=btn.closest(".panel"); const ins=pn.querySelectorAll("input:not([type=checkbox])"); const sec=pn.querySelector("select").value;
+  const paja=ins[0].value.trim(), nom=ins[1].value.trim(), idn=ins[2].value.trim();
+  if(paja && !/^\d+$/.test(paja)){ location.hash="#/PAN-03?estado=error"; return false; }
+  if(!paja&&!nom&&!idn&&(!sec||sec==="Todos")){ location.hash="#/PAN-03?estado=inicial"; return false; }
+  location.hash=`#/PAN-03?estado=exito&q=${encodeURIComponent(paja||nom||idn)}${sec&&sec!=="Todos"?"&s="+encodeURIComponent(sec):""}`; return false;
+}
 function checkD05(){ const ok=(document.getElementById("d5k").value.trim()&&document.getElementById("d5a").value.trim()&&document.getElementById("d5c").value.trim()==="RESTAURAR"); const b=document.getElementById("d5b"); b.setAttribute("aria-disabled",ok?"false":"true"); document.getElementById("d5h").textContent=ok?"Listo: puede restaurar.":"El botón se activa al completar la clave, la autorización y la palabra RESTAURAR."; }
 
 /* ---------------------------- Router ---------------------------- */
-let current={id:"PAN-01",st:"",dlg:"",q:""};
+let current={id:"PAN-01",st:"",dlg:"",q:"",s:"",doc:""};
 function parse(){
   const h=decodeURIComponent(location.hash.replace(/^#\/?/,""))||"PAN-01";
   const i=h.indexOf("?"); const id=i<0?h:h.slice(0,i); const p=new URLSearchParams(i<0?"":h.slice(i+1));
-  return {id:SCREENS[id]?id:"PAN-01",st:p.get("estado")||"",dlg:p.get("dlg")||"",q:p.get("q")||""};
+  return {id:SCREENS[id]?id:"PAN-01",st:p.get("estado")||"",dlg:p.get("dlg")||"",q:p.get("q")||"",s:p.get("s")||"",doc:p.get("doc")||""};
 }
 function render(){
   document.querySelectorAll("dialog.dlg").forEach(d=>{d.dataset.silent="1";d.remove();}); document.querySelectorAll(".ovbg").forEach(o=>o.remove());
-  current=parse(); FID=0;
+  const prevId=current.id; current=parse(); FID=0;
+  if(current.id==="PAN-05" && prevId!=="PAN-05"){ S.sel=[]; S.selMsg=""; S.picker=false; }
+  if(current.id!=="PAN-05" && current.id!=="PAN-13" && current.id!=="PAN-04") S.verDoc="";
   const sp=new URLSearchParams(location.search);
   if(sp.get("hifi")==="1") HIFI=true;
   document.body.classList.toggle("hifi",HIFI);
   document.body.classList.toggle("captura",sp.get("captura")==="1");
+  document.body.classList.toggle("evaluacion",sp.get("evaluacion")==="1");
   const st=current.st||STATES[current.id][0];
   document.getElementById("root").innerHTML=SCREENS[current.id](st);
   document.title=`SIGEDA · ${current.id} ${INVENTARIO.find(s=>s.id===current.id).nombre}`;
   buildPanel();
   if(current.dlg&&DLG[current.dlg]) openDlg(current.dlg); else window.scrollTo(0,0);
+  /* Pasos que avanzan solos, como en el sistema real (solo fuera del modo de capturas) */
+  const AUTO={"PAN-05|cargando":S.pend?"#/PAN-05?estado=exito":"","PAN-08|cargando":"#/PAN-08?estado=hecho","PAN-09|cargando":"#/PAN-09?estado=exito"};
+  const k=current.id+"|"+current.st, dest=AUTO[k];
+  if(INTERACTIVO()&&dest){ const h=location.hash; clearTimeout(window._auto); window._auto=setTimeout(()=>{ if(location.hash===h){ if(k==="PAN-05|cargando") S.pend=false; location.hash=dest; } },1800); }
 }
 function openDlg(id){
   const d=document.createElement("dialog"); d.className="dlg"; d.setAttribute("aria-labelledby","dlgt");
@@ -675,6 +787,17 @@ function buildPanel(){
   p.querySelectorAll("a:not(#tg)").forEach(a=>a.addEventListener("click",()=>document.getElementById("proto").classList.remove("open")));
   document.getElementById("tg").onclick=e=>{e.preventDefault();HIFI=!HIFI;const u=new URL(location.href);u.searchParams.delete("hifi");history.replaceState(null,"",u);render();};
 }
+/* H-01 (evaluación del 10/11/2026): Enter envía el formulario con su botón principal */
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter"||e.isComposing) return;
+  const t=e.target; if(!t.matches || !t.matches("input:not([type=checkbox]):not([type=radio]),select")) return;
+  if(t.closest("form.quick")) return; /* la búsqueda rápida ya es un formulario */
+  const scope=t.closest("dialog")||t.closest("form")||t.closest(".panel"); if(!scope) return;
+  const sel="a.btn.pri:not([aria-disabled=true]),a.btn.danger:not([aria-disabled=true])";
+  let b=scope.querySelector(scope.matches("dialog")?sel:"a.btn.pri:not([aria-disabled=true])");
+  if(!b){ let n=scope.nextElementSibling; while(n&&!n.matches(".actions")) n=n.nextElementSibling; if(n) b=n.querySelector("a.btn.pri:not([aria-disabled=true])"); }
+  if(b){ e.preventDefault(); b.click(); }
+});
 document.getElementById("protoBtn").onclick=()=>document.getElementById("proto").classList.toggle("open");
 document.addEventListener("click",e=>{ const a=e.target.closest('a[aria-disabled="true"]'); if(a){ e.preventDefault(); } });
 render();

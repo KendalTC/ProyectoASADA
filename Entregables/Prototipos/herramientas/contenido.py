@@ -11,14 +11,15 @@ PORTADA = [
     ["Docente", "Mag. James Mcintosh Molina"],
     ["ASADA y proceso", "Acueducto Bodegas y Pilas · gestión documental de los expedientes de abonados (SIGEDA)"],
     ["Herramienta de prototipado", "HTML, CSS y JavaScript (un solo archivo), publicado en GitHub Pages · enlace de solo lectura: " + ENLACE],
-    ["Versión del documento", "v1.0"],
-    ["Fecha de entrega", "06/11/2026 · Mediación Virtual"],
+    ["Versión del documento", "v1.1"],
+    ["Fecha de entrega", "10/11/2026 · Mediación Virtual"],
 ]
 VERSIONES = [
     ["v0.1", "04/11/2026", AUTORES, "Primer borrador: secciones 0 a 5, 7, 10 a 14 y anexos; prototipo navegable con 75 capturas y mapa de navegación."],
     ["v0.2", "04/11/2026", AUTORES, "Correcciones de la revisión del prototipo hecha por el docente (Mcintosh Molina, 2026b): se quita la revisión de posibles duplicados (PAN-15) por decisión del equipo; D-06 pasa a «Agregar persona asociada»; cuentas «Secretaría» y «Administración»; color solo en los estados; propuesta de que solo la Administración restaure; estados nuevos en PAN-06, PAN-08 y PAN-13; accesibilidad revisada con axe-core; 77 capturas."],
     ["v0.3", "04/11/2026", AUTORES, "Se elimina la sección de bocetos en papel (P-01) por indicación del docente; las secciones 7 a 14 pasan a ser 6 a 13 y las figuras se renumeran."],
     ["v1.0", "06/11/2026", AUTORES, "Entrega al profesor: se agrega el prototipo vertical construido (sección 7), con la prueba de terminado ejecutada y sus capturas. La evaluación con la administradora (sección 8) sigue PENDIENTE de fecha."],
+    ["v1.1", "10/11/2026", AUTORES, "Resultados de la evaluación con la administradora del 10/11/2026 (sección 8): plan, resultados por tarea y hallazgos. Se corrigen en el prototipo los hallazgos H-01 (Enter envía los formularios) y H-02 (cambiar titular directo desde el expediente). Se registran las respuestas a las preguntas pendientes de prioridad alta (sección 11) y los cambios que generan (Anexo B). Las tareas T-02 a T-04 se ajustan al expediente de prueba."],
 ]
 
 PROPOSITO = ("Este documento presenta los prototipos de interfaz de SIGEDA, el sistema que digitaliza y organiza los expedientes de los "
@@ -59,7 +60,7 @@ PERFILES = [
     ["Experiencia con computadoras", "Media: usa SADA (facturación móvil) y herramientas de Microsoft; no es personal técnico (Visión 3.2, ERS 2.3).", "Básica: según la Visión, no tiene un buen manejo de la tecnología. Necesita pocos pasos y mensajes que digan cómo corregir (R-08 del DAS)."],
     ["Tareas más frecuentes", "Consultar y actualizar expedientes, revisar la completitud y la bitácora, administrar respaldos y tipos de documento, importar SADA.", "Digitalizar y cargar documentos, buscar y consultar expedientes, registrar abonados y cambios de titular."],
     ["Lo que más le preocupa", "Perder documentos (ya ha pasado) y no tener respaldo; que al cambiar de titular sigan apareciendo varios nombres (B-21); que los datos lleguen a terceros (B-16).", "SUPUESTO: equivocarse al cargar (tipo, fecha o expediente) y no saber cómo corregir; el tiempo que toma digitalizar dentro de la jornada. Se pregunta en la evaluación."],
-    ["Qué no debe poder hacer", "Eliminar documentos (no existe esa función, S-04), modificar o borrar la bitácora (RNF-11), cambiar un número de paja (RN-01) ni cambiar la contraseña de la otra cuenta: solo puede asignarle una temporal (RF-20).", "Lo mismo que la Administración: las dos cuentas tienen los mismos permisos (B-15, RN-09). Propuesta por validar: restaurar un respaldo requeriría la autorización de la cuenta de la Administración (sección 11)."],
+    ["Qué no debe poder hacer", "Eliminar documentos (no existe esa función, S-04), modificar o borrar la bitácora (RNF-11), cambiar un número de paja (RN-01) ni cambiar la contraseña de la otra cuenta: solo puede asignarle una temporal (RF-20).", "Lo mismo que la Administración: las dos cuentas tienen los mismos permisos (B-15, RN-09). Excepción confirmada por la administradora el 10/11/2026: restaurar un respaldo requiere la autorización de la cuenta de la Administración (sección 11)."],
 ]
 
 ENTORNO = [
@@ -72,9 +73,9 @@ ENTORNO = [
 
 TAREAS = [
     ["T-01", "«Busque el expediente de la paja 0412 y dígame quién es el titular».", "Secretaría", "Varias veces al día (B-07)", "1 minuto o menos, sin ayuda (RNF-01a)", "CU-05, CU-06"],
-    ["T-02", "«Cargue el plano escaneado de la paja 0412; el papel tiene fecha 15/03/2005».", "Secretaría", "Muchas veces al día durante la digitalización", "3 minutos o menos, con la fecha original correcta y sin ayuda (RNF-01b)", "CU-04"],
-    ["T-03", "«Cargue la solicitud de 2026 como nueva versión de la solicitud de 2005».", "Secretaría", "SUPUESTO: semanal", "3 minutos o menos; la versión de 2005 sigue en el historial", "CU-04 (A1), CU-06"],
-    ["T-04", "«Vea qué documentos le faltan al expediente 0412 y cargue uno desde ahí».", "Administración", "SUPUESTO: semanal", "Identifica los 2 faltantes en 1 minuto o menos y llega a la carga sin volver a buscar", "CU-08, CU-04"],
+    ["T-02", "«Cargue la certificación de registro de propiedad de la paja 0412; el papel tiene fecha 15/03/2005».", "Secretaría", "Muchas veces al día durante la digitalización", "3 minutos o menos, con la fecha original correcta y sin ayuda (RNF-01b)", "CU-04"],
+    ["T-03", "«Cargue el plano nuevo, con fecha 20/10/2026, como nueva versión del plano de 2005».", "Secretaría", "SUPUESTO: semanal", "3 minutos o menos; el plano de 2005 sigue en el historial", "CU-04 (A1), CU-06"],
+    ["T-04", "«Vea qué documentos le faltan al expediente 0412 y cargue uno desde ahí».", "Administración", "SUPUESTO: semanal", "Identifica lo que falta (la cédula del cotitular) en 1 minuto o menos y la carga a nombre de Esteban sin volver a buscar", "CU-08, CU-04"],
     ["T-05", "«Registre que la paja 0412 ahora es de Esteban Mora Vega».", "Secretaría o Administración", "SUPUESTO: pocas veces al mes", "SUPUESTO: 3 minutos o menos; el titular anterior queda solo en el historial", "CU-07"],
     ["T-06", "«Revise si el respaldo de ayer salió bien y, si no, haga uno ahora».", "Administración", "Semanal (DAS 8.2)", "SUPUESTO: sabe el estado del respaldo en 1 minuto o menos", "CU-11"],
 ]
@@ -87,7 +88,7 @@ INVENTARIO = [
     ["PAN-05", "Cargar documento", "PantallaCargaDocumento", "CU-04", "RF-05, RF-06, RF-07", "Ambas", "1 (Mariangel y Kendal)"],
     ["PAN-06", "Registrar o modificar abonado y personas asociadas", "PantallaExpediente (modo edición); abre D-04 y D-06", "CU-02, CU-07, CU-15, CU-18", "RF-02, RF-03, RF-13, RF-21", "Ambas", "2"],
     ["PAN-07", "Panel de completitud", "PantallaCompletitud", "CU-08", "RF-14 (y RF-04: tipo pendiente)", "Ambas (sobre todo la Administración)", "4"],
-    ["PAN-08", "Respaldo y restauración (con copia en OneDrive, prueba de restauración y cuarentena)", "PantallaRespaldos; abre D-05", "CU-11", "RF-16", "Ambas; restaurar requiere la Administración (propuesta por validar); el Reloj del sistema dispara el automático", "3"],
+    ["PAN-08", "Respaldo y restauración (con copia en OneDrive, prueba de restauración y cuarentena)", "PantallaRespaldos; abre D-05", "CU-11", "RF-16", "Ambas; restaurar requiere la Administración (confirmado el 10/11/2026); el Reloj del sistema dispara el automático", "3"],
     ["PAN-09", "Importar datos de SADA", "PantallaImportacion", "CU-03", "RF-04", "Ambas (sobre todo la Administración)", "3"],
     ["PAN-10", "Tipos de documento y grupos de alternativas", "PantallaTiposDocumento", "CU-09", "RF-09", "Ambas", "4"],
     ["PAN-11", "Bitácora", "PantallaBitacora", "CU-10", "RF-15", "Ambas", "4"],
@@ -116,10 +117,10 @@ REGLAS = [
 
 RECORRIDOS = [
     ["T-01", "PAN-02 → escribir «0412» en la búsqueda rápida → «Buscar» → PAN-03 (resultados) → «Abrir» → PAN-04 (el titular vigente se ve en el encabezado)", "3 pantallas · 3 acciones"],
-    ["T-02", "PAN-03 → «Abrir» → PAN-04 → «Cargar documento» → PAN-05 → «Elegir archivos» → tipo «Plano legible» y fecha 15/03/2005 → «Guardar documentos» → mensaje de éxito → «Ver expediente» → PAN-04", "3 pantallas · 6 acciones"],
-    ["T-03", "PAN-04 → «Nueva versión» en la fila del formulario → PAN-05 (opción «nueva versión» ya marcada) → elegir archivo y fecha 10/02/2026 → «Guardar documentos» → PAN-04 → «v2 · ver versiones» → PAN-13", "3 pantallas · 5 acciones"],
-    ["T-04", "Menú «Completitud» → PAN-07 → localizar la fila 0412 (o filtrar) → «Cargar lo que falta» → PAN-05 → «Guardar documentos» → PAN-04", "3 pantallas · 4 acciones"],
-    ["T-05", "PAN-04 → «Cambiar titular» → PAN-06 → «Cambiar titular…» → D-04 (nuevo titular y fecha) → «Confirmar cambio de titular» → PAN-04", "2 pantallas y 1 diálogo · 4 acciones"],
+    ["T-02", "PAN-03 → «Abrir» → PAN-04 → «Cargar documento» → PAN-05 → «Elegir archivos» → tipo «Certificación de registro de propiedad» y fecha 15/03/2005 → «Guardar documentos» → mensaje de éxito → «Ver expediente» → PAN-04", "3 pantallas · 6 acciones"],
+    ["T-03", "PAN-04 → «Nueva versión» en la fila del plano → PAN-05 (opción «nueva versión» y documento ya marcados) → elegir archivo y fecha 20/10/2026 → «Guardar documentos» → PAN-04 → «v2 · ver versiones» → PAN-13", "3 pantallas · 5 acciones"],
+    ["T-04", "Menú «Completitud» → PAN-07 → localizar la fila 0412 (o filtrar) → «Cargar lo que falta» → PAN-05 → elegir la cédula, tipo «Copia de cédula» y persona Esteban → «Guardar documentos» → PAN-04", "3 pantallas · 4 acciones"],
+    ["T-05", "PAN-04 → «Cambiar titular…» → D-04 (nuevo titular y fecha) → «Confirmar cambio de titular» → PAN-04 (también se puede desde PAN-06)", "1 pantalla y 1 diálogo · 3 acciones"],
     ["T-06", "PAN-02 (muestra un aviso si el respaldo falló) o menú «Respaldos» → PAN-08 (último respaldo y estado de cada copia) → «Respaldar ahora» si hace falta", "1 o 2 pantallas · 2 acciones"],
 ]
 
@@ -128,8 +129,8 @@ ESTILO = [
     ["Tipografía y tamaño mínimo", "Segoe UI (incluida en Windows); Arial como alternativa. Texto de 15 px, títulos de 22 px, mínimo de 12,5 px solo para ayudas y etiquetas.", "No hay que instalar nada (R-06 del DAS). Es legible a 1366 × 768 para una usuaria con manejo básico (R-08)."],
     ["Botón principal y secundario", "Principal: relleno oscuro (azul en alta fidelidad), uno solo por sección, a la derecha («Guardar documentos», «Buscar»). Secundario: borde y fondo blanco («Cancelar»). Peligroso: borde grueso y el verbo exacto («Anular documento», «Restaurar»). Alto mínimo de 38 px.", "La usuaria reconoce la acción principal sin leer todo, y el verbo dice qué pasa (Krug, 2014; heurísticas 2 y 4)."],
     ["Formato de fecha", "dd/mm/aaaa en campos y tablas; fecha y hora como dd/mm/aaaa hh:mm (24 horas). La fecha del documento se propone con la de hoy.", "Usado en la ERS (RF-06, RN-07)."],
-    ["Número de paja", "Texto, tal como se registró, en negrita y en la primera columna de las tablas. Se rechaza con espacios; no se convierte a número, para no perder ceros iniciales.", "RN-01: identifica al abonado y es lo que la usuaria usa para buscar (B-20). abonado.numero_paja es texto (Modelo ER v1.1; Anexo C, pregunta 1)."],
-    ["Identificaciones (física, jurídica, DIMEX)", "Lista «Tipo de identificación» y número con máscara según el tipo: física 0-0000-0000 (9 dígitos), jurídica 3-000-000000 (10), DIMEX 11 o 12 dígitos, pasaporte con letras y números. En las listas se oculta la parte central (1-••••-0123).", "persona.tipo_identificacion y persona.identificacion (Modelo ER v1.1); la longitud de la jurídica está pendiente (sección 11). Ocultar en las listas reduce la exposición de datos (Ley 8968)."],
+    ["Número de paja", "Texto, tal como se registró, en negrita y en la primera columna de las tablas. Solo lleva dígitos y puede empezar con cero (confirmado por la administradora el 10/11/2026); no se convierte a número, para no perder los ceros iniciales.", "RN-01: identifica al abonado y es lo que la usuaria usa para buscar (B-20). abonado.numero_paja es texto (Modelo ER v1.1; Anexo C, pregunta 1)."],
+    ["Identificaciones (física, jurídica, DIMEX)", "Lista «Tipo de identificación» y número con máscara según el tipo: física 0-0000-0000 (9 dígitos), jurídica 3-000-000000 (10), DIMEX 11 o 12 dígitos, pasaporte con letras y números. En las listas se oculta la parte central (1-••••-0123).", "persona.tipo_identificacion y persona.identificacion (Modelo ER v1.1); la cédula jurídica tiene 10 dígitos (confirmado por la administradora el 10/11/2026). Ocultar en las listas reduce la exposición de datos (Ley 8968)."],
     ["Mensajes de error", "Recuadro arriba con el resumen («Hay 3 archivos con problemas. No se guardó ninguno todavía.») y, junto a cada campo, ⚠ + qué pasó con el dato concreto + qué hacer: «Pesa 14,2 MB y el máximo es 10 MB. Escanéelo a menor resolución o divídalo en dos archivos». Nunca códigos de error.", "RNF-02: en español, con la causa y la acción. Heurística 9 (Nielsen, 1994)."],
     ["Confirmación de acciones riesgosas", "Diálogo que nombra el elemento, dice qué pasará y qué se conserva, con el botón peligroso nombrando la acción. Anular pide un motivo obligatorio. Restaurar pide además la clave de cifrado y escribir RESTAURAR.", "RF-16, RF-17, RF-19, RNF-11 y RNF-13. Previene errores (heurística 5). Nada se borra: solo se anula, se cierra o se agrega."],
     ["Términos del sistema", "Abonado: la paja con su expediente. Titular vigente: la persona responsable hoy. Persona asociada: cotitular o apoderada. Expediente: los documentos de un abonado. Documento: tiene una o más versiones. Se dice «anular», nunca «eliminar». Las cuentas se llaman «Secretaría» (usuario secretaria) y «Administración» (usuario administracion).", "Revisión de la ERS v1.1, glosario de la ERS v1.2, Modelo ER v1.1 y revisión del docente (Mcintosh Molina, 2026b)."],
@@ -153,7 +154,7 @@ FICHAS = {
 "PAN-03": dict(
   img="PAN-03_buscar-expediente_exito.png",
   elem=[
-    ["Número de paja", "Campo de texto", "abonado.numero_paja", "Sin espacios; coincidencia exacta o por el inicio", "No"],
+    ["Número de paja", "Campo de texto", "abonado.numero_paja", "Solo dígitos (puede empezar con cero); coincidencia exacta o por el inicio", "No"],
     ["Nombre del titular", "Campo de texto", "persona.nombre del vínculo vigente (vinculo_abonado.rol = TITULAR y fecha_fin nula)", "Coincidencia parcial, sin distinguir mayúsculas ni tildes", "No"],
     ["Identificación", "Campo de texto", "persona.identificacion", "Con o sin guiones (se normaliza)", "No"],
     ["Sector", "Lista", "sector.nombre (abonado.id_sector)", "Valores del catálogo; «Todos» por defecto", "No"],
@@ -170,7 +171,7 @@ FICHAS = {
     ["Registrar (en el mensaje sin resultados)", "Lleva al registro de un abonado nuevo", "PAN-06"],
   ],
   est=["Al entrar: «Escriba al menos un criterio y presione Buscar». Sin resultados: «No hay expedientes con el número de paja 9999. Revise el número o busque por el nombre del titular. Si el abonado es nuevo, puede registrarlo».",
-       "Campo marcado con ⚠: «El número de paja no puede llevar espacios. Escríbalo sin espacios, por ejemplo 0412». Con más de 50 resultados: «Se muestran los primeros 50 de 214 expedientes del sector Bodegas. Agregue el nombre o el número de paja para acotar».",
+       "Campo marcado con ⚠: «El número de paja solo lleva números (puede empezar con cero). Escríbalo sin espacios, letras ni guiones, por ejemplo 0412». Con más de 50 resultados: «Se muestran los primeros 50 de 214 expedientes del sector Bodegas. Agregue el nombre o el número de paja para acotar».",
        "«Buscando en 1 015 expedientes…» con indicador giratorio y filas de relleno; el botón no se puede presionar dos veces.",
        "Tabla con «7 expedientes encontrados para mora en 0,4 s»; los incompletos y los de baja llevan etiquetas de texto."],
   preg=["Los cuatro criterios de RF-10 (número de paja, nombre del titular vigente, identificación y sector), solos o combinados: deben cumplirse todos. La búsqueda rápida de la barra superior acepta paja o nombre. La pestaña «Documentos» cubre RF-11. En el wireframe: panel de criterios y pestañas.",
@@ -195,7 +196,8 @@ FICHAS = {
     ["Cargar documento", "Abre la carga con el expediente ya elegido", "PAN-05"],
     ["Ver / Nueva versión / v2 · ver versiones (fila)", "Muestra el documento en el visor; abre la carga en modo «nueva versión»; abre el historial", "Visor en PAN-04; PAN-05; PAN-13"],
     ["Editar datos / Anular (fila)", "Corrige el tipo y el nombre identificador (RF-22) o anula con motivo (RF-19); un evento en la bitácora con el valor anterior y el nuevo", "D-02 o D-01 → PAN-04"],
-    ["Modificar abonado / Cambiar titular / Agregar o quitar personas", "Abre el modo de edición del expediente", "PAN-06"],
+    ["Modificar abonado / Agregar o quitar personas", "Abre el modo de edición del expediente", "PAN-06"],
+    ["Cambiar titular…", "Abre D-04 directamente (hallazgo H-02)", "D-04 → PAN-04"],
     ["Dar de baja (o Reactivar)", "Cambia abonado.estado y abonado.fecha_baja sin borrar documentos (RF-17)", "D-03 → PAN-04"],
     ["Exportar / Ver qué falta", "Abre la exportación o el detalle de completitud del abonado", "PAN-12 / PAN-07"],
   ],
@@ -235,13 +237,13 @@ FICHAS = {
   preg=["Se llega desde el expediente (PAN-04) o desde el panel de completitud (PAN-07), así que el expediente ya viene elegido y se muestra arriba; «Cambiar de expediente» vuelve a PAN-03. La persona se elige por archivo, en una lista con solo las personas vigentes del expediente y su rol; se propone el titular vigente.",
         "En la columna «Fecha del documento» de cada archivo: se propone la de hoy y se puede cambiar, con la ayuda «Si digitaliza un papel viejo, ponga la fecha que tiene el papel». La fecha de carga no es un campo: se explica que se guarda sola, y luego se ve en el visor y en PAN-13 («Cargado: 04/11/2026 09:12»).",
         "Con la opción explícita «Una nueva versión de un documento que ya está en el expediente» y la lista del documento. El enlace «Nueva versión» de cada fila de PAN-04 abre la pantalla con esa opción ya marcada. El sistema no lo adivina por el nombre del archivo.",
-        "Se valida al elegir el archivo, antes de guardar. La fila queda marcada con ⚠, la causa con el dato real y la acción, y no se guarda nada mientras haya errores. El límite de 10 MB viene de RF-05 y S-21; la plantilla lo atribuye a RNF-06, que es el tiempo de visualización (Anexo B).",
+        "Se valida al presionar «Guardar documentos», antes de guardar nada. La fila queda marcada con ⚠, la causa con el dato real y la acción, y no se guarda nada mientras haya errores. El límite de 10 MB viene de RF-05 y S-21; la plantilla lo atribuye a RNF-06, que es el tiempo de visualización (Anexo B).",
         "Un mensaje con lo que se cargó y dos salidas: «Ver expediente» (PAN-04, con el documento en su lugar según la prioridad) o «Cargar otro documento»."],
   traz=("RF-05, RF-06, RF-07 (además RF-13, persona que aporta, y RF-15, bitácora)", "RN-06, RN-07, RN-11", "RNF-01, RNF-02, RNF-03, RNF-10", "CU-04, pasos 1 a 7, A1 y E1")),
 "PAN-06": dict(
   img="PAN-06_registrar-o-modificar-abonado-y-personas_modificar.png",
   elem=[
-    ["Número de paja", "Campo de texto", "abonado.numero_paja", "Único; no se puede cambiar después (RN-01)", "Sí"],
+    ["Número de paja", "Campo de texto", "abonado.numero_paja", "Solo dígitos, puede empezar con cero; único y no se reutiliza; no se puede cambiar después (RN-01, confirmado el 10/11/2026)", "Sí"],
     ["Sector", "Lista", "abonado.id_sector (sector.nombre)", "Del catálogo; los importados pueden no tenerlo", "Sí al registrar (RF-02)"],
     ["Tipo de abonado", "Botones de opción", "abonado.tipo_abonado", "PERSONA_FISICA o PERSONA_JURIDICA; PENDIENTE solo por importación", "Sí"],
     ["Titular vigente: nombre", "Campo de texto y «Buscar persona ya registrada» (D-06)", "persona.nombre; vinculo_abonado (rol TITULAR, fecha_inicio)", "Texto libre; se puede elegir una persona ya registrada", "Sí"],
@@ -305,7 +307,7 @@ FICHAS = {
     ["Historial de respaldos", "Tabla", "respaldo.fecha_hora, respaldo.tipo, respaldo.estado, respaldo.tamano_bytes; copia_respaldo por destino", "Retención de 7 diarios y 4 semanales (DAS 8.2)", "—"],
     ["Respaldo por restaurar", "Lista (D-05)", "respaldo.id_respaldo, respaldo.nombre_paquete", "Solo respaldos COMPLETOS", "Sí"],
     ["Clave de cifrado", "Campo de contraseña (D-05)", "— (no se guarda; RNF-13)", "Debe descifrar el paquete", "Sí"],
-    ["Autorización de la Administración", "Campo de contraseña (D-05)", "cuenta.hash_contrasena de la cuenta con cuenta.perfil = ADMINISTRADORA (se verifica, no se guarda)", "Propuesta por validar (sección 11)", "Sí, si se aprueba"],
+    ["Autorización de la Administración", "Campo de contraseña (D-05)", "cuenta.hash_contrasena de la cuenta con cuenta.perfil = ADMINISTRADORA (se verifica, no se guarda)", "Confirmado por la administradora el 10/11/2026", "Sí"],
     ["Confirmación", "Texto «RESTAURAR» (D-05)", "—", "Debe coincidir; «Restaurar» queda desactivado hasta completar clave, autorización y RESTAURAR", "Sí"],
     ["Copia en OneDrive", "Carpeta y casilla (estado «onedrive»)", "copia_respaldo.destino = ONEDRIVE", "Solo si se confirma S-10", "No"],
     ["Prueba de restauración", "Fecha, respaldo, computadora, resultado y observaciones (estado «prueba»)", "Sin tabla en el Modelo ER v1.1: se propone en el Anexo B", "Propuesta: cada 3 meses (DAS 8.2)", "Sí, al registrarla"],
@@ -326,8 +328,8 @@ FICHAS = {
         "El aviso «El disco externo no está conectado…» en PAN-08 y al iniciar sesión (PAN-02), hasta que se complete (RF-16). Si OneDrive está configurado y su copia se verifica, el respaldo queda COMPLETO con un aviso de que faltó el disco (corrección 2.2 del DAS).",
         "Cada copia se verifica con SHA-256 al copiarla (estado VERIFICADA). La prueba de restauración en otro equipo aparece como «Pendiente (propuesta: cada 3 meses)» para recordarla (DAS 8.2).",
         "D-05 avisa que se reemplazarán todos los abonados y documentos por los de esa fecha y que se perderá lo posterior, que antes se hace un respaldo del estado actual y que la bitácora no se borra: se agrega el registro de la restauración (RNF-11). Pide la clave de cifrado, la autorización de la Administración (propuesta) y escribir RESTAURAR; el botón se activa solo al completar todo.",
-        "Propuesta por validar: cualquiera de las dos cuentas inicia la restauración, pero se requiere la contraseña de la Administración, porque es la responsable de los respaldos (DAS 8.2) y la acción reemplaza todo. Es una excepción a RN-09 (mismos permisos), así que se pregunta en la evaluación (sección 11) y se anota en el Anexo B. La restauración queda en la bitácora."],
-  traz=("RF-16", "RN-08, RN-09 (excepción propuesta)", "RNF-04, RNF-10, RNF-11, RNF-12, RNF-13", "CU-11")),
+        "Confirmado por la administradora el 10/11/2026: cualquiera de las dos cuentas inicia la restauración, pero se requiere la contraseña de la Administración, porque es la responsable de los respaldos (DAS 8.2) y la acción reemplaza todo. Es una excepción a RN-09 (mismos permisos) y se anota en el Anexo B para la ERS. La restauración queda en la bitácora."],
+  traz=("RF-16", "RN-08, RN-09 (excepción confirmada)", "RNF-04, RNF-10, RNF-11, RNF-12, RNF-13", "CU-11")),
 }
 ESTADOS_LABEL = ["Sin datos / sin resultados", "Error de validación", "Proceso en curso", "Éxito"]
 
@@ -347,7 +349,7 @@ ALTA = ("La maqueta de alta fidelidad (P-04) usa el mismo archivo del prototipo 
     "estado con texto y una franja superior que dice «Maqueta de alta fidelidad (P-04) · solo muestra el aspecto: no funciona». "
     "Se aplica a todas las pantallas y se capturó en PAN-03, PAN-04, PAN-05 y PAN-07 (archivos ALTA_PAN-xx.png del .zip). "
     "Se mostrará a la administradora al final de la sesión de evaluación, después de las tareas, para que no confunda el aspecto con un sistema terminado. "
-    "PENDIENTE: registrar a quién se mostró, qué opinó del aspecto y cómo se le aclaró que todavía no funciona.")
+    "Se mostró a la administradora al final de la sesión del 10/11/2026 (virtual, por Microsoft Teams), con el enlace del prototipo en modo de alta fidelidad. Se le aclaró que solo muestra el aspecto y que todavía no funciona. Estuvo de acuerdo con los colores y el tamaño de letra propuestos y no pidió cambios.")
 
 VERTICAL = [
     ["Función (rebanada)", "CU-04 Cargar documento (RF-05, RF-06 y RF-07), plan del Incremento 1 (pareja de Mariangel Arias y Kendal Trejos). Construida completa: carga de uno o varios archivos con tipo, persona que lo aporta (solo personas con vínculo vigente), nombre identificador y fecha del documento; nueva versión de un documento existente; validación del formato por el contenido del archivo (no por la extensión) y del tamaño máximo de 10 MB; cifrado, SHA-256 y bitácora en una sola transacción. Para comprobarla se hicieron además, en versión mínima, el inicio de sesión (PAN-01), el expediente (PAN-04) y el historial de versiones (PAN-13)."],
@@ -373,23 +375,34 @@ PRUEBAS = [
 APRENDIZAJES = ("Se confirmaron las decisiones del Documento de Arquitectura v1.1 para esta rebanada. ADR-02: el cifrado AES-256-GCM con SHA-256 funciona como se diseñó; el formato del archivo cifrado, que el DAS no definía, quedó como nonce de 12 bytes + contenido cifrado + etiqueta de 16 bytes. ADR-01 y Modelo ER v1.1: Django 5.2 maneja las llaves primarias compuestas (version_documento, vinculo_abonado) junto con los índices únicos parciales y las restricciones EXCLUDE de PostgreSQL 17, así que el modelo se implementó sin cambios. Reutilizar LICS dio hecha la infraestructura (Docker Compose, Nginx, pruebas), pero obligó a quitar sus módulos de negocio y a renombrar «lics». Cambios y hallazgos: la fachada IDocumentos no se creó como clase aparte, porque ControladorDocumentos cumple ese papel (Anexo B); el formato se valida por la firma del archivo y no por la extensión; falta un proceso de reconciliación para el caso raro de que SIGEDA se cierre entre la confirmación en la base y el traslado del archivo desde la cuarentena (Incremento 3); el campo de fecha del navegador muestra el formato según el idioma del navegador (en las capturas, tomadas con un navegador en inglés, aparece mm/dd/aaaa), así que hay que forzar dd/mm/aaaa; y la clave de cifrado vive por ahora en un archivo de configuración fuera del repositorio (SUPUESTO): su custodia física y digital (RNF-13) queda para el despliegue.")
 
 PLAN_SESION = [
-    ["Participantes (rol, no nombre completo)", "Administradora del Acueducto (usuaria real). Si está disponible, también la secretaría."],
-    ["Fecha, lugar y modalidad", "PENDIENTE: fecha antes del 06/11/2026; oficina del Acueducto; presencial, con el prototipo en una laptop del equipo."],
-    ["Quién conduce y quién anota", "PENDIENTE: un integrante conduce con el guion del Anexo C y otro anota tiempos, dudas y comentarios textuales."],
-    ["Prototipo usado (P-02, P-03…)", "P-02 (navegable) para las tareas y P-04 (maqueta de alta fidelidad) al final."],
-    ["Tareas evaluadas (de la sección 2.3)", "T-01 a T-06, en ese orden, leídas igual a cada participante."],
+    ["Participantes (rol, no nombre completo)", "Administradora del Acueducto (usuaria real)."],
+    ["Fecha, lugar y modalidad", "10/11/2026; virtual, por Microsoft Teams. La administradora usó el prototipo navegable publicado en GitHub Pages, en modo evaluación (sin el panel del prototipo)."],
+    ["Quién conduce y quién anota", "Condujeron Alejandro Arias Rojas y Kendal Trejos Cubero, con el guion del Anexo C; anotaron Sebastián Alfaro Arias y Mariangel Arias Alfaro en la hoja de registro de la guía de evaluación."],
+    ["Prototipo usado (P-02, P-03…)", "P-02 (navegable) para las tareas; P-04 (maqueta de alta fidelidad) al final; P-03 (vertical) mostrado compartiendo pantalla, porque solo corre en la computadora del equipo (localhost)."],
+    ["Tareas evaluadas (de la sección 2.3)", "T-01 a T-06, en ese orden, leídas igual a como están en la sección 2.3."],
 ]
-RESULTADOS = [[f"T-0{i}", P, P, P, P] for i in range(1, 7)]
-HALLAZGOS = [["H-01", P, "PENDIENTE: se completa con la sesión de evaluación.", P, P, P]]
+RESULTADOS = [
+    ["T-01", "Sí", "No se midió", "Dudó un poco al buscar porque no sabía dónde estaba cada opción, pero la encontró.", "«Todo bien» (anotado por el equipo)."],
+    ["T-02", "Sí", "No se midió", "Igual que en T-01: dudó un poco al ubicar dónde cargar, pero lo encontró.", "«Todo bien» (anotado por el equipo)."],
+    ["T-03", "Sí", "No se midió", "Igual que en T-01: dudó un poco al ubicar la opción, pero la encontró.", "«Todo bien a la hora de encontrar dónde cargar el documento» (anotado por el equipo)."],
+    ["T-04", "Sí", "No se midió", "No se anotaron dudas.", "No se anotó un comentario."],
+    ["T-05", "Con un poco de ayuda", "No se midió", "Le costó un poco ubicar la sección para cambiar el titular (H-02).", "«Todo bien aquí también» (anotado por el equipo)."],
+    ["T-06", "Sí", "No se midió", "No se anotaron dudas.", "No se anotó un comentario."],
+]
+HALLAZGOS = [
+    ["H-01", "PAN-01, PAN-03 y formularios", "Al escribir un dato (usuario y contraseña, criterios de búsqueda) la tecla Enter no envía: hay que hacer clic en el botón. Lo pidió la administradora.", "2", "Enter envía el formulario con su botón principal: inicio de sesión, búsqueda, carga de documentos, cuenta y diálogos.", "Aplicado en el prototipo navegable (10/11/2026). En el prototipo vertical se aplica en el Incremento 2."],
+    ["H-02", "PAN-04, PAN-06", "En T-05 le costó un poco ubicar dónde se cambia el titular: había que pasar por «Modificar abonado» y luego por «Cambiar titular…».", "2", "«Cambiar titular…» en el expediente abre el diálogo D-04 directamente, sin pasar por PAN-06.", "Aplicado en el prototipo navegable (10/11/2026)."],
+    ["H-03", "Menú lateral", "En T-01 a T-03 dudó un poco al principio porque no sabía dónde estaba cada opción, aunque la encontró sola. Es la primera vez que usa el sistema.", "1", "Sin cambio en la interfaz: se cubre en la inducción de 30 minutos (RNF-01).", "Sin cambio."],
+]
 
 HEUR = [
     ["1. Visibilidad del estado del sistema", "El último respaldo se ve en la barra superior de todas las pantallas; PAN-05 muestra «Cifrando y guardando el archivo 2 de 2…» con barra de avance; PAN-03 muestra cuántos resultados hay y en cuánto tiempo.", "Cumple"],
-    ["2. Relación con el mundo real (palabras de la usuaria)", "Usa «paja», «titular», «expediente» y «cotitular», que son palabras de la administradora. Pero «nombre identificador», «tipo pendiente» y «cuarentena» son términos del equipo (PAN-05, PAN-07, PAN-08): se preguntan en la evaluación.", "Parcial"],
+    ["2. Relación con el mundo real (palabras de la usuaria)", "Usa «paja», «titular», «expediente» y «cotitular», que son palabras de la administradora. La administradora entendió «nombre identificador» en la evaluación y se mantiene; «tipo pendiente» y «cuarentena» siguen siendo términos del equipo (PAN-07, PAN-08).", "Parcial"],
     ["3. Control y libertad (deshacer, cancelar)", "Todos los formularios y diálogos tienen «Cancelar» (los diálogos también se cierran con Esc), y salir con datos pide confirmación (D-07). Pero no se puede deshacer una anulación (D-01): solo se puede volver a cargar el documento.", "Parcial"],
     ["4. Consistencia y estándares", "Un solo botón principal por sección, en la misma posición; fechas dd/mm/aaaa y mensajes con el mismo formato en las 14 pantallas; las migas siempre arriba.", "Cumple"],
-    ["5. Prevención de errores", "PAN-05 valida formato y tamaño al elegir el archivo, antes de guardar; PAN-06 avisa si ya existe una persona con esa cédula; «Restaurar» (D-05) se activa solo con la clave, la autorización y la palabra RESTAURAR. No se previene cargar en el expediente equivocado: el expediente se muestra arriba, pero no se confirma.", "Parcial"],
+    ["5. Prevención de errores", "PAN-05 valida formato, tamaño, tipo y fecha al presionar «Guardar documentos», antes de guardar nada; PAN-06 avisa si ya existe una persona con esa cédula; «Restaurar» (D-05) se activa solo con la clave, la autorización y la palabra RESTAURAR. No se previene cargar en el expediente equivocado: el expediente se muestra arriba, pero no se confirma.", "Parcial"],
     ["6. Reconocer antes que recordar", "Listas para tipo de documento, persona y sector; la fecha del documento propuesta; el expediente visible arriba en la carga; los faltantes con nombre en PAN-07.", "Cumple"],
-    ["7. Flexibilidad y eficiencia de uso", "Búsqueda rápida en la barra superior y carga de varios archivos a la vez (PAN-05). No hay atajos de teclado ni se recuerda el último tipo de documento usado, lo que haría más lenta la digitalización masiva.", "Parcial"],
+    ["7. Flexibilidad y eficiencia de uso", "Búsqueda rápida en la barra superior y carga de varios archivos a la vez (PAN-05). Enter envía cada formulario (H-01). No se recuerda el último tipo de documento usado, lo que haría más lenta la digitalización masiva.", "Parcial"],
     ["8. Diseño estético y minimalista", "PAN-04 junta datos del abonado, personas, aviso, filtros, tabla y visor; a 1366 × 768 hay que desplazarse para ver todos los documentos. Las demás pantallas son sobrias.", "Parcial"],
     ["9. Ayudar a reconocer, diagnosticar y recuperarse de errores", "Los mensajes dicen la causa con el dato y qué hacer: «Pesa 14,2 MB y el máximo es 10 MB. Escanéelo a menor resolución o divídalo en dos archivos» (PAN-05); «El número de paja 0412 ya está registrado…» (PAN-06).", "Cumple"],
     ["10. Ayuda y documentación", "Solo hay textos de ayuda bajo los campos y una franja que aclara que el prototipo no guarda nada. No hay ayuda contextual ni una guía breve para la inducción de 30 minutos que exige RNF-01.", "No"],
@@ -416,7 +429,7 @@ RF_TRAZ = [
     ["RF-10", "PAN-03 y barra superior", "Criterios combinados y lista de resultados", "P-02"],
     ["RF-11", "PAN-03 (pestaña Documentos), PAN-04", "Filtros por tipo, nombre identificador y rango de fechas", "P-02"],
     ["RF-12", "PAN-04", "Datos del abonado, titular, personas, documentos ordenados y visor", "P-02"],
-    ["RF-13", "PAN-06, D-04, PAN-04", "Diálogo «Cambiar titular»; historial de titulares", "P-02"],
+    ["RF-13", "PAN-04, PAN-06, D-04", "Diálogo «Cambiar titular», desde el expediente o desde PAN-06; historial de titulares", "P-02"],
     ["RF-14", "PAN-07, PAN-04", "Tarjetas, lista de faltantes y detalle por persona; aviso en el expediente", "P-02, P-04"],
     ["RF-15", "PAN-11", "Filtros por cuenta, fechas, paja y acción; detalle del valor anterior y el nuevo", "P-02"],
     ["RF-16", "PAN-08, D-05, PAN-02 y barra superior", "«Respaldar ahora», «Restaurar un respaldo…», último respaldo y avisos. El respaldo automático no tiene pantalla: lo dispara el Reloj del sistema.", "P-02"],
@@ -428,7 +441,7 @@ RF_TRAZ = [
     ["RF-22", "PAN-04, D-02", "«Editar datos» (tipo y nombre identificador)", "P-02"],
 ]
 RNF_TRAZ = [
-    ["RNF-01", "Pocos pasos (T-01 y T-02 en 3 pantallas), expediente ya elegido en la carga y fecha propuesta.", "T-01 en 1 minuto o menos y T-02 en 3 minutos o menos en la evaluación (8.2). PENDIENTE"],
+    ["RNF-01", "Pocos pasos (T-01 y T-02 en 3 pantallas), expediente ya elegido en la carga y fecha propuesta.", "Evaluación del 10/11/2026 (8.2): completó las 6 tareas, 5 sin ayuda y T-05 con un poco de ayuda. Los tiempos no se midieron: la meta de 1 y 3 minutos se verifica en la evaluación del sistema construido."],
     ["RNF-02", "Todo en español; cada error con la causa y la acción (guía de estilo).", "Estados de error de PAN-03, PAN-05, PAN-06 y PAN-09 (capturas *_error.png)"],
     ["RNF-03", "No se puede editar la fecha de carga ni sobrescribir; la nueva versión es explícita.", "PAN-05, PAN-13; prueba de terminado 7.1: la fecha original y la versión 1 se conservan al cargar la versión 2"],
     ["RNF-04", "Estado de cada copia verificada y recordatorio de la prueba de restauración.", "PAN-08"],
@@ -444,18 +457,14 @@ RNF_TRAZ = [
 ]
 
 PENDIENTES = [
-    ["¿Qué resolución de pantalla tiene la laptop?", "Todas", "Diseñar a 1366 × 768 (SUPUESTO) y de forma adaptable."],
-    ["¿La cédula jurídica tiene 9 o 10 dígitos? ¿Hay abonados con DIMEX o pasaporte?", "PAN-06", "10 dígitos (S-02); aceptar DIMEX y pasaporte (Modelo ER, Anexo C, preguntas 6 y 15)."],
-    ["¿El número de paja tiene ceros iniciales, letras o guiones? ¿Se reutiliza tras una baja?", "PAN-03, PAN-06", "Texto sin espacios y no reutilizable (Modelo ER, Anexo C, pregunta 1)."],
-    ["¿En qué orden van los tipos de documento del 3 al 14?", "PAN-04, PAN-10", "El orden provisional del Modelo ER (3.6.1), ajustable en PAN-10."],
-    ["¿Prefiere cargar varios archivos a la vez o uno por uno?", "PAN-05", "Varios a la vez, cada uno con su tipo y su fecha (propuesta del DAS; Anexo B)."],
-    ["¿Se entiende «nombre identificador»? ¿Qué palabra usaría?", "PAN-04, PAN-05", "Probarlo en la evaluación; alternativa: «Descripción»."],
-    ["¿Se debe anotar quién pidió una exportación (Junta Directiva, ARESEP)?", "PAN-12", "Agregar un campo «Solicitado por» (Anexo B)."],
-    ["¿Le parece bien el aspecto de la maqueta (colores y tamaño de letra)?", "Todas", "El tema azul propuesto (P-04)."],
-    ["¿Solo la Administración debe poder restaurar un respaldo?", "PAN-08, D-05", "Sí: se pide la contraseña de la Administración (propuesta por validar; excepción a RN-09)."],
-    ["¿Los abonados de baja cuentan en el total y en el avance de la digitalización?", "PAN-02, PAN-07", "No: el avance se mide sobre los 1 011 activos y los 4 de baja se muestran aparte."],
-    ["¿Quién hace la prueba de restauración cada 3 meses, en qué computadora y dónde se guardan las copias de la clave?", "PAN-08", "La Administración, en una computadora distinta a la laptop; la clave en una copia física y una digital (RNF-13)."],
-    ["Riesgo aceptado: si las dos cuentas quedan bloqueadas o se olvidan ambas contraseñas, nadie puede entrar desde la aplicación.", "PAN-01, PAN-14", "No se agrega código de recuperación (decisión del equipo, 04/11/2026). Lo resuelve el soporte técnico en el servidor y queda en la bitácora."],
+    ["¿La cédula jurídica tiene 9 o 10 dígitos? ¿Hay abonados con DIMEX o pasaporte?", "PAN-06", "Respondida: la cédula jurídica tiene 10 dígitos y se aceptan DIMEX y otros documentos de identificación (respuesta de la administradora, 10/11/2026)."],
+    ["¿El número de paja tiene ceros iniciales, letras o guiones? ¿Se reutiliza tras una baja?", "PAN-03, PAN-06", "Respondida: siempre es un número; puede empezar con cero, pero no siempre; no lleva letras ni guiones y no se reutiliza (respuesta de la administradora, 10/11/2026). Se guarda como texto de solo dígitos."],
+    ["¿En qué orden van los tipos de documento del 3 al 14?", "PAN-04, PAN-10", "Respondida: se deja el orden provisional del Modelo ER (3.6.1), ajustable en PAN-10 (respuesta de la administradora, 10/11/2026)."],
+    ["¿Prefiere cargar varios archivos a la vez o uno por uno?", "PAN-05", "Respondida: varios a la vez, cada uno con su tipo y su fecha, como se propuso (respuesta de la administradora, 10/11/2026)."],
+    ["¿Se entiende «nombre identificador»? ¿Qué palabra usaría?", "PAN-04, PAN-05", "Respondida: estuvo de acuerdo con el término; se mantiene «Nombre identificador» (respuesta de la administradora, 10/11/2026)."],
+    ["¿Le parece bien el aspecto de la maqueta (colores y tamaño de letra)?", "Todas", "Respondida: estuvo de acuerdo con el tema azul y el tamaño de letra propuestos (P-04) (respuesta de la administradora, 10/11/2026)."],
+    ["¿Solo la Administración debe poder restaurar un respaldo?", "PAN-08, D-05", "Respondida: sí, como se propuso; se pide la contraseña de la Administración (excepción a RN-09) (respuesta de la administradora, 10/11/2026)."],
+    ["¿Los abonados de baja cuentan en el total y en el avance de la digitalización?", "PAN-02, PAN-07", "Respondida: no, como se propuso; el avance se mide sobre los activos y los de baja se muestran aparte (respuesta de la administradora, 10/11/2026)."],
 ]
 
 CHECK = [
@@ -470,13 +479,13 @@ CHECK = [
     ["✓", "Las 14 pantallas están enlazadas y revisadas con axe-core; publicado en https://kendaltc.github.io/sigeda-prototipo/."],
     ["✓", "Fichas 6.1 a 6.6 completas."],
     ["✓", "Sección 7: CU-04 construido sobre la base de LICS, con la prueba de terminado ejecutada (7 de 7 pasaron) y capturas reales."],
-    ["✗", "PENDIENTE: sesión con la administradora (sección 8)."],
-    ["✗", "PENDIENTE: depende de la sesión de evaluación."],
+    ["✓", "Sesión con la administradora el 10/11/2026 (virtual): resultados de las 6 tareas en 8.2. Los tiempos no se midieron."],
+    ["✓", "3 hallazgos con severidad (8.3); no hubo de severidad 3 ni 4. H-01 y H-02 (severidad 2) ya se aplicaron en el prototipo."],
     ["✓", "4 «Cumple», 5 «Parcial» y 1 «No» (sección 8.4)."],
     ["✓", "Sección 9."],
     ["✓", "Secciones 10.1 y 10.2."],
-    ["✓", "Anexos A, B y C; referencias en APA 7. En el Anexo A, el enlace está pendiente."],
-    ["✓", ".docx y PDF de la versión 1.0, .zip con capturas y prototipo, enlace del prototipo navegable, repositorio del prototipo vertical y script DDL (sigeda_v1.1.sql)."],
+    ["✓", "Anexos A, B y C; referencias en APA 7."],
+    ["✓", ".docx y PDF de la versión 1.1, carpeta de entrega con capturas, mapa, prototipo sin conexión, herramientas y prototipo vertical (capturas, prueba de terminado y script DDL sigeda_v1.1.sql), enlace del prototipo navegable y repositorio del prototipo vertical."],
 ]
 
 REFS_EXTRA = [
@@ -492,16 +501,19 @@ REFS_EXTRA = [
 
 ANEXO_A = [
     [ENLACE, "Prototipo navegable (enlace de solo lectura)", "HTML"],
-    ["Capturas_y_Bocetos_SIGEDA.zip › prototipo/index.html", "Copia sin conexión del prototipo navegable (abre con doble clic)", "HTML"],
-    ["Capturas_y_Bocetos_SIGEDA.zip › capturas/", "Capturas de wireframes: 14 pantallas con sus estados, 8 diálogos y 4 de alta fidelidad (77 PNG)", "PNG"],
-    ["Capturas_y_Bocetos_SIGEDA.zip › mapa_navegacion/", "Mapa de navegación: versión del documento (Figura 1) y versión detallada con cada flecha del menú lateral; ambas se generan desde pantallas.json", "Graphviz DOT, SVG y PNG"],
-    ["Capturas_y_Bocetos_SIGEDA.zip › herramientas/", "Scripts que generan las capturas (capturar.js, Playwright), el mapa (mapa.py y mapa_doc.py) y la revisión de accesibilidad (axe.js, axe-core)", "JavaScript, Python"],
-    ["Capturas_y_Bocetos_SIGEDA.zip › prototipo_vertical/sigeda_v1.1.sql", "Script DDL del Modelo ER v1.1 (14 tablas), generado con pg_dump desde la base migrada", "SQL (PostgreSQL 17)"],
-    ["Capturas_y_Bocetos_SIGEDA.zip › prototipo_vertical/", "Capturas reales del prototipo vertical y resultado de la prueba de terminado", "PNG, Markdown"],
+    ["Carpeta de entrega › prototipo/index.html", "Copia sin conexión del prototipo navegable (abre con doble clic)", "HTML"],
+    ["Carpeta de entrega › capturas/", "Capturas de wireframes: 14 pantallas con sus estados, 8 diálogos y 4 de alta fidelidad (77 PNG)", "PNG"],
+    ["Carpeta de entrega › mapa_navegacion/", "Mapa de navegación: versión del documento (Figura 1) y versión detallada con cada flecha del menú lateral; ambas se generan desde pantallas.json", "Graphviz DOT, SVG y PNG"],
+    ["Carpeta de entrega › herramientas/", "Scripts que generan las capturas (capturar.js, Playwright), el mapa (mapa.py y mapa_doc.py) y la revisión de accesibilidad (axe.js, axe-core)", "JavaScript, Python"],
+    ["Carpeta de entrega › prototipo_vertical/sigeda_v1.1.sql", "Script DDL del Modelo ER v1.1 (14 tablas), generado con pg_dump desde la base migrada", "SQL (PostgreSQL 17)"],
+    ["Carpeta de entrega › prototipo_vertical/", "Capturas reales del prototipo vertical y resultado de la prueba de terminado", "PNG, Markdown"],
     ["https://github.com/KendalTC/SIGEDA", "Código del prototipo vertical (CU-04) sobre la base de LICS; evidencia en docs/evidencia/", "Python, TypeScript"],
 ]
 
 ANEXO_B = [
+    ["Modelo ER v1.1 y ERS v1.2", "abonado.numero_paja, RN-01 y S-01", "Agregar CHECK de solo dígitos a abonado.numero_paja (por ejemplo, numero_paja ~ '^[0-9]+$'); se mantiene como texto para conservar el cero inicial. El valor único es para siempre: un número de paja no se reutiliza, aunque el abonado esté de baja. S-01 pasa de supuesto a confirmado.", "Respuesta de la administradora del 10/11/2026 (sección 11)."],
+    ["ERS v1.2 y Modelo ER v1.1", "S-02 y persona.tipo_identificacion", "La cédula jurídica tiene 10 dígitos y se aceptan DIMEX y otros documentos de identificación: S-02 pasa a confirmado y se mantienen CEDULA_FISICA, CEDULA_JURIDICA, DIMEX y PASAPORTE.", "Respuesta de la administradora del 10/11/2026 (sección 11)."],
+    ["ERS v1.2", "RF-01 y RNF-02 (usabilidad)", "Agregar que la tecla Enter envía cada formulario con su botón principal.", "Hallazgo H-01 de la evaluación del 10/11/2026."],
     ["Modelos UML v1.0 y Documento de Arquitectura v1.1", "Componentes (IDocumentos) y clases de control", "ControladorDocumentos cumple el papel de la fachada IDocumentos (no hay una clase aparte) y las operaciones se escriben en snake_case de Python (validar_archivo, cargar_documento, cargar_nueva_version). Documentar el formato del archivo cifrado: nonce de 12 bytes + contenido + etiqueta de 16 bytes.", "Prototipo vertical (sección 7.2)."],
     ["Modelos UML v1.0", "2.1 Clases candidatas", "Indicar que PAN-02 es un marco de navegación sin clase límite y que PantallaExpediente tiene un modo de consulta (PAN-04) y uno de edición (PAN-06).", "Inventario de pantallas (sección 3)."],
     ["Documento de Arquitectura v1.1", "0.3 Relación con artefactos previos", "Citar los Modelos UML v1.0: la v1.1 todavía no existe (Modelo ER v1.1, Anexo B, fila 18).", "Sección 0.3."],
@@ -513,9 +525,9 @@ ANEXO_B = [
     ["Documento de Visión v1.1", "3.3 y 5", "Cambiar «internet inestable» por «estable» (B-03), como ya hace el DAS.", "Entorno de uso (2.2)."],
     ["Modelo ER v1.1", "persona, consulta Q11 y reglas de importación (2.7)", "Quitar persona.id_persona_fusionada_en, la consulta Q11 y la fusión; se anotan como mejora futura. Se conserva el índice único parcial (tipo_identificacion, identificacion). Regla nueva: la importación de SADA crea una persona por abonado y el duplicado se detecta al completar la cédula en PAN-06 («Ya existe una persona con esa cédula», con la opción de usarla).", "Decisión del equipo del 04/11/2026; PAN-06, estado «persona-existente»."],
     ["Modelo ER v1.1", "Tablas de respaldo", "Agregar dónde registrar la prueba de restauración (SUPUESTO: tabla prueba_restauracion con fecha, id_respaldo, computadora, resultado y observaciones).", "PAN-08, estado «prueba»; RNF-04 y DAS 8.2."],
-    ["Modelo ER v1.1 y ERS v1.2", "cuenta.perfil y RN-09", "La interfaz llama a las cuentas «Secretaría» y «Administración» (usuarios secretaria y administracion); cuenta.perfil puede conservar SECRETARIA y ADMINISTRADORA. Propuesta por validar: excepción a RN-09 para que restaurar requiera la Administración.", "Revisión del docente (Mcintosh Molina, 2026b); D-05."],
+    ["Modelo ER v1.1 y ERS v1.2", "cuenta.perfil y RN-09", "La interfaz llama a las cuentas «Secretaría» y «Administración» (usuarios secretaria y administracion); cuenta.perfil puede conservar SECRETARIA y ADMINISTRADORA. Excepción a RN-09, confirmada por la administradora el 10/11/2026: restaurar requiere la autorización de la Administración.", "Revisión del docente (Mcintosh Molina, 2026b); D-05."],
     ["Documento de Arquitectura v1.1", "7.2 Tecnología y 8 Despliegue", "Registrar la decisión del 04/11/2026: construir sobre la base de LICS v2.5.0. Faltantes por cubrir: respaldar también los documentos y cifrar el paquete, restaurar sin borrar la bitácora y desde la aplicación, bloqueo tras intentos fallidos y cierre por inactividad, y cambiar el nombre «lics» en infra, scripts y flujos de GitHub.", "Sección 7; análisis del código de LICS."],
-    ["Modelo ER v1.1", "registro_bitacora (EXPORTACION)", "Evaluar guardar quién solicitó la exportación (Junta Directiva o entidad con facultad legal).", "PAN-12; pendiente 7 de la sección 11."],
+    ["Modelo ER v1.1", "registro_bitacora (EXPORTACION)", "Evaluar guardar quién solicitó la exportación (Junta Directiva o entidad con facultad legal).", "PAN-12; propuesta del equipo, por validar con la administradora."],
     ["Plantilla de prototipos", "Sección 3", "Se usan los nombres de clase del UML v1.0: PantallaBusquedaExpedientes, PantallaCargaDocumento y PantallaCompletitud.", "Pregunta de control (sección 3)."],
 ]
 
